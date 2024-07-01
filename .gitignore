@@ -1,0 +1,7 @@
+node_modules
+build
+__pycache__
+package-lock.json
+Pipfile.lock
+.parcel-cache
+*.old

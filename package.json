@@ -1,0 +1,21 @@
+{
+    "name": "jetlog",
+    "version": "0.1.0",
+    "source": "client/index.html",
+    "scripts": {
+        "build": "parcel build --dist-dir client/build",
+        "watch": "parcel --dist-dir client/build"
+    },
+    "dependencies": {
+        "@types/react": "^18.3.3",
+        "@types/react-dom": "^18.3.0",
+        "axios": "^1.7.2",
+        "parcel": "^2.0.0",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1",
+        "react-router-dom": "^6.24.0"
+    },
+    "devDependencies": {
+        "buffer": "^6.0.3"
+    }
+}
