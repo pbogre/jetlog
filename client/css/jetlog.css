@@ -2,8 +2,11 @@ body {
     font: 12px Verdana, Arial, sans-serif
 }
 
-hr {
-    border: 1px solid #333;
+div.container {
+    display: inline-grid;
+    border: 2px solid #F2F2F2;
+    padding: 12px;
+    margin: 32px 32px 32px 0;
 }
 
 form {
@@ -39,11 +42,13 @@ button.primary:hover {
 
 input {
     font-size: 16px;
+    font-family: monospace;
+
     padding: 4px 8px;
     margin: 8px 0;
+
     box-sizing: border-box;
     outline: none;
-
     border:none;
     border-bottom: 2px solid #F2F2F2;
 
@@ -56,11 +61,12 @@ input:focus {
 
 select {
     font-size: 16px;
+    font-family: monospace;
+
     padding: 4px 8px;
     margin: 8px 0;
     box-sizing: border-box;
     outline: none;
-
     border: 2px solid #F2F2F2;
 
     background-color: white;
@@ -77,4 +83,9 @@ label {
     font-size: 16px;
 
     margin-right: 10px;
+}
+
+label.required::after {
+    content: " *";
+    color: red;
 }

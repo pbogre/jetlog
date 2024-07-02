@@ -94,68 +94,67 @@ function FlightDetails({ flightNumber }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <label>Departure Airport</label>
-            <input type="text"
-                   name="origin"
-                   value={flight.origin || ''}
-                   onChange={handleChange}
-                   placeholder="BGY"
-                   required
-            />
-            <br />
-            <label>Arrival Airport</label>
-            <input type="text"
-                   name="destination"
-                   value={flight.destination || ''}
-                   onChange={handleChange}
-                   placeholder="EIN"
-                   required
-            />
-            <br />
-            <label>Date</label>
-            <input type="date"
-                   name="date"
-                   value={flight.date || new Date().toLocaleDateString('en-CA') }
-                   onChange={handleChange}
-                   required
-            />
-            <br />
-            <hr />
-            <label>Departure Time</label>
-            <input type="time"
-                   name="departureTime"
-                   value={flight.departureTime || ''}
-                   placeholder="HH:mm"
-                   onChange={handleChange}
-            />
-            <br />
-            <label>Arrival Time</label>
-            <input type="time"
-                   name="arrivalTime"
-                   value={flight.arrivalTime || ''}
-                   placeholder="HH:mm"
-                   onChange={handleChange}
-            />
-            <br />
-            <hr />
-            <label>Seat Type</label>
-            <select name="seat"
-                    value={flight.seat || ''}
-                    onChange={handleChange}>
-                <option value="">Select</option>
-                <option value="aisle">Aisle</option>
-                <option value="middle">Middle</option>
-                <option value="window">Window</option>
-            </select>
-            <br />
-            <label>Airplane</label>
-            <input type="text"
-                   name="airplane"
-                   value={flight.airplane || ''}
-                   placeholder="B738"
-                   onChange={handleChange}
-            />
-            <br /><br />
+
+            <div className="container">
+                <label className="required">Departure Airport</label>
+                <input type="text"
+                       name="origin"
+                       value={flight.origin || ''}
+                       onChange={handleChange}
+                       placeholder="BGY"
+                       required />
+                <br />
+                <label className="required">Arrival Airport</label>
+                <input type="text"
+                       name="destination"
+                       value={flight.destination || ''}
+                       onChange={handleChange}
+                       placeholder="EIN"
+                       required />
+                <br />
+                <label className="required">Date</label>
+                <input type="date"
+                       name="date"
+                       value={flight.date || new Date().toLocaleDateString('en-CA') }
+                       onChange={handleChange}
+                       required />
+            </div>
+            
+            <div className="container">
+                <label>Departure Time</label>
+                <input type="time"
+                       name="departureTime"
+                       value={flight.departureTime || ''}
+                       placeholder="HH:mm"
+                       onChange={handleChange} />
+                <br />
+                <label>Arrival Time</label>
+                <input type="time"
+                       name="arrivalTime"
+                       value={flight.arrivalTime || ''}
+                       placeholder="HH:mm"
+                       onChange={handleChange}/>
+            </div>
+
+            <div className="container">
+                <label>Seat Type</label>
+                <select name="seat"
+                        value={flight.seat || ''}
+                        onChange={handleChange}>
+                    <option value="">Select</option>
+                    <option value="aisle">Aisle</option>
+                    <option value="middle">Middle</option>
+                    <option value="window">Window</option>
+                </select>
+                <br />
+                <label>Airplane</label>
+                <input type="text"
+                       name="airplane"
+                       value={flight.airplane || ''}
+                       placeholder="B738"
+                       onChange={handleChange} />
+            </div>
+            <br  />
             <button type="submit" className="primary">Done</button>
         </form>
     );

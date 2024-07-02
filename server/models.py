@@ -17,20 +17,7 @@ class SeatType(str, Enum):
     MIDDLE = "middle"
     WINDOW = "window"
 
-# TODO map coordinates (?), distance travelled, etc.
-class FlightModel(CamelableModel):
-    id:             int|None = None
-    flight_number:  str|None = None
-    departed_from:  str|None = None
-    departure_date: str|None = None
-    departure_time: str|None = None
-    arrived_at:     str|None = None
-    arrival_date:   str|None = None
-    arrival_time:   str|None = None
-    seat:           SeatType|None = None
-    duration:       int|None = None
-    airplane:       str|None = None
-
+class CustomModel(CamelableModel):
     @classmethod
     def from_database(cls, db_flight: tuple):
         flight = cls()
@@ -51,3 +38,24 @@ class FlightModel(CamelableModel):
             return attributes
 
         return attributes[1:]
+
+# TODO distance travelled, etc.
+class FlightModel(CustomModel):
+    id:             int|None = None
+    date:           str|None = None
+    origin:         str|None = None
+    destination:    str|None = None
+    departure_time: str|None = None
+    arrival_time:   str|None = None
+    seat:           SeatType|None = None
+    duration:       int|None = None
+    airplane:       str|None = None
+    flight_number:  str|None = None
+
+class AirportModel(CustomModel):
+    iata:      str|None = None
+    icao:      str|None = None
+    city:      str|None = None
+    country:   str|None = None
+    latitude:  float|None = None
+    longitude: float|None = None

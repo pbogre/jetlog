@@ -1,4 +1,4 @@
-from server.routers import flights
+from server.routers import flights, airports
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -8,6 +8,7 @@ app = FastAPI()
 build_path = Path(__file__).parent.parent / 'client' / 'build'
 
 app.include_router(flights.router, prefix="/api")
+app.include_router(airports.router, prefix="/api")
 
 @app.get("/", include_in_schema=False)
 async def root():
