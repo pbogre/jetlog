@@ -1,41 +1,31 @@
-import axios from "axios";
+import axios from 'axios';
+import React from 'react';
 
-export async function get(endpoint) {
-    await axios.get('/api' + endpoint)
-    .then((res) => {
-        return res.data;
-    })
-    .catch((err) => {
-        console.log(err);
-    })
+class API {
+    endpoint;
+
+    constructor(endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    get(callback) {
+        const endpoint = this.endpoint;
+
+        React.useEffect(() => {
+            async function getData() {
+                const res = await axios.get("/api/" + endpoint)
+                callback(res.data);
+            }
+            getData();
+        }, []);
+    }
+
+    post(data, callback = null) {
+        const res = axios.post("/api/" + this.endpoint, data)
+        if (callback) {
+            callback(res.data)
+        }
+    }
 }
 
-export async function post(endpoint, data) {
-    await axios.post('/api/' + endpoint, data)
-    .then((res) => {
-        return res.data;
-    })
-    .catch((err) => {
-        console.log(err);
-    })
-}
-
-export async function patch(endpoint, id, data) {
-    await axios.patch('/api/' + endpoint + '/' + id, data)
-    .then((res) => {
-        return res;
-    })
-    .catch((err) => {
-        console.log(err);
-    })
-}
-
-export async function remove(endpoint, id) {
-    await axios.delete('/api/' + endpoint + '/' + id)
-    .then((res) => {
-        return res;
-    })
-    .catch((err) => {
-        console.log(err);
-    })
-}
+export const flightsAPI = new API("flights");
