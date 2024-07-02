@@ -21,6 +21,7 @@ export default function New() {
     );
 }
 
+// TODO: autofill for airports, with city/country and whatnot
 // TODO: if flightNumber isn't empty on submit, use some flight 
 // tracker API to fetch flight data, and use that as initial state
 // for the manual data insertion
@@ -38,17 +39,15 @@ function ChooseMode({ data, setData }) {
 
     return(
     <form onSubmit={handleSubmit}>
-        <label>Flight Number:
+        <label>Flight Number
             <input type="text" 
                    value={data.flightNumber || ''}
                    onChange={(e) => updateData(e.target.value.toUpperCase(), data.submitted)}
             />
         </label>
         <br />
-        {data.flightNumber === "" ? 
-            <button onClick={() => updateData(data.flightNumber, true)}>Continue manually</button> : 
-            <button onClick={() => updateData(data.flightNumber, true)}>Next</button>
-        }
+        <button onClick={() => updateData(data.flightNumber, true)} disabled={!data.flightNumber} className="primary">Next</button>
+        <button onClick={() => updateData(data.flightNumber, true)}>Continue manually</button>
     </form>
     );
 }
@@ -61,19 +60,7 @@ function FlightDetails({ flightNumber }) {
     const navigate = useNavigate();
 
     const updateFlight = (key: string, value: string | number) => {
-        setFlight(Object.defineProperty({
-            id: null,
-            flightNumber: flight.flightNumber,
-            departedFrom: flight.departedFrom,
-            departureDate: flight.departureDate,
-            departureTime: flight.departureTime,
-            arrivedAt: flight.arrivedAt,
-            arrivalDate: flight.arrivalDate,
-            arrivalTime: flight.arrivalTime,
-            seat: flight.seat,
-            duration: flight.duration,
-            airplane: flight.airplane,
-        }, key, { value: value }));
+        setFlight({...flight, [key]: value});
     }
 
     const handleChange = (event) => {
@@ -86,18 +73,20 @@ function FlightDetails({ flightNumber }) {
         event.preventDefault();
        
         // calculate duration if possible
-        console.log(flight.departureDate + flight.departureTime + flight.arrivalTime);
-        if(flight.departureDate && flight.departureTime && flight.arrivalTime) {
-            const departure = new Date(flight.departureDate + 'T' + flight.departureTime);
-            const arrival = flight.arrivalDate ? 
-                            new Date(flight.arrivalDate + 'T' + flight.arrivalTime) :
-                            new Date(flight.departureDate + 'T' + flight.arrivalTime);
+        if(flight.date && flight.departureTime && flight.arrivalTime) {
+            const departure = new Date(flight.date + 'T' + flight.departureTime);
+            const arrival = new Date(flight.date + 'T' + flight.arrivalTime);
+            
+            if(arrival.getTime() <= departure.getTime()) {
+                arrival.setDate(arrival.getDate() + 1);
+            }
 
             const duration_millis = arrival.getTime() - departure.getTime();
             const duration_minutes = Math.round(duration_millis / (60 * 1000));
 
             flight.duration = duration_minutes; // no time to lose
         };
+
         flightsAPI.post(flight);
 
         navigate("/");
@@ -105,71 +94,69 @@ function FlightDetails({ flightNumber }) {
 
     return (
         <form onSubmit={handleSubmit}>
-            <label> Departure Airport
-                <input type="text"
-                       name="departedFrom"
-                       value={flight.departedFrom || ''}
-                       onChange={handleChange}
-                       required
-                />
-            </label>
+            <label>Departure Airport</label>
+            <input type="text"
+                   name="origin"
+                   value={flight.origin || ''}
+                   onChange={handleChange}
+                   placeholder="BGY"
+                   required
+            />
             <br />
-            <label> Arrival Airport
-                <input type="text"
-                       name="arrivedAt"
-                       value={flight.arrivedAt || ''}
-                       onChange={handleChange}
-                       required
-                />
-            </label>
-            <br /> <br />
-            <label> Departure Time
-                <input type="date"
-                       name="departureDate"
-                       value={flight.departureDate || ''}
-                       onChange={handleChange}
-                       required
-                />
-                <input type="time"
-                       name="departureTime"
-                       value={flight.departureTime || ''}
-                       onChange={handleChange}
-                />
-            </label>
+            <label>Arrival Airport</label>
+            <input type="text"
+                   name="destination"
+                   value={flight.destination || ''}
+                   onChange={handleChange}
+                   placeholder="EIN"
+                   required
+            />
             <br />
-            <label> Arrival Time
-                <input type="date"
-                       name="arrivalDate"
-                       value={flight.arrivalDate || ''}
-                       onChange={handleChange}
-                />
-                <input type="time"
-                       name="arrivalTime"
-                       value={flight.arrivalTime || ''}
-                       onChange={handleChange}
-                />
-            </label>
+            <label>Date</label>
+            <input type="date"
+                   name="date"
+                   value={flight.date || new Date().toLocaleDateString('en-CA') }
+                   onChange={handleChange}
+                   required
+            />
+            <br />
+            <hr />
+            <label>Departure Time</label>
+            <input type="time"
+                   name="departureTime"
+                   value={flight.departureTime || ''}
+                   placeholder="HH:mm"
+                   onChange={handleChange}
+            />
+            <br />
+            <label>Arrival Time</label>
+            <input type="time"
+                   name="arrivalTime"
+                   value={flight.arrivalTime || ''}
+                   placeholder="HH:mm"
+                   onChange={handleChange}
+            />
+            <br />
+            <hr />
+            <label>Seat Type</label>
+            <select name="seat"
+                    value={flight.seat || ''}
+                    onChange={handleChange}>
+                <option value="">Select</option>
+                <option value="aisle">Aisle</option>
+                <option value="middle">Middle</option>
+                <option value="window">Window</option>
+            </select>
+            <br />
+            <label>Airplane</label>
+            <input type="text"
+                   name="airplane"
+                   value={flight.airplane || ''}
+                   placeholder="B738"
+                   onChange={handleChange}
+            />
             <br /><br />
-            <label> Seat Type
-                <select name="seat"
-                        value={flight.seat || ''}
-                        onChange={handleChange}>
-                    <option value="">Select</option>
-                    <option value="aisle">Aisle</option>
-                    <option value="middle">Middle</option>
-                    <option value="Window">Window</option>
-                </select>
-            </label>
-            <br />
-            <label> Airplane
-                <input type="text"
-                       name="airplane"
-                       value={flight.airplane || ''}
-                       onChange={handleChange}
-                />
-            </label>
-            <br /><br />
-            <button type="submit">Done</button>
+            <button type="submit" className="primary">Done</button>
         </form>
     );
 }

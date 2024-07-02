@@ -1,4 +1,80 @@
 body {
-    font: normal 12px Verdana, Arial, sans-serif
+    font: 12px Verdana, Arial, sans-serif
 }
 
+hr {
+    border: 1px solid #333;
+}
+
+form {
+    margin: 16px 32px;
+}
+
+button {
+    background-color: #F2F2F2;
+    border: none;
+    padding: 8px 16px;
+    margin: 8px 0;
+
+    transition-duration: 0.2s;
+}
+
+button:hover {
+    background-color: #DDD;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+button.primary {
+    background-color: #04AA6D;
+    color: white;
+}
+
+button.primary:hover {
+    background-color: #018957;
+}
+
+input {
+    font-size: 16px;
+    padding: 4px 8px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    outline: none;
+
+    border:none;
+    border-bottom: 2px solid #F2F2F2;
+
+    transition-duration: 0.2s;
+}
+
+input:focus {
+    border-bottom: 2px solid #04AA6D;
+}
+
+select {
+    font-size: 16px;
+    padding: 4px 8px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    outline: none;
+
+    border: 2px solid #F2F2F2;
+
+    background-color: white;
+
+    transition-duration: 0.2s;
+}
+
+select:focus {
+    border: 2px solid #04AA6D;
+}
+
+label {
+    font-weight: bold;
+    font-size: 16px;
+
+    margin-right: 10px;
+}

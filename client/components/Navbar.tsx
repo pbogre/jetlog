@@ -7,7 +7,7 @@ function NavItem({ to, text }) {
     return (
         <NavLink to={to}>
             { ({ isActive }) => 
-                <li className={isActive ? "navbar-item navbar-active" : "navbar-item"}>
+                <li className={isActive ? "nav-item active" : "nav-item"}>
                 {text}
                 </li>
             }
@@ -18,11 +18,9 @@ function NavItem({ to, text }) {
 export default function Navbar() {
     return(
         <nav>
-            <ul className="navbar">
-                <NavItem to="/" text="Home" />
-                <NavItem to="/new" text="New" />
-                <NavItem to="/settings" text="Settings" />
-            </ul>
+            <NavItem to="/" text="Home" />
+            <NavItem to="/new" text="New" />
+            <NavItem to="/settings" text="Settings" />
         </nav>
     );
 }

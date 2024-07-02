@@ -1,13 +1,12 @@
 export class Flight {
     id: number | null;
-    flightNumber: string;
-    departedFrom: string;
-    departureDate: string;
+    date: string;
+    origin: string;
+    destination: string
     departureTime: string;
-    arrivedAt: string;
-    arrivalDate: string;
     arrivalTime: string;
     seat: string;
     duration: number;
     airplane: string;
+    flightNumber: string;
 }

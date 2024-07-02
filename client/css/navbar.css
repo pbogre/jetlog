@@ -1,4 +1,4 @@
-.navbar {
+nav {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -6,27 +6,29 @@
     background-color: #333;
 }
 
-.navbar-item {
+.nav-item {
     float: left;
     display: block;
     color: white;
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
+
+    transition-duration: 0.2s !important;
 }
 
-.navbar-item:hover {
+.nav-item:hover {
     background-color: #111;
 }
 
-.navbar-item .right {
+.nav-item.right {
     float: right;
 }
 
-.navbar-active {
+.nav-item.active {
     background-color: #04AA6D;
 }
 
-.navbar-active:hover {
+.nav-item.active:hover {
     background-color: #018957;
 }

@@ -33,9 +33,9 @@ function FlightsTable({ flights }) {
             </tr>
             { flights.map((flight) => (
             <tr>
-                <td>{flight.departureDate}</td>
-                <td>{flight.departedFrom}</td>
-                <td>{flight.arrivedAt}</td>
+                <td>{flight.date}</td>
+                <td>{flight.origin}</td>
+                <td>{flight.destination}</td>
                 <td>{flight.departureTime || "N/A"}</td>
                 <td>{flight.arrivalTime || "N/A"}</td>
                 <td>{flight.duration && new Date(flight.duration * 60 * 1000).toISOString().substring(11, 16) || "N/A"}</td>
