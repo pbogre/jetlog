@@ -1,5 +1,6 @@
 import sqlite3
 import os.path
+import time
 from pathlib import Path
 from fastapi import HTTPException
 
@@ -22,10 +23,7 @@ class AbstractDatabase():
         except sqlite3.Error as err:
             raise HTTPException(status_code=500, detail="SQL error: " + str(err))
 
-        if not result:
-            raise HTTPException(status_code=400, detail="Query did not update/add an entry to the database")
-
-        return result[0]
+        return result[0] if result else -1
 
     def execute_read_query(self, query: str, parameters=[]) -> list:
         try:
@@ -39,7 +37,7 @@ class AbstractDatabase():
         except sqlite3.Error as err:
             raise HTTPException(status_code=500, detail="SQL error: " + str(err))
 
-class JetlogDatabase(AbstractDatabase):
+class Database(AbstractDatabase):
     def __init__(self, db_dir: str):
         db_path = os.path.join(db_dir, "jetlog.db")
 
@@ -53,36 +51,39 @@ class JetlogDatabase(AbstractDatabase):
             try:
                 self.initialize_tables()
             except HTTPException as e:
-                if e.status_code == 500:
-                    print("Exception occurred while initializing tables: " + e.detail)
-                    os.remove(db_path)
+                print("Exception occurred while initializing tables: " + e.detail)
+                os.remove(db_path)
    
     def initialize_tables(self):
-        self.execute_query(
-        """
+        airports_db_path = Path(__file__).parent.parent / 'data' / 'airports.db'
+        
+        self.execute_query("""
         CREATE TABLE flights (
-          id             INTEGER PRIMARY KEY AUTOINCREMENT,
-          date           TEXT NOT NULL,
-          origin         TEXT NOT NULL,
-          destination    TEXT NOT NULL,
-          departure_time TEXT,
-          arrival_time   TEXT, 
-          seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
-          duration       INTEGER,
-          airplane       TEXT,
-          flight_number  TEXT
-        );
-        """)
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            date           TEXT NOT NULL,
+            origin         TEXT NOT NULL,
+            destination    TEXT NOT NULL,
+            departure_time TEXT,
+            arrival_time   TEXT, 
+            seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
+            duration       INTEGER,
+            airplane       TEXT,
+            flight_number  TEXT
+        );""")
 
-jetlog_database = JetlogDatabase(DATA_PATH)
+        self.execute_query("""
+        CREATE TABLE airports (
+            icao      TEXT,
+            iata      TEXT,
+            name      TEXT,
+            city      TEXT,
+            country   TEXT,
+            latitude  FLOAT,
+            longitude FLOAT
+        );""")
 
-class AirportsDatabase(AbstractDatabase):
-    def __init__(self):
-        db_path = Path(__file__).parent.parent / 'data' / 'airports.db'
+        self.execute_query(f"ATTACH '{airports_db_path}' AS a;")
+        self.execute_query("INSERT INTO main.airports SELECT * FROM a.airports;")
+        self.execute_query("DETACH a;") 
 
-        if not os.path.isfile(db_path):
-            raise FileNotFoundError("Airports database file not found!")
-
-        self.connection = sqlite3.connect(db_path)
-
-airports_database = AirportsDatabase()
+database = Database(DATA_PATH)

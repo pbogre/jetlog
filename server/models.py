@@ -1,3 +1,4 @@
+from typing import overload
 from pydantic import BaseModel
 from enum     import Enum
 
@@ -12,19 +13,15 @@ class CamelableModel(BaseModel):
         populate_by_name = True
         from_attributes = True
 
-class SeatType(str, Enum):
-    AISLE = "aisle"
-    MIDDLE = "middle"
-    WINDOW = "window"
-
+# abstract model
 class CustomModel(CamelableModel):
     @classmethod
-    def from_database(cls, db_flight: tuple):
+    def from_database(cls, db: tuple):
         flight = cls()
 
         i = 0
         for attr in cls.get_attributes():
-            value = db_flight[i] if db_flight[i] != None else None
+            value = db[i] if db[i] != None else None
             setattr(flight, attr, value)
             i += 1
 
@@ -39,18 +36,10 @@ class CustomModel(CamelableModel):
 
         return attributes[1:]
 
-# TODO distance travelled, etc.
-class FlightModel(CustomModel):
-    id:             int|None = None
-    date:           str|None = None
-    origin:         str|None = None
-    destination:    str|None = None
-    departure_time: str|None = None
-    arrival_time:   str|None = None
-    seat:           SeatType|None = None
-    duration:       int|None = None
-    airplane:       str|None = None
-    flight_number:  str|None = None
+class SeatType(str, Enum):
+    AISLE = "aisle"
+    MIDDLE = "middle"
+    WINDOW = "window"
 
 class AirportModel(CustomModel):
     icao:      str|None = None
@@ -60,3 +49,34 @@ class AirportModel(CustomModel):
     country:   str|None = None
     latitude:  float|None = None
     longitude: float|None = None
+
+# TODO distance travelled, etc.
+# note: for airports, the database type
+# is string (icao code), while the type
+# returned by the API is AirportModel
+class FlightModel(CustomModel):
+    id:             int|None = None
+    date:           str|None = None
+    origin:         str|AirportModel|None = None
+    destination:    str|AirportModel|None = None
+    departure_time: str|None = None
+    arrival_time:   str|None = None
+    seat:           SeatType|None = None
+    duration:       int|None = None
+    airplane:       str|None = None
+    flight_number:  str|None = None
+
+    @classmethod
+    def from_database(cls, db: tuple, origin: AirportModel, destination: AirportModel):
+        flight = cls()
+
+        i = 0
+        for attr in cls.get_attributes():
+            value = db[i] if db[i] != None else None
+            setattr(flight, attr, value)
+            i += 1
+
+        flight.origin = origin
+        flight.destination = destination
+
+        return flight

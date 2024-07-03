@@ -1,5 +1,5 @@
-from server.database import jetlog_database
-from server.models import FlightModel
+from server.database import database
+from server.models import AirportModel, FlightModel
 from fastapi import APIRouter
 
 router = APIRouter(
@@ -21,7 +21,7 @@ async def add_flight(flight: FlightModel) -> int:
  
     values = [ getattr(flight, attr) for attr in columns ]
 
-    return jetlog_database.execute_query(query, values)
+    return database.execute_query(query, values)
 
 @router.patch("/{flight_id}", status_code=200)
 async def update_flight(flight_id: int, new_flight: FlightModel) -> int:
@@ -36,23 +36,41 @@ async def update_flight(flight_id: int, new_flight: FlightModel) -> int:
 
     query += " WHERE id = " + str(flight_id) + " RETURNING id;"
 
-    return jetlog_database.execute_query(query)
+    return database.execute_query(query)
 
 @router.delete("/{flight_id}", status_code=200)
 async def delete_flight(flight_id: int) -> int:
-    return jetlog_database.execute_query(
+    return database.execute_query(
         """
         DELETE FROM flights WHERE id = ? RETURNING id;
         """,
         [flight_id]
     )
 
+# TODO query fields (limit, offset, year, etc.)
 @router.get("", status_code=200)
-async def get_all_flights() -> list[FlightModel]:
-    results = jetlog_database.execute_read_query("SELECT * FROM flights;")
+async def get_all_flights():
+    res = database.execute_read_query("""
+        SELECT f.*, o.*, d.*
+        FROM flights f 
+        JOIN airports o ON f.origin = o.icao 
+        JOIN airports d ON f.destination = d.icao;""");
 
-    flights = [ FlightModel.from_database(db_flight) for db_flight in results ]
+    flights = []
+
+    for db_flight in res:
+        start = len(FlightModel.get_attributes())
+        length = len(AirportModel.get_attributes())
+
+        db_origin = db_flight[start:start + length]
+        db_destination = db_flight[start + length: start + 2 * length]
+
+        origin = AirportModel.from_database(db_origin)
+        destination = AirportModel.from_database(db_destination)
+
+        flight = FlightModel.from_database(db_flight, origin, destination) 
+        flights.append(flight)
+
     return [ FlightModel.model_validate(flight) for flight in flights ]
 
-# todo GET flight by id
-# todo GET flights (with query fields)
+# todo GET single flight by id

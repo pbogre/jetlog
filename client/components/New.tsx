@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { flightsAPI } from '../api';
 import { Flight } from '../models';
+import AirportInput from './AirportInput';
 
 export default function New() {
     const [data, setData] = useState({
@@ -21,7 +22,6 @@ export default function New() {
     );
 }
 
-// TODO: autofill for airports, with city/country and whatnot
 // TODO: if flightNumber isn't empty on submit, use some flight 
 // tracker API to fetch flight data, and use that as initial state
 // for the manual data insertion
@@ -55,6 +55,7 @@ function ChooseMode({ data, setData }) {
 function FlightDetails({ flightNumber }) {
     var initalFlight = new Flight();
     initalFlight.flightNumber = flightNumber;
+    initalFlight.date = new Date().toLocaleDateString('en-CA');
 
     const [flight, setFlight] = useState<Flight>(initalFlight);
     const navigate = useNavigate();
@@ -66,6 +67,7 @@ function FlightDetails({ flightNumber }) {
     const handleChange = (event) => {
         const key = event.target.name;
         const value = event.target.value;
+
         updateFlight(key, value);
     }
 
@@ -76,7 +78,7 @@ function FlightDetails({ flightNumber }) {
         if(flight.date && flight.departureTime && flight.arrivalTime) {
             const departure = new Date(flight.date + 'T' + flight.departureTime);
             const arrival = new Date(flight.date + 'T' + flight.arrivalTime);
-            
+
             if(arrival.getTime() <= departure.getTime()) {
                 arrival.setDate(arrival.getDate() + 1);
             }
@@ -87,39 +89,32 @@ function FlightDetails({ flightNumber }) {
             flight.duration = duration_minutes; // no time to lose
         };
 
-        flightsAPI.post(flight);
-
-        navigate("/");
+        try {
+            flightsAPI.post(flight)
+            navigate("/");
+        } catch(err) {
+            //TODO error popup
+            alert("could not post flight. check console for details")
+            console.log(err);
+        };
     }
 
     return (
         <form onSubmit={handleSubmit}>
 
             <div className="container">
-                <label className="required">Departure Airport</label>
-                <input type="text"
-                       name="origin"
-                       value={flight.origin || ''}
-                       onChange={handleChange}
-                       placeholder="BGY"
-                       required />
+                <AirportInput type="origin" callback={updateFlight}/>
                 <br />
-                <label className="required">Arrival Airport</label>
-                <input type="text"
-                       name="destination"
-                       value={flight.destination || ''}
-                       onChange={handleChange}
-                       placeholder="EIN"
-                       required />
+                <AirportInput type="destination" callback={updateFlight}/>
                 <br />
                 <label className="required">Date</label>
                 <input type="date"
                        name="date"
-                       value={flight.date || new Date().toLocaleDateString('en-CA') }
+                       value={flight.date}
                        onChange={handleChange}
                        required />
             </div>
-            
+
             <div className="container">
                 <label>Departure Time</label>
                 <input type="time"

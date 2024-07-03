@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 
 import { flightsAPI } from '../api';
@@ -31,11 +31,11 @@ function FlightsTable({ flights }) {
                 <th>Flight Number</th>
                 <th>Airplane</th>
             </tr>
-            { flights.map((flight) => (
+            { flights.map((flight: Flight) => (
             <tr>
                 <td>{flight.date}</td>
-                <td>{flight.origin}</td>
-                <td>{flight.destination}</td>
+                <td>{flight.origin.city} ({flight.origin.iata || flight.origin.icao})</td>
+                <td>{flight.destination.city} ({flight.destination.iata || flight.destination.icao})</td>
                 <td>{flight.departureTime || "N/A"}</td>
                 <td>{flight.arrivalTime || "N/A"}</td>
                 <td>{flight.duration && new Date(flight.duration * 60 * 1000).toISOString().substring(11, 16) || "N/A"}</td>
@@ -49,13 +49,15 @@ function FlightsTable({ flights }) {
 }
 
 FlightsTable.propTypes = {
-    list: PropTypes.arrayOf(PropTypes.instanceOf(Flight))
+    flights: PropTypes.arrayOf(PropTypes.instanceOf(Flight))
 }
 
 export default function Home() {
     const [flightsData, setFlightsData] = useState(null);
 
-    flightsAPI.get(setFlightsData);
+    useEffect(() => {
+        flightsAPI.get(setFlightsData);
+    }, []);
 
     return (
         <>
