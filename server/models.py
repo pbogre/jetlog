@@ -53,8 +53,9 @@ class FlightModel(CustomModel):
     flight_number:  str|None = None
 
 class AirportModel(CustomModel):
-    iata:      str|None = None
     icao:      str|None = None
+    iata:      str|None = None
+    name:      str|None = None
     city:      str|None = None
     country:   str|None = None
     latitude:  float|None = None
