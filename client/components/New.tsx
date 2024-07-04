@@ -6,6 +6,8 @@ import { flightsAPI } from '../api';
 import { Airport, Flight } from '../models';
 import AirportInput from './AirportInput';
 
+import '../css/form.css'
+
 export default function New() {
     const [data, setData] = useState({
         flightNumber: null,

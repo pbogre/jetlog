@@ -49,7 +49,7 @@ class AirportModel(CustomModel):
     latitude:  float|None = None
     longitude: float|None = None
 
-# TODO distance travelled, domestic/international (bool), etc.
+# TODO domestic/international (bool), etc.
 # note: for airports, the database type
 # is string (icao code), while the type
 # returned by the API is AirportModel
@@ -95,11 +95,30 @@ class FlightModel(CustomModel):
             values.append(value)
 
         return values
-        
+
 
 class StatisticsModel(CustomModel):
-    amount:   int|None = None
-    #co2:      int|None = None
-    time:     int|None = None
-    distance: int|None = None
-    dpf:      float|None = None
+    amount:                 int|None = None
+    time:                   int|None = None
+    distance:               int|None = None
+    dpf:                    float|None = None
+    unique_airports:        int|None = None
+    common_airport:         AirportModel|None = None
+    common_seat:            SeatType|None = None
+
+    @classmethod
+    def from_database(cls, db: tuple, common_airport: AirportModel):
+        stats = cls()
+
+        i = 0
+        for attr in cls.get_attributes():
+            if attr == "common_airport":
+                continue
+
+            value = db[i] if db[i] != None else None
+            setattr(stats, attr, value)
+            i += 1
+
+        stats.common_airport = common_airport
+
+        return stats

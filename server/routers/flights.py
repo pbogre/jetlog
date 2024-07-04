@@ -57,26 +57,60 @@ async def delete_flight(flight_id: int) -> int:
 # TODO: ability to limit to a time period ( where date between x and y )
 @router.get("/statistics", status_code=200)
 async def get_statistics():
+    # this is atrocious. i am so sorry.
+    # TODO i should just fetch all flights and do this in python
     res = database.execute_read_query("""
         SELECT COUNT(*), 
-               SUM(duration),
-               SUM(distance),
-               ROUND(
-               (
-                ( SELECT JULIANDAY(date) FROM flights ORDER BY date DESC LIMIT 1 ) -
-                ( SELECT JULIANDAY(date) FROM flights ORDER BY date ASC LIMIT 1 ) 
-                * 1.0 
-               )
-                /
-               ( 
-                ( SELECT COUNT(*) FROM flights )
-                * 1.0 
-               )
-               , 2)
-        FROM flights;
+
+                SUM(duration),
+
+                SUM(distance),
+
+                ROUND(
+                    ( ( SELECT JULIANDAY(date) FROM flights ORDER BY date DESC LIMIT 1 ) -
+                      ( SELECT JULIANDAY(date) FROM flights ORDER BY date ASC LIMIT 1 ) 
+                        * 1.0 
+                    ) / ( ( SELECT COUNT(*) FROM flights ) * 1.0 )
+                    , 2),
+
+                ( SELECT COUNT(DISTINCT ap) FROM (
+                    SELECT origin AS ap FROM flights
+                    UNION ALL
+                    SELECT destination as ap FROM flights
+                    )
+                ),
+
+                ( SELECT seat FROM flights 
+                    WHERE seat NOT NULL
+                    GROUP BY seat
+                    ORDER BY COUNT(*) DESC
+                    LIMIT 1 
+                ),
+
+                common_airport.*
+
+        FROM flights
+
+        JOIN airports AS common_airport 
+        ON icao = (
+            SELECT ap
+            FROM (
+                SELECT origin AS ap FROM flights
+                UNION ALL
+                SELECT destination AS ap FROM flights
+            )
+            GROUP BY ap
+            ORDER BY COUNT(*) DESC
+            LIMIT 1
+        );
     """)[0]
 
-    stats = StatisticsModel.from_database(res)
+    start_airport = len(StatisticsModel.get_attributes()) - 1
+
+    airport_db = res[start_airport:]
+    airport = AirportModel.from_database(airport_db)
+
+    stats = StatisticsModel.from_database(res[:start_airport], airport)
     return StatisticsModel.model_validate(stats)
 
 # TODO query fields (limit, offset, year, etc.)
@@ -86,7 +120,8 @@ async def get_all_flights() -> list[FlightModel]:
         SELECT f.*, o.*, d.*
         FROM flights f 
         JOIN airports o ON f.origin = o.icao 
-        JOIN airports d ON f.destination = d.icao;""");
+        JOIN airports d ON f.destination = d.icao
+        ORDER BY f.date DESC;""");
 
     flights = []
 

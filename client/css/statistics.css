@@ -1,3 +1,7 @@
-.stat {
+span.stat {
     color: #04AA6D;
+
+    font-weight: bold;
+    font-size: 20px;
+    font-family: monospace;
 }

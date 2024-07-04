@@ -1,8 +1,10 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import { useState } from 'react';
 
 import { airportsAPI } from '../api';
 import { Airport } from '../models';
+
+import '../css/airport-input.css'
 
 interface AirportInputProps {
     type: "origin"|"destination";
@@ -13,9 +15,6 @@ export default function AirportInput({ type, callback }: AirportInputProps) {
     const [airportsData, setAirportsData] = useState<Airport[]>([]);
     const [selectedAirport, setSelectedAirport] = useState<Airport|null>(null);
 
-    const getDescriptor = (airport: Airport) => {
-        return (airport.iata || airport.icao) + " - " + airport.city + "/" + airport.country
-    }
 
     const randomPlaceholder = () => {
         const array = [ "BGY", "EIN", "FNC", "DEN", "ORD", "HKG", "MAD", "MIA", "MUC",
@@ -24,6 +23,18 @@ export default function AirportInput({ type, callback }: AirportInputProps) {
         const random = array[Math.floor(Math.random() * array.length)];
 
         return random;
+    }
+
+    // Change placeholder every second
+    useEffect(() => {
+        setInterval(() => {
+            const inputElement = document.getElementById(type + "-airport");
+            inputElement?.setAttribute("placeholder", randomPlaceholder());
+        }, 1000);
+    }, []);
+
+    const getDescriptor = (airport: Airport) => {
+        return (airport.iata || airport.icao) + " - " + airport.city + "/" + airport.country
     }
 
     const handleInputChange = (event) => {
@@ -40,7 +51,7 @@ export default function AirportInput({ type, callback }: AirportInputProps) {
     }
 
     const handleOptionClick = (event) => {
-        const value = event.target.value;
+        const value = event.target.getAttribute("value");
 
         // find chosen airport based on icao
         for(const airport of airportsData) {
@@ -71,15 +82,17 @@ export default function AirportInput({ type, callback }: AirportInputProps) {
                placeholder={randomPlaceholder()}/>
         
         {  airportsData.length > 0 &&
-        <select>
+        <ul className="airport-select">
 
             { airportsData.map((airport: Airport) => (
-            <option value={airport.icao} onClick={handleOptionClick}>
+            <li className="airport-option"
+                value={airport.icao} 
+                onClick={handleOptionClick}>
                 {getDescriptor(airport)}
-            </option>
+            </li>
             ))}
 
-        </select>
+        </ul>
         }
 
         { selectedAirport &&

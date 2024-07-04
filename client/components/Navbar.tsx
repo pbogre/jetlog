@@ -27,7 +27,7 @@ export default function Navbar() {
         <nav>
             <NavItem to="/" text="Home" />
             <NavItem to="/new" text="New" />
-            <NavItem to="/all" text="All Flights" />
+            <NavItem to="/flights" text="All Flights" />
             <NavItem to="/settings" text="Settings" right={true} />
         </nav>
     );

@@ -22,7 +22,6 @@ function FlightsTable({ flights }: FlightsTableProps) {
         );
     }
 
-    // TODO make this dynamic on attributes
     return (
         <table className="flights-table">
             <tr>
@@ -44,8 +43,8 @@ function FlightsTable({ flights }: FlightsTableProps) {
                 <td>{flight.destination.city} ({flight.destination.iata || flight.destination.icao})</td>
                 <td>{flight.departureTime || "N/A"}</td>
                 <td>{flight.arrivalTime || "N/A"}</td>
-                <td>{flight.duration ? flight.duration + " m" : "N/A"}</td>
-                <td>{flight.distance ? flight.distance + " km" : "N/A"}</td>
+                <td>{flight.duration ? flight.duration + " min" : "N/A"}</td>
+                <td>{flight.distance ? flight.distance.toLocaleString() + " km" : "N/A"}</td>
                 <td>{flight.seat || "N/A"}</td>
                 <td>{flight.flightNumber || "N/A"}</td>
                 <td>{flight.airplane || "N/A"}</td>

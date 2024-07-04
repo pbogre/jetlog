@@ -24,8 +24,10 @@ export class Airport {
 
 export class Statistics {
     amount: number;
-  //co2: number;
     distance: number;
     time: number;
     dpf: number;
+    uniqueAirports: number;
+    commonAirport: Airport;
+    commonSeat: string;
 }

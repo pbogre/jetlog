@@ -1,0 +1,20 @@
+.airport-select {
+    list-style-type: none;
+    margin-top: -12px;
+    padding: 0;
+
+    border: 2px solid #F2F2F2;
+    border-top: none;
+}
+
+.airport-option {
+    padding: 8px 5px;
+}
+
+.airport-option:nth-child(even) {
+    background-color: #F2F2F2;
+}
+
+.airport-option:hover {
+    background-color: #DDD;
+}
