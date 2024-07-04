@@ -1,5 +1,6 @@
 node_modules
 build
+dist
 __pycache__
 package-lock.json
 Pipfile.lock
