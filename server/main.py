@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
 app = FastAPI()
-build_path = Path(__file__).parent.parent / 'client' / 'build'
+build_path = Path(__file__).parent.parent / 'dist'
 
 app.include_router(flights.router, prefix="/api")
 app.include_router(airports.router, prefix="/api")

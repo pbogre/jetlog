@@ -1,12 +1,13 @@
 from server.database import database
 from server.models import AirportModel
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter(
     prefix="/airports",
     redirect_slashes=True
 )
 
+# TODO make query like ?q= instead of a subpath!!
 @router.get("/{query}", status_code=200)
 async def get_airports(query: str) -> list[AirportModel]:
     results = database.execute_read_query(f"\

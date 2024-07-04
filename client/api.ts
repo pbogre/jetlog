@@ -1,33 +1,53 @@
-import axios from 'axios';
+import axios, {Axios} from 'axios';
 
 class API {
-    endpoint: string;
+    client: Axios;
 
     constructor(endpoint: string) {
-        this.endpoint = endpoint;
+        this.client = axios.create({
+            baseURL: "/api/" + endpoint,
+            timeout: 5000
+        })
     }
 
-    async get(callback: Function, query: string|null = null,) {
-        const endpoint = query ? 
-                         this.endpoint + "/" + query : 
-                         this.endpoint;
-
-        const res = await axios.get("/api/" + endpoint)
-                    .catch((err) => {
-                        throw err;
-                    })
-
-        callback(res.data);
+    handleError(err: any) {
+        if(err.response) {
+            alert("Bad response: " + err.response.data.detail);
+        }
+        else if (err.request) {
+            alert("Bad request: " + err.request);
+        }
+        else {
+            alert("Unknown error: " + err);
+        }
     }
 
-    async post(data: Object, callback: Function|null = null) {
-        const res = await axios.post("/api/" + this.endpoint, data)
-                    .catch((err) => {
-                        throw err;
-                    })
-        
-        if (callback) {
-            callback(res.data);
+    async get(query: string|null = null, success: Function|null = null) {
+        if(query) {
+            query = query.trim();
+            query = query.replace(/\//g, '');
+        }
+
+        try {
+            const res = await this.client.get(query ? query : "");
+            if (success) success();
+            return res.data;
+        } 
+        catch(err) { 
+            this.handleError(err);
+            throw err; // for caller to use
+        }
+    }
+
+    async post(data: Object, success: Function|null = null) {
+        try {
+            const res = await this.client.post("", data);
+            if (success) success();
+            return res.data;
+        }
+        catch(err) {
+            this.handleError(err);
+            throw err; // for caller to use
         }
     }
 }

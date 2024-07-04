@@ -1,12 +1,16 @@
 import React, {useEffect, useState} from 'react';
-import PropTypes from 'prop-types';
 
+import Statistics from './Statistics';
 import { flightsAPI } from '../api';
 import { Flight } from '../models';
 
 import '../css/flights.css'
 
-function FlightsTable({ flights }) {
+interface FlightsTableProps {
+    flights: Flight[];
+}
+
+function FlightsTable({ flights }: FlightsTableProps) {
     if(flights === null) {
         return (
             <p>Loading...</p>
@@ -18,6 +22,7 @@ function FlightsTable({ flights }) {
         );
     }
 
+    // TODO make this dynamic on attributes
     return (
         <table className="flights-table">
             <tr>
@@ -27,6 +32,7 @@ function FlightsTable({ flights }) {
                 <th>Departure Time</th>
                 <th>Arrival Time</th>
                 <th>Duration</th>
+                <th>Distance</th>
                 <th>Seat</th>
                 <th>Flight Number</th>
                 <th>Airplane</th>
@@ -38,7 +44,8 @@ function FlightsTable({ flights }) {
                 <td>{flight.destination.city} ({flight.destination.iata || flight.destination.icao})</td>
                 <td>{flight.departureTime || "N/A"}</td>
                 <td>{flight.arrivalTime || "N/A"}</td>
-                <td>{flight.duration && new Date(flight.duration * 60 * 1000).toISOString().substring(11, 16) || "N/A"}</td>
+                <td>{flight.duration ? flight.duration + " m" : "N/A"}</td>
+                <td>{flight.distance ? flight.distance + " km" : "N/A"}</td>
                 <td>{flight.seat || "N/A"}</td>
                 <td>{flight.flightNumber || "N/A"}</td>
                 <td>{flight.airplane || "N/A"}</td>
@@ -48,20 +55,18 @@ function FlightsTable({ flights }) {
     );
 }
 
-FlightsTable.propTypes = {
-    flights: PropTypes.arrayOf(PropTypes.instanceOf(Flight))
-}
-
 export default function Home() {
-    const [flightsData, setFlightsData] = useState(null);
+    const [flightsData, setFlightsData] = useState<Flight[]>([]);
 
     useEffect(() => {
-        flightsAPI.get(setFlightsData);
+        flightsAPI.get()
+        .then((data) => setFlightsData(data));
     }, []);
 
     return (
         <>
             <h1>Home</h1>
+            <Statistics />
             <FlightsTable flights={flightsData} />
         </>
     );

@@ -1,4 +1,3 @@
-from typing import overload
 from pydantic import BaseModel
 from enum     import Enum
 
@@ -17,15 +16,15 @@ class CamelableModel(BaseModel):
 class CustomModel(CamelableModel):
     @classmethod
     def from_database(cls, db: tuple):
-        flight = cls()
+        real = cls()
 
         i = 0
         for attr in cls.get_attributes():
             value = db[i] if db[i] != None else None
-            setattr(flight, attr, value)
+            setattr(real, attr, value)
             i += 1
 
-        return flight
+        return real
 
     @classmethod
     def get_attributes(cls, with_id: bool = True) -> list[str]:
@@ -50,7 +49,7 @@ class AirportModel(CustomModel):
     latitude:  float|None = None
     longitude: float|None = None
 
-# TODO distance travelled, etc.
+# TODO distance travelled, domestic/international (bool), etc.
 # note: for airports, the database type
 # is string (icao code), while the type
 # returned by the API is AirportModel
@@ -63,6 +62,7 @@ class FlightModel(CustomModel):
     arrival_time:   str|None = None
     seat:           SeatType|None = None
     duration:       int|None = None
+    distance:       int|None = None
     airplane:       str|None = None
     flight_number:  str|None = None
 
@@ -80,3 +80,26 @@ class FlightModel(CustomModel):
         flight.destination = destination
 
         return flight
+
+    def get_values(self) -> list:
+        values = []
+
+        for attr in FlightModel.get_attributes(False):
+            value = getattr(self, attr)
+
+            if attr == "origin" or attr == "destination":
+                if type(value) == str:
+                    continue
+                value = value.icao
+
+            values.append(value)
+
+        return values
+        
+
+class StatisticsModel(CustomModel):
+    amount:   int|None = None
+    #co2:      int|None = None
+    time:     int|None = None
+    distance: int|None = None
+    dpf:      float|None = None

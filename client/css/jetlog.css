@@ -46,7 +46,7 @@ input {
     font-family: monospace;
 
     padding: 4px 8px;
-    margin: 8px 0;
+    margin: 8px 0 12px 0;
 
     box-sizing: border-box;
     outline: none;
@@ -58,6 +58,14 @@ input {
 
 input:focus {
     border-bottom: 2px solid #04AA6D;
+}
+
+.input-whisper {
+    color: gray;
+    font-style: monospace;
+
+    margin-top: -5px;
+    margin-bottom: 10px;
 }
 
 select {
@@ -83,6 +91,7 @@ label {
     font-weight: bold;
     font-size: 16px;
 
+    margin-top: 15px;
     margin-right: 10px;
 }
 

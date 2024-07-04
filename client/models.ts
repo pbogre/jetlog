@@ -1,12 +1,13 @@
 export class Flight {
     id: number | null;
     date: string;
-    origin: Airport|string;
-    destination: Airport|string;
+    origin: Airport;
+    destination: Airport;
     departureTime: string;
     arrivalTime: string;
     seat: string;
     duration: number;
+    distance: number;
     airplane: string;
     flightNumber: string;
 }
@@ -19,4 +20,12 @@ export class Airport {
     country: string;
     latitude: number;
     longitude: number;
+}
+
+export class Statistics {
+    amount: number;
+  //co2: number;
+    distance: number;
+    time: number;
+    dpf: number;
 }

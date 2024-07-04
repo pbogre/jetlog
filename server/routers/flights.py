@@ -1,6 +1,6 @@
 from server.database import database
-from server.models import AirportModel, FlightModel
-from fastapi import APIRouter
+from server.models import AirportModel, FlightModel, StatisticsModel
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter(
     prefix="/flights",
@@ -9,6 +9,10 @@ router = APIRouter(
 
 @router.post("", status_code=201)
 async def add_flight(flight: FlightModel) -> int:
+    if not (flight.date and flight.origin and flight.destination):
+        raise HTTPException(status_code=404, 
+                            detail="Insufficient flight data. Date, Origin, and Destination are required")
+
     columns = FlightModel.get_attributes(False)
 
     query = "INSERT INTO flights ("
@@ -18,11 +22,14 @@ async def add_flight(flight: FlightModel) -> int:
     query += ") VALUES (" + ('?,' * len(columns))
     query = query[:-1]
     query += ") RETURNING id;"
- 
-    values = [ getattr(flight, attr) for attr in columns ]
+
+    values = flight.get_values()
+
+    print(values)
 
     return database.execute_query(query, values)
 
+# TODO fix with airportmodel as airport input
 @router.patch("/{flight_id}", status_code=200)
 async def update_flight(flight_id: int, new_flight: FlightModel) -> int:
     query = "UPDATE flights SET "
@@ -47,9 +54,34 @@ async def delete_flight(flight_id: int) -> int:
         [flight_id]
     )
 
+# TODO: ability to limit to a time period ( where date between x and y )
+@router.get("/statistics", status_code=200)
+async def get_statistics():
+    res = database.execute_read_query("""
+        SELECT COUNT(*), 
+               SUM(duration),
+               SUM(distance),
+               ROUND(
+               (
+                ( SELECT JULIANDAY(date) FROM flights ORDER BY date DESC LIMIT 1 ) -
+                ( SELECT JULIANDAY(date) FROM flights ORDER BY date ASC LIMIT 1 ) 
+                * 1.0 
+               )
+                /
+               ( 
+                ( SELECT COUNT(*) FROM flights )
+                * 1.0 
+               )
+               , 2)
+        FROM flights;
+    """)[0]
+
+    stats = StatisticsModel.from_database(res)
+    return StatisticsModel.model_validate(stats)
+
 # TODO query fields (limit, offset, year, etc.)
 @router.get("", status_code=200)
-async def get_all_flights():
+async def get_all_flights() -> list[FlightModel]:
     res = database.execute_read_query("""
         SELECT f.*, o.*, d.*
         FROM flights f 

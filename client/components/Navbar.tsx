@@ -3,11 +3,18 @@ import React from 'react';
 
 import "../css/navbar.css"
 
-function NavItem({ to, text }) {
+interface NavItemProps {
+    to: string;
+    text: string;
+    right?: boolean;
+}
+
+function NavItem({ to, text, right = false }: NavItemProps) {
     return (
         <NavLink to={to}>
             { ({ isActive }) => 
-                <li className={isActive ? "nav-item active" : "nav-item"}>
+                <li className={`${ isActive ? "nav-item active" : "nav-item" } 
+                                ${ right ? "right" : "" }`}>
                 {text}
                 </li>
             }
@@ -20,7 +27,8 @@ export default function Navbar() {
         <nav>
             <NavItem to="/" text="Home" />
             <NavItem to="/new" text="New" />
-            <NavItem to="/settings" text="Settings" />
+            <NavItem to="/all" text="All Flights" />
+            <NavItem to="/settings" text="Settings" right={true} />
         </nav>
     );
 }

@@ -67,6 +67,7 @@ class Database(AbstractDatabase):
             arrival_time   TEXT, 
             seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
             duration       INTEGER,
+            distance       INTEGER,
             airplane       TEXT,
             flight_number  TEXT
         );""")
