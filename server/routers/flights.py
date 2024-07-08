@@ -1,11 +1,18 @@
 from server.database import database
-from server.models import AirportModel, FlightModel, StatisticsModel
+from server.models import AirportModel, FlightModel
 from fastapi import APIRouter, HTTPException
+from enum import Enum
+import datetime
 
 router = APIRouter(
     prefix="/flights",
+    tags=["flights"],
     redirect_slashes=True
 )
+
+class Order(str, Enum):
+    asc = "ASC"
+    desc = "DESC"
 
 @router.post("", status_code=201)
 async def add_flight(flight: FlightModel) -> int:
@@ -24,8 +31,6 @@ async def add_flight(flight: FlightModel) -> int:
     query += ") RETURNING id;"
 
     values = flight.get_values()
-
-    print(values)
 
     return database.execute_query(query, values)
 
@@ -54,90 +59,67 @@ async def delete_flight(id: int) -> int:
         [id]
     )
 
-# TODO: ability to limit to a time period ( where date between x and y )
-@router.get("/statistics", status_code=200)
-async def get_statistics():
-    # this is atrocious. i am so sorry.
-    # TODO i should just fetch all flights and do this in python
-    res = database.execute_read_query("""
-        SELECT COUNT(*), 
-
-                SUM(duration),
-
-                SUM(distance),
-
-                ROUND(
-                    ( ( SELECT JULIANDAY(date) FROM flights ORDER BY date DESC LIMIT 1 ) -
-                      ( SELECT JULIANDAY(date) FROM flights ORDER BY date ASC LIMIT 1 ) 
-                        * 1.0 
-                    ) / ( ( SELECT COUNT(*) FROM flights ) * 1.0 )
-                    , 2),
-
-                ( SELECT COUNT(DISTINCT ap) FROM (
-                    SELECT origin AS ap FROM flights
-                    UNION ALL
-                    SELECT destination as ap FROM flights
-                    )
-                ),
-
-                ( SELECT seat FROM flights 
-                    WHERE seat NOT NULL
-                    GROUP BY seat
-                    ORDER BY COUNT(*) DESC
-                    LIMIT 1 
-                ),
-
-                common_airport.*
-
-        FROM flights
-
-        JOIN airports AS common_airport 
-        ON icao = (
-            SELECT ap
-            FROM (
-                SELECT origin AS ap FROM flights
-                UNION ALL
-                SELECT destination AS ap FROM flights
-            )
-            GROUP BY ap
-            ORDER BY COUNT(*) DESC
-            LIMIT 1
-        );
-    """)[0]
-
-    start_airport = len(StatisticsModel.get_attributes()) - 1
-
-    airport_db = res[start_airport:]
-    airport = AirportModel.from_database(airport_db)
-
-    stats = StatisticsModel.from_database(res[:start_airport], airport)
-    return StatisticsModel.model_validate(stats)
-
-# TODO query fields (limit, offset, year, etc.)
 @router.get("", status_code=200)
-async def get_flights(id: int|None = None) -> list[FlightModel]|FlightModel:
-    query = """
-        SELECT f.*, o.*, d.*
-        FROM flights f
+async def get_flights(id: int|None = None, 
+                      limit: int = 50, 
+                      offset: int = 0, 
+                      order: Order = Order.desc,
+                      start: str|None = None,
+                      end: str|None = None) -> list[FlightModel]|FlightModel:
+    try:
+        if start:
+            datetime.date.fromisoformat(start)
+        if end:
+            datetime.date.fromisoformat(end)
+    except:
+        raise HTTPException(status_code=400, 
+                            detail="Incorrect date format for start or end parameters, should be 'YYYY-mm-dd'")
+
+    id_filter = f"WHERE f.id = {str(id)}" if id else ""
+
+    date_filter_start = "WHERE" if not id and (start or end) else "AND" if start or end else ""
+
+    date_filter = ""
+    date_filter += f"JULIANDAY(date) > JULIANDAY('{start}')" if start else ""
+    date_filter += " AND " if start and end else ""
+    date_filter += f"JULIANDAY(date) < JULIANDAY('{end}')" if end else ""
+
+    query = f"""
+        SELECT 
+            f.id, 
+            f.date, 
+            f.departure_time, 
+            f.arrival_time, 
+            f.seat,
+            f.duration, 
+            f.distance, 
+            f.airplane,
+            o.*, 
+            d.*
+        FROM flights f 
         JOIN airports o ON f.origin = o.icao 
-        JOIN airports d ON f.destination = d.icao """ + ( 'WHERE f.id = ' + str(id) + ' ' if id else '' ) + """
-        ORDER BY f.date DESC;"""
+        JOIN airports d ON f.destination = d.icao
+        {id_filter}
+        {date_filter_start} {date_filter}
+        ORDER BY f.date {order.value}
+        LIMIT {limit}
+        OFFSET {offset};"""
 
     res = database.execute_read_query(query);
 
     flights = []
 
     for db_flight in res:
-        start = len(FlightModel.get_attributes())
+        begin = len(FlightModel.get_attributes()) - 2
         length = len(AirportModel.get_attributes())
 
-        db_origin = db_flight[start:start + length]
-        db_destination = db_flight[start + length: start + 2 * length]
+        db_origin = db_flight[begin:begin+ length]
+        db_destination = db_flight[begin + length: begin + 2*length]
 
         origin = AirportModel.from_database(db_origin)
         destination = AirportModel.from_database(db_destination)
 
-        flight = FlightModel.from_database(db_flight, origin, destination) 
+        flight = FlightModel.from_database(db_flight, { "origin": origin, "destination": destination } ) 
         flights.append(flight)
 
     if id and not flights:

@@ -26,7 +26,8 @@ class AbstractDatabase():
 
     def execute_read_query(self, query: str, parameters=[]) -> list:
         try:
-            print(query.replace('\n', '').replace('  ', ''))
+            #print(query.replace('\n', '').replace('  ', ''))
+            print(query)
             cursor = self.connection.cursor()
             cursor.execute(query, parameters)
             result = cursor.fetchall()

@@ -62,7 +62,7 @@ input {
 }
 
 input:focus {
-    border-bottom: 2px solid orange;
+    border-bottom: 2px solid darkorange;
 }
 
 .input-whisper {
@@ -92,7 +92,7 @@ select {
 }
 
 select:focus {
-    border: 2px solid orange;
+    border: 2px solid darkorange;
 }
 
 label {

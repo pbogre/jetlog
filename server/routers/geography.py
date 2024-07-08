@@ -6,6 +6,7 @@ import json
 
 router = APIRouter(
     prefix="/geography",
+    tags=["geography"],
     redirect_slashes=True
 )
 

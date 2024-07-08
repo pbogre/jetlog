@@ -1,10 +1,10 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 
 import { Flight } from '../models'
+import API from '../api'
 
 import '../css/flights-table.css'
-
 
 function TableCell({ flightID, content }) {
     return (
@@ -12,11 +12,17 @@ function TableCell({ flightID, content }) {
     );
 }
 
-interface FlightsTableProps {
-    flights: Flight[];
-}
+//TODO UI elements to make use of query flights
+export default function FlightsTable() {
+    const [flights, setFlights] = useState<Flight[]>([]);
 
-export default function FlightsTable({ flights }: FlightsTableProps) {
+    useEffect(() => {
+        API.get("/flights")
+        .then((data) => {
+            setFlights(data);
+        });
+    }, []);
+
     if(flights === null) {
         return (
             <p>Loading...</p>

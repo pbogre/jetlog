@@ -1,23 +1,27 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from 'react-router-dom';
 
 import { Flight } from '../models';
 import API from '../api';
 
 import '../css/form.css';
-import {useNavigate} from 'react-router-dom';
 
-interface FlightProps {
-    flight: Flight|null;
-}
+export default function SingleFlight({ flightID }) {
+    const [flight, setFlight] = useState<Flight|null>(null);
+    const navigate = useNavigate();
 
-export default function SingleFlight({ flight }: FlightProps) {
+    useEffect(() => {
+        API.get(`/flights?id=${flightID}`)
+        .then((data) => {
+            setFlight(data);
+        });
+    }, []);
+
     if(!flight) {
         return (
             <p>Loading...</p>
         );
     }
-
-    const navigate = useNavigate();
 
     const handleDeleteClick = () => {
         if(confirm("Are you sure?")) {

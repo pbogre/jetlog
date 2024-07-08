@@ -3,18 +3,14 @@ import React, {useState, useEffect} from 'react';
 import Stats from '../components/Stats';
 import WorldMap from '../components/WorldMap';
 
-import { Statistics, Coord, Line } from '../models';
+import { Coord, Trajectory } from '../models';
 import API from '../api';
 
 export default function Home() {
-    const [statistics, setStatistics] = useState<Statistics>(new Statistics)
     const [markers, setMarkers] = useState<Coord[]>([])
-    const [lines, setLines] = useState<Line[]>([])
+    const [lines, setLines] = useState<Trajectory[]>([])
 
     useEffect(() => {
-        API.get("/flights/statistics")
-        .then((data) => setStatistics(data));
-
         API.get("/geography/markers")
         .then((data) => setMarkers(data));
 
@@ -26,7 +22,7 @@ export default function Home() {
         <>
             <div>
                 <h1>Home</h1>
-                <Stats statistics={statistics}/>
+                <Stats />
             </div>
 
             <div>

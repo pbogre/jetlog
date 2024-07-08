@@ -1,14 +1,20 @@
-import React from 'react';
+import React, {useState, useMemo} from 'react';
 
 import { Statistics } from '../models';
+import API from '../api'
 
 import '../css/statistics.css'
 
-interface StatisticsProps {
-    statistics: Statistics;
-}
+//TODO UI elements to make use of query statistics
+export default function Stats() {
+    const [statistics, setStatistics] = useState<Statistics>(new Statistics)
 
-export default function Stats({ statistics }: StatisticsProps) {
+    // runs before render
+    useMemo(() => {
+        API.get("/statistics")
+        .then((data) => setStatistics(data));
+    }, []);
+
     return (
         <>
             <div className="container center">

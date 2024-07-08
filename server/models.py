@@ -15,14 +15,20 @@ class CamelableModel(BaseModel):
 # abstract model
 class CustomModel(CamelableModel):
     @classmethod
-    def from_database(cls, db: tuple):
+    def from_database(cls, db: tuple, explicit: dict|None = None):
         real = cls()
+        columns = cls.get_attributes()
 
         i = 0
-        for attr in cls.get_attributes():
-            value = db[i] if db[i] != None else None
-            setattr(real, attr, value)
-            i += 1
+        for attr in columns:
+            if not explicit or attr not in explicit:
+                value = db[i] if db[i] else None
+                setattr(real, attr, value)
+                i += 1
+
+        if explicit:
+            for attr in explicit:
+                setattr(real, attr, explicit[attr])
 
         return real
 
@@ -49,7 +55,7 @@ class AirportModel(CustomModel):
     latitude:  float|None = None
     longitude: float|None = None
 
-# TODO domestic/international (bool), etc.
+# TODO domestic/international (bool), ...?
 # note: for airports, the database type
 # is string (icao code), while the type
 # returned by the API is AirportModel
@@ -64,21 +70,6 @@ class FlightModel(CustomModel):
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
-
-    @classmethod
-    def from_database(cls, db: tuple, origin: AirportModel, destination: AirportModel):
-        flight = cls()
-
-        i = 0
-        for attr in cls.get_attributes():
-            value = db[i] if db[i] != None else None
-            setattr(flight, attr, value)
-            i += 1
-
-        flight.origin = origin
-        flight.destination = destination
-
-        return flight
 
     def get_values(self) -> list:
         values = []
@@ -95,7 +86,6 @@ class FlightModel(CustomModel):
 
         return values
 
-
 class StatisticsModel(CustomModel):
     amount:                 int|None = None
     time:                   int|None = None
@@ -104,20 +94,3 @@ class StatisticsModel(CustomModel):
     unique_airports:        int|None = None
     common_airport:         AirportModel|None = None
     common_seat:            SeatType|None = None
-
-    @classmethod
-    def from_database(cls, db: tuple, common_airport: AirportModel):
-        stats = cls()
-
-        i = 0
-        for attr in cls.get_attributes():
-            if attr == "common_airport":
-                continue
-
-            value = db[i] if db[i] != None else None
-            setattr(stats, attr, value)
-            i += 1
-
-        stats.common_airport = common_airport
-
-        return stats
