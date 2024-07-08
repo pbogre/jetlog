@@ -9,7 +9,6 @@ export class Flight {
     duration: number;
     distance: number;
     airplane: string;
-    flightNumber: string;
 }
 
 export class Airport {
@@ -30,4 +29,14 @@ export class Statistics {
     uniqueAirports: number;
     commonAirport: Airport;
     commonSeat: string;
+}
+
+export class Coord {
+    latitude: number;
+    longitude: number;
+}
+
+export class Trajectory {
+    first: Coord;
+    second: Coord;
 }

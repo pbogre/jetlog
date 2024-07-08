@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import { useState } from 'react';
 
-import { airportsAPI } from '../api';
+import API from '../api';
 import { Airport } from '../models';
 
 import '../css/airport-input.css'
@@ -41,11 +41,8 @@ export default function AirportInput({ type, callback }: AirportInputProps) {
         const value = event.target.value;
 
         if (value.length > 1) {
-            airportsAPI.get(value)
+            API.get(`/airports?q=${value}`)
             .then((data) => setAirportsData(data))
-            .catch((err) => {
-                //TODO handle this...?
-            })
         }
         else setAirportsData([]);
     }

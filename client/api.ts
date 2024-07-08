@@ -1,16 +1,18 @@
 import axios, {Axios} from 'axios';
 
-class API {
-    client: Axios;
 
-    constructor(endpoint: string) {
+// TODO improve this because there's a lot of repetition (get, post, delete are pretty much exactly the same)
+class APIClass {
+    private client: Axios;
+
+    constructor() {
         this.client = axios.create({
-            baseURL: "/api/" + endpoint,
-            timeout: 5000
+            baseURL: "/api/",
+            timeout: 10000
         })
     }
 
-    handleError(err: any) {
+    private handleError(err: any) {
         if(err.response) {
             alert("Bad response: " + err.response.data.detail);
         }
@@ -22,15 +24,12 @@ class API {
         }
     }
 
-    async get(query: string|null = null, success: Function|null = null) {
-        if(query) {
-            query = query.trim();
-            query = query.replace(/\//g, '');
-        }
+    async get(endpoint: string, success: Function|null = null) {
+        endpoint= endpoint.trim();
 
         try {
-            const res = await this.client.get(query ? query : "");
-            if (success) success();
+            const res = await this.client.get(endpoint);
+            if(success) success();
             return res.data;
         } 
         catch(err) { 
@@ -39,10 +38,26 @@ class API {
         }
     }
 
-    async post(data: Object, success: Function|null = null) {
+    async post(endpoint: string, data: Object, success: Function|null = null) {
+        endpoint= endpoint.trim();
+
         try {
-            const res = await this.client.post("", data);
-            if (success) success();
+            const res = await this.client.post(endpoint, data);
+            if(success) success();
+            return res.data;
+        }
+        catch(err) {
+            this.handleError(err);
+            throw err; // for caller to use
+        }
+    }
+
+    async delete(endpoint: string, success: Function|null = null) {
+        endpoint = endpoint.trim();
+
+        try {
+            const res = await this.client.delete(endpoint);
+            if(success) success();
             return res.data;
         }
         catch(err) {
@@ -52,5 +67,5 @@ class API {
     }
 }
 
-export const flightsAPI = new API("flights");
-export const airportsAPI = new API("airports")
+const API = new APIClass();
+export default API;

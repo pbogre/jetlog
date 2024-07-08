@@ -2,61 +2,25 @@ import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { flightsAPI } from '../api';
+import AirportInput from '../components/AirportInput';
+
+import API from '../api';
 import { Airport, Flight } from '../models';
-import AirportInput from './AirportInput';
 
 import '../css/form.css'
 
 export default function New() {
-    const [data, setData] = useState({
-        flightNumber: null,
-        submitted: false
-    });
-
     return (
     <>
         <h1>New flight</h1>
 
-        { data.submitted ?
-            <FlightDetails flightNumber={data.flightNumber}/> : 
-            <ChooseMode data={data} setData={setData}/>
-        }
+        <FlightDetails />
     </>
     );
 }
 
-// TODO: if flightNumber isn't empty on submit, use some flight 
-// tracker API to fetch flight data, and use that as initial state
-// for the manual data insertion
-function ChooseMode({ data, setData }) {
-    const handleSubmit = (event) => {
-        event.preventDefault();
-    }
-
-    const updateData = (flightNumber: string, submitted: boolean) => {
-        setData({
-            flightNumber,
-            submitted
-        });
-    }
-
-    return(
-    <form onSubmit={handleSubmit}>
-        <label>Flight Number</label>
-        <input type="text" 
-               value={data.flightNumber || ''}
-               onChange={(e) => updateData(e.target.value.toUpperCase(), data.submitted)} />
-        <br />
-        <button onClick={() => updateData(data.flightNumber, true)} disabled={!data.flightNumber} className="primary">Next</button>
-        <button onClick={() => updateData(data.flightNumber, true)}>Continue manually</button>
-    </form>
-    );
-}
-
-function FlightDetails({ flightNumber }) {
+function FlightDetails() {
     var initalFlight = new Flight();
-    initalFlight.flightNumber = flightNumber;
     initalFlight.date = new Date().toLocaleDateString('en-CA');
 
     const [flight, setFlight] = useState<Flight>(initalFlight);
@@ -128,9 +92,7 @@ function FlightDetails({ flightNumber }) {
                                            flight.destination.longitude);
         flight.distance = distance;
 
-        console.log(flight)
-
-        flightsAPI.post(flight, () => navigate("/"))
+        API.post("/flights", flight, () => navigate("/"))
     }
 
     return (
@@ -181,7 +143,9 @@ function FlightDetails({ flightNumber }) {
                        placeholder="B738"
                        onChange={handleChange} />
             </div>
+
             <br  />
+
             <button type="submit" 
                     className="primary" 
                     disabled={!flight.origin || !flight.destination || !flight.date}>

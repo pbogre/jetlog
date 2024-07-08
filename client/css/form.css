@@ -8,14 +8,15 @@ button {
 
     border: none;
 
-    background-color: #F2F2F2;
+    background-color: gray;
     color: black;
 
+    cursor: pointer;
     transition-duration: 0.2s;
 }
 
 button:hover {
-    background-color: #DDD;
+    background-color: lightgray;
 }
 
 button:disabled {
@@ -24,12 +25,21 @@ button:disabled {
 }
 
 button.primary {
-    background-color: #04AA6D;
+    background-color: darkorange;
     color: white;
 }
 
 button.primary:hover {
-    background-color: #018957;
+    background-color: orange;
+}
+
+button.danger {
+    background-color: darkred;
+    color: white;
+}
+
+button.danger:hover {
+    background-color: red;
 }
 
 input {
@@ -45,14 +55,14 @@ input {
     box-sizing: border-box;
     outline: none;
     border:none;
-    border-bottom: 2px solid #F2F2F2;
+    border-bottom: 2px solid lightgray;
     border-radius: 0;
 
     transition-duration: 0.2s;
 }
 
 input:focus {
-    border-bottom: 2px solid #04AA6D;
+    border-bottom: 2px solid orange;
 }
 
 .input-whisper {
@@ -72,7 +82,7 @@ select {
     box-sizing: border-box;
     outline: none;
 
-    border: 2px solid #F2F2F2;
+    border: 2px solid lightgray;
     border-radius: 0;
 
     background-color: white;
@@ -82,7 +92,7 @@ select {
 }
 
 select:focus {
-    border: 2px solid #04AA6D;
+    border: 2px solid orange;
 }
 
 label {

@@ -1,4 +1,4 @@
-from server.routers import flights, airports
+from server.routers import flights, airports, geography
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -9,6 +9,7 @@ build_path = Path(__file__).parent.parent / 'dist'
 
 app.include_router(flights.router, prefix="/api")
 app.include_router(airports.router, prefix="/api")
+app.include_router(geography.router, prefix="/api")
 
 @app.get("/", include_in_schema=False)
 @app.get("/new", include_in_schema=False)
@@ -19,4 +20,4 @@ async def root():
         html = file.read()
     return HTMLResponse(content=html)
 
-app.mount("/", StaticFiles(directory=build_path), name="static")
+app.mount("/", StaticFiles(directory=build_path), name="app")

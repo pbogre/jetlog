@@ -4,7 +4,7 @@
 }
 
 .flights-table td, .flights-table th {
-    border: 1px solid #DDD;
+    border: 1px solid lightgray;
     padding: 8px;
 }
 
@@ -13,13 +13,13 @@
 }
 
 .flights-table tr:hover {
-    background-color: #DDD;
+    background-color: lightgray;
 }
 
 .flights-table th {
     padding-top: 12px;
     padding-bottom: 12px;
     text-align: left;
-    background-color: #04AA6D;
+    background-color: orange;
     color: white;
 }

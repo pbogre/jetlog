@@ -9,16 +9,18 @@ nav {
 .nav-item {
     float: left;
     display: block;
-    color: white;
-    text-align: center;
     padding: 14px 16px;
+
+    color: white;
+
+    text-align: center;
     text-decoration: none;
 
     transition-duration: 0.2s !important;
 }
 
 .nav-item:hover {
-    background-color: #111;
+    background-color: black;
 }
 
 .nav-item.right {
@@ -26,9 +28,9 @@ nav {
 }
 
 .nav-item.active {
-    background-color: #04AA6D;
+    background-color: darkorange;
 }
 
 .nav-item.active:hover {
-    background-color: #018957;
+    background-color: orange;
 }

@@ -1,9 +1,31 @@
 body {
-    font: 15px Verdana, Arial, sans-serif
+    font: 15px Verdana, Arial, sans-serif;
 }
 
 h1 {
     margin-bottom: 12px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+p {
+    margin-top: 0;
+}
+
+span {
+    color: orange;
+}
+
+.subheading {
+    margin-top: -10px;
+    opacity: 40%;
 }
 
 div.container {
@@ -17,4 +39,8 @@ div.container {
 .container.center {
     text-align: center;
     align-content: center;
+}
+
+.container-heading {
+    margin-top: 0;
 }

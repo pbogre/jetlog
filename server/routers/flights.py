@@ -30,8 +30,8 @@ async def add_flight(flight: FlightModel) -> int:
     return database.execute_query(query, values)
 
 # TODO fix with airportmodel as airport input
-@router.patch("/{flight_id}", status_code=200)
-async def update_flight(flight_id: int, new_flight: FlightModel) -> int:
+@router.patch("", status_code=200)
+async def update_flight(id: int, new_flight: FlightModel) -> int:
     query = "UPDATE flights SET "
  
     for attr in FlightModel.get_attributes(False):
@@ -41,17 +41,17 @@ async def update_flight(flight_id: int, new_flight: FlightModel) -> int:
     if query[-1] == ',':
         query = query[:-1]
 
-    query += " WHERE id = " + str(flight_id) + " RETURNING id;"
+    query += " WHERE id = " + str(id) + " RETURNING id;"
 
     return database.execute_query(query)
 
-@router.delete("/{flight_id}", status_code=200)
-async def delete_flight(flight_id: int) -> int:
+@router.delete("", status_code=200)
+async def delete_flight(id: int) -> int:
     return database.execute_query(
         """
         DELETE FROM flights WHERE id = ? RETURNING id;
         """,
-        [flight_id]
+        [id]
     )
 
 # TODO: ability to limit to a time period ( where date between x and y )
@@ -115,13 +115,15 @@ async def get_statistics():
 
 # TODO query fields (limit, offset, year, etc.)
 @router.get("", status_code=200)
-async def get_all_flights() -> list[FlightModel]:
-    res = database.execute_read_query("""
+async def get_flights(id: int|None = None) -> list[FlightModel]|FlightModel:
+    query = """
         SELECT f.*, o.*, d.*
-        FROM flights f 
+        FROM flights f
         JOIN airports o ON f.origin = o.icao 
-        JOIN airports d ON f.destination = d.icao
-        ORDER BY f.date DESC;""");
+        JOIN airports d ON f.destination = d.icao """ + ( 'WHERE f.id = ' + str(id) + ' ' if id else '' ) + """
+        ORDER BY f.date DESC;"""
+
+    res = database.execute_read_query(query);
 
     flights = []
 
@@ -138,6 +140,9 @@ async def get_all_flights() -> list[FlightModel]:
         flight = FlightModel.from_database(db_flight, origin, destination) 
         flights.append(flight)
 
-    return [ FlightModel.model_validate(flight) for flight in flights ]
+    if id and not flights:
+        raise HTTPException(status_code=400, detail=f"Flight with id '{str(id)}' not found.")
 
-# todo GET single flight by id
+    if id:
+        return FlightModel.model_validate(flights[0])
+    return [ FlightModel.model_validate(flight) for flight in flights ]

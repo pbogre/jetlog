@@ -64,7 +64,6 @@ class FlightModel(CustomModel):
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
-    flight_number:  str|None = None
 
     @classmethod
     def from_database(cls, db: tuple, origin: AirportModel, destination: AirportModel):

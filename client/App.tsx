@@ -1,8 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
-import New from './components/New';
-import Home from './components/Home'
+import New from './pages/New';
+import Home from './pages/Home'
+import AllFlights from './pages/AllFlights'
 import Navbar from './components/Navbar';
 
 import './css/jetlog.css'
@@ -22,6 +23,7 @@ export function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/new" element={<New />} />
+                <Route path="/flights" element={<AllFlights />} />
                 <Route path="/settings" element={<Settings />} />
             </Routes>
         </div>

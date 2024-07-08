@@ -1,6 +1,5 @@
 import sqlite3
 import os.path
-import time
 from pathlib import Path
 from fastapi import HTTPException
 
@@ -68,8 +67,7 @@ class Database(AbstractDatabase):
             seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
             duration       INTEGER,
             distance       INTEGER,
-            airplane       TEXT,
-            flight_number  TEXT
+            airplane       TEXT
         );""")
 
         self.execute_query("""
