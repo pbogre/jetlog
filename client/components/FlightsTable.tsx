@@ -1,20 +1,29 @@
 import React, {useEffect, useState} from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Flight } from '../models'
 import API from '../api'
 
-import '../css/flights-table.css'
-
-function TableCell({ flightID, content }) {
+function TableCell({ text }) {
     return (
-        <td><Link to={`/flights?id=${flightID}`}>{content}</Link></td>
+        <td className="px-2 py-1 border border-gray-300">
+            {text}
+        </td>
+    );
+}
+
+function TableHeading({ text }) {
+    return (
+        <th className="px-2 border border-gray-300 bg-primary-300 font-semibold">
+            {text}
+        </th>
     );
 }
 
 //TODO UI elements to make use of query flights
 export default function FlightsTable() {
     const [flights, setFlights] = useState<Flight[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         API.get("/flights")
@@ -34,31 +43,36 @@ export default function FlightsTable() {
         );
     }
 
+    const handleRowClick = (flightID: number) => {
+        navigate(`/flights?id=${flightID}`);
+    }
+
     return (
-        <table className="flights-table">
+        <table className="table-auto w-full">
             <tr>
-                <th>Date</th>
-                <th>Origin</th>
-                <th>Destination</th>
-                <th>Departure Time</th>
-                <th>Arrival Time</th>
-                <th>Duration</th>
-                <th>Distance</th>
-                <th>Seat</th>
-                <th>Airplane</th>
+                <TableHeading text="Date"/>
+                <TableHeading text="Origin"/>
+                <TableHeading text="Destination"/>
+                <TableHeading text="Departure Time"/>
+                <TableHeading text="Arrival Time"/>
+                <TableHeading text="Duration"/>
+                <TableHeading text="Distance"/>
+                <TableHeading text="Seat"/>
+                <TableHeading text="Airplane"/>
             </tr>
             { flights.map((flight: Flight) => (
-                <tr>
-                    <TableCell flightID={flight.id} content={flight.date}/>
-                    <TableCell flightID={flight.id} content={flight.origin.city + '(' + (flight.origin.iata || flight.origin.icao) + ')'}/>
-                    <TableCell flightID={flight.id} content={flight.destination.city + '(' + (flight.destination.iata || flight.destination.icao) + ')'} />
-                    <TableCell flightID={flight.id} content={flight.departureTime || "N/A"}/>
-                    <TableCell flightID={flight.id} content={flight.arrivalTime || "N/A"}/>
-                    <TableCell flightID={flight.id} content={flight.duration ? flight.duration + " min" : "N/A"}/>
-                    <TableCell flightID={flight.id} content={flight.distance ? flight.distance.toLocaleString() + " km" : "N/A"}/>
-                    <TableCell flightID={flight.id} content={flight.seat || "N/A"}/>
-                    <TableCell flightID={flight.id} content={flight.airplane || "N/A"}/>
-                </tr>
+            <tr className="cursor-pointer even:bg-gray-100 hover:bg-gray-200 duration-75" 
+                onClick={() => handleRowClick(flight.id)}>
+                <TableCell text={flight.date}/>
+                <TableCell text={flight.origin.city + '(' + (flight.origin.iata || flight.origin.icao) + ')'}/>
+                <TableCell text={flight.destination.city + '(' + (flight.destination.iata || flight.destination.icao) + ')'} />
+                <TableCell text={flight.departureTime || "N/A"}/>
+                <TableCell text={flight.arrivalTime || "N/A"}/>
+                <TableCell text={flight.duration ? flight.duration + " min" : "N/A"}/>
+                <TableCell text={flight.distance ? flight.distance.toLocaleString() + " km" : "N/A"}/>
+                <TableCell text={flight.seat || "N/A"}/>
+                <TableCell text={flight.airplane || "N/A"}/>
+            </tr>
             ))}
         </table>
     );

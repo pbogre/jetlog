@@ -3,7 +3,15 @@ import React, {useState, useMemo} from 'react';
 import { Statistics } from '../models';
 import API from '../api'
 
-import '../css/statistics.css'
+function StatBox({first, stat, second = ""}) {
+    return (
+        <div className="container text-center">
+            {first}
+            <span className="text-2xl block">{stat}</span>
+            {second}
+        </div>
+    );
+}
 
 //TODO UI elements to make use of query statistics
 export default function Stats() {
@@ -16,40 +24,34 @@ export default function Stats() {
     }, []);
 
     return (
-        <div style={{display: "flex"}}>
-            <div className="container center">
-                You flew <span className="stat">{statistics.amount || 0}</span> times!
-            </div>
+        <div className="flex">
+            <StatBox first="You flew"
+                     stat={statistics.amount || 0}
+                     second="times!"/>
 
-            <div className="container center">
-                You spent <span className="stat">{((statistics.time || 0) / 60).toLocaleString()}</span> hours in the air!
-            </div>
+            <StatBox first="You spent"
+                     stat={((statistics.time || 0) / 60).toLocaleString()}
+                     second="hours in the air!"/>
 
-            <div className="container center">
-                You travelled <span className="stat">{statistics.distance?.toLocaleString() || 0}</span> kilometers!
-            </div>
+            <StatBox first="You travelled"
+                     stat={statistics.distance?.toLocaleString() || 0}
+                     second="kilometers!"/>
 
-            <div className="container center">
-                You boarded a plane every <span className="stat">{statistics.dpf?.toLocaleString() || 0}</span> days!
-            </div>
+            <StatBox first="You boarded a plane every"
+                     stat={statistics.dpf?.toLocaleString() || 0}
+                     second="days!"/>
 
-            <div className="container center">
-                You visited <span className="stat">{statistics.uniqueAirports || 0}</span> airports!
-            </div>
+            <StatBox first="You visited"
+                     stat={statistics.uniqueAirports || 0}
+                     second="airports!"/>
 
-            <div className="container center">
-                Your favorite airport is
-                <span className="stat">
-                { statistics.commonAirport ? 
-                    (statistics.commonAirport.iata || statistics.commonAirport.icao) + " (" + statistics.commonAirport.city + ")" :
-                    "unknown"
-                }
-                </span>
-            </div>
+            <StatBox first="You favorite airport is"
+                     stat={ statistics.commonAirport ? 
+                            (statistics.commonAirport.iata || statistics.commonAirport.icao) + " (" + statistics.commonAirport.city + ")" :
+                            "unknown"}/>
 
-            <div className="container center">
-                Your favorite seat is <span className="stat">{statistics.commonSeat || "unknown"}</span>
-            </div>
+            <StatBox first="Your favorite seat is"
+                     stat={statistics.commonSeat || "unknown"}/>
         </div>
     );
 }

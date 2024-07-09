@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 
+import { Heading } from '../components/Elements'
 import Stats from '../components/Stats';
 import WorldMap from '../components/WorldMap';
 
@@ -21,7 +22,7 @@ export default function Home() {
     return (
         <>
             <div>
-                <h1>Home</h1>
+                <Heading text="Home" />
                 <Stats />
             </div>
 

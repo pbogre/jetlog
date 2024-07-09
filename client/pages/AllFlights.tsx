@@ -1,6 +1,7 @@
 import React from 'react';
 import {useSearchParams} from 'react-router-dom';
 
+import { Heading } from '../components/Elements';
 import FlightsTable from '../components/FlightsTable';
 import SingleFlight from '../components/SingleFlight'
 
@@ -17,7 +18,7 @@ export default function AllFlights() {
     else {
         return (
             <>
-                <h1>All Flights</h1>
+                <Heading text="All Flights" />
                 <FlightsTable />
             </>
         );

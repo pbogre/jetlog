@@ -2,18 +2,16 @@ import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { Heading, Label, Button, Input, Select } from '../components/Elements'
 import AirportInput from '../components/AirportInput';
 
 import API from '../api';
 import { Airport, Flight } from '../models';
 
-import '../css/form.css'
-
 export default function New() {
     return (
     <>
-        <h1>New flight</h1>
-
+        <Heading text="New flight" />
         <FlightDetails />
     </>
     );
@@ -97,60 +95,63 @@ function FlightDetails() {
 
     return (
         <form onSubmit={handleSubmit}>
+            <div className="flex items-start">
 
-            <div className="container">
-                <AirportInput type="origin" callback={setAirport} />
-                <br />
-                <AirportInput type="destination" callback={setAirport} />
-                <br />
-                <label className="required">Date</label>
-                <input type="date"
-                       name="date"
-                       value={flight.date}
-                       onChange={handleChange}
-                       required />
+                <div className="container">
+                    <Label text="Origin" required />
+                    <AirportInput callback={(airport: Airport ) => setAirport(airport, "origin")} />
+                    <br />
+                    <Label text="Destination" required />
+                    <AirportInput callback={(airport: Airport ) => setAirport(airport, "destination")} />
+                    <br />
+                    <Label text="Date" required />
+                    <Input type="date"
+                           name="date"
+                           value={flight.date}
+                           onChange={handleChange}
+                           required />
+                </div>
+
+                <div className="container">
+                    <Label text="Departure Time" />
+                    <Input type="time"
+                           name="departureTime"
+                           value={flight.departureTime}
+                           onChange={handleChange} />
+                    <br />
+                    <Label text="Arrival Time"/>
+                    <Input type="time"
+                           name="arrivalTime"
+                           value={flight.arrivalTime}
+                           onChange={handleChange}/>
+                </div>
+
+                <div className="container">
+                    <Label text="Seat Type"/>
+                    <Select name="seat"
+                            value={flight.seat}
+                            onChange={handleChange}
+                            options={[
+                                { text: "Select", value: "" },
+                                { text: "Aisle", value: "aisle" },
+                                { text: "Middle", value: "middle" },
+                                { text: "Window", value: "window" }
+                            ]} />
+                    <br />
+                    <Label text="Airplane"/>
+                    <Input type="text"
+                           name="airplane"
+                           value={flight.airplane}
+                           placeholder="B738"
+                           onChange={handleChange} />
+                </div>
+
             </div>
 
-            <div className="container">
-                <label>Departure Time</label>
-                <input type="time"
-                       name="departureTime"
-                       value={flight.departureTime || ''}
-                       onChange={handleChange} />
-                <br />
-                <label>Arrival Time</label>
-                <input type="time"
-                       name="arrivalTime"
-                       value={flight.arrivalTime || ''}
-                       onChange={handleChange}/>
-            </div>
-
-            <div className="container">
-                <label>Seat Type</label>
-                <select name="seat"
-                        value={flight.seat || ''}
-                        onChange={handleChange}>
-                    <option value="">Select</option>
-                    <option value="aisle">Aisle</option>
-                    <option value="middle">Middle</option>
-                    <option value="window">Window</option>
-                </select>
-                <br />
-                <label>Airplane</label>
-                <input type="text"
-                       name="airplane"
-                       value={flight.airplane || ''}
-                       placeholder="B738"
-                       onChange={handleChange} />
-            </div>
-
-            <br  />
-
-            <button type="submit" 
-                    className="primary" 
-                    disabled={!flight.origin || !flight.destination || !flight.date}>
-                    Done
-            </button>
+            <Button text="Done"
+                    level="success"
+                    submit
+                    disabled={!flight.origin || !flight.destination || !flight.date} />
         </form>
     );
 }

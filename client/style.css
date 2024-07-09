@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .container {
+        @apply p-4 mx-5 bg-gray-100 rounded shadow-md;
+    }
+
+    span {
+        @apply font-mono text-primary-500
+    }
+}

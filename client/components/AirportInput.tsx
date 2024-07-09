@@ -1,32 +1,30 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { useState } from 'react';
 
+import { Input } from '../components/Elements'
 import API from '../api';
 import { Airport } from '../models';
 
-import '../css/airport-input.css'
-
 interface AirportInputProps {
-    type: "origin"|"destination";
-    callback: (airport: Airport, type: "origin"|"destination") => any;
+    type?: "origin"|"destination";
+    callback: (airport: Airport) => any;
 }
 
-export default function AirportInput({ type, callback }: AirportInputProps) {
+export default function AirportInput({ callback }: AirportInputProps) {
     const [airportsData, setAirportsData] = useState<Airport[]>([]);
     const [selectedAirport, setSelectedAirport] = useState<Airport|null>(null);
 
+    //const randomPlaceholder = () => {
+    //   const array = [ "BGY", "EIN", "FNC", "DEN", "ORD", "HKG", "MAD", "MIA", "MUC",
+   //                     "Bergamo", "Eindhoven", "Funchal", "Denver", "Chicago", "Hong Kong",
+    //                    "Miami", "Munich" ];
+    //    const random = array[Math.floor(Math.random() * array.length)];
 
-    const randomPlaceholder = () => {
-        const array = [ "BGY", "EIN", "FNC", "DEN", "ORD", "HKG", "MAD", "MIA", "MUC",
-                        "Bergamo", "Eindhoven", "Funchal", "Denver", "Chicago", "Hong Kong",
-                        "Miami", "Munich" ];
-        const random = array[Math.floor(Math.random() * array.length)];
-
-        return random;
-    }
+     //   return random;
+   // }
 
     const getDescriptor = (airport: Airport) => {
-        return (airport.iata || airport.icao) + " - " + airport.city + "/" + airport.country
+        return (airport.iata || airport.icao) + " - " + airport.city + "/" + airport.country;
     }
 
     const handleInputChange = (event) => {
@@ -46,10 +44,7 @@ export default function AirportInput({ type, callback }: AirportInputProps) {
         for(const airport of airportsData) {
             if(airport.icao === value) {
                 setSelectedAirport(airport);
-                callback(airport, type);
-
-                const inputElement = document.getElementById(type + "-airport") as HTMLInputElement;
-                inputElement.value = "";
+                callback(airport);
 
                 break;
             }
@@ -60,16 +55,11 @@ export default function AirportInput({ type, callback }: AirportInputProps) {
 
     return (
     <>
-        <label className="required">
-            {type ? type.charAt(0).toUpperCase() + type.slice(1) + " " : "" }Airport
-        </label>
-
-        <input id={type + "-airport"}
-               type="text"
+        <Input type="text"
                maxLength={10}
                onChange={handleInputChange}
-               placeholder={randomPlaceholder()}/>
-        
+               placeholder="Search"/>
+
         {  airportsData.length > 0 &&
         <ul className="airport-select">
 

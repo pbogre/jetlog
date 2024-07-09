@@ -1,8 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import React from 'react';
 
-import "../css/navbar.css"
-
 interface NavItemProps {
     to: string;
     text: string;
@@ -13,8 +11,9 @@ function NavItem({ to, text, right = false }: NavItemProps) {
     return (
         <NavLink to={to}>
             { ({ isActive }) => 
-                <li className={`${ isActive ? "nav-item active" : "nav-item" } 
-                                ${ right ? "right" : "" }`}>
+                <li className={`p-4 border-b-4 border-gray-700 hover:border-primary-400
+                                ${ isActive ? "text-primary-400" : "text-white" } 
+                                ${ right ? "absolute right-0" : "" }`}>
                 {text}
                 </li>
             }
@@ -24,7 +23,7 @@ function NavItem({ to, text, right = false }: NavItemProps) {
 
 export default function Navbar() {
     return(
-        <nav>
+        <nav className="flex bg-gray-700 list-none">
             <NavItem to="/" text="Home" />
             <NavItem to="/new" text="New" />
             <NavItem to="/flights" text="All Flights" />

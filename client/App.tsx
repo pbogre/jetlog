@@ -6,11 +6,9 @@ import Home from './pages/Home'
 import AllFlights from './pages/AllFlights'
 import Navbar from './components/Navbar';
 
-import './css/jetlog.css'
-
 function Settings() {
     return (
-        <h1>Settings</h1>
+        <h1>coming soon...</h1>
     );
 }
 
@@ -19,7 +17,7 @@ export function App() {
         <BrowserRouter>
         <Navbar />
 
-        <div>
+        <div className="p-3">
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/new" element={<New />} />

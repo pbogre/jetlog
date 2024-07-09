@@ -3,8 +3,6 @@ import { ComposableMap, Geographies, Geography, Marker, Line } from "react-simpl
 
 import { Coord, Trajectory } from '../models'
 
-import '../css/world.css'
-
 interface WorldMapProps {
     markers: Coord[];
     lines: Trajectory[];
