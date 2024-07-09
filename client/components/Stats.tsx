@@ -16,13 +16,13 @@ export default function Stats() {
     }, []);
 
     return (
-        <>
+        <div style={{display: "flex"}}>
             <div className="container center">
                 You flew <span className="stat">{statistics.amount || 0}</span> times!
             </div>
 
             <div className="container center">
-                You spent <span className="stat">{((statistics.time || 0) / 60)?.toLocaleString()}</span> hours in the air!
+                You spent <span className="stat">{((statistics.time || 0) / 60).toLocaleString()}</span> hours in the air!
             </div>
 
             <div className="container center">
@@ -50,6 +50,6 @@ export default function Stats() {
             <div className="container center">
                 Your favorite seat is <span className="stat">{statistics.commonSeat || "unknown"}</span>
             </div>
-        </>
+        </div>
     );
 }

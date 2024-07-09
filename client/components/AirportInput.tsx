@@ -25,14 +25,6 @@ export default function AirportInput({ type, callback }: AirportInputProps) {
         return random;
     }
 
-    // Change placeholder every second
-    useEffect(() => {
-        setInterval(() => {
-            const inputElement = document.getElementById(type + "-airport");
-            inputElement?.setAttribute("placeholder", randomPlaceholder());
-        }, 1000);
-    }, []);
-
     const getDescriptor = (airport: Airport) => {
         return (airport.iata || airport.icao) + " - " + airport.city + "/" + airport.country
     }
