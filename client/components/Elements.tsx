@@ -9,6 +9,15 @@ export function Heading({ text }: HeadingProps) {
     );
 }
 
+interface SubheadingProps {
+    text: string;
+}
+export function Subheading({ text }: SubheadingProps) {
+    return (
+        <h3 className="mb-2 font-bold text-lg">{text}</h3>
+    );
+}
+
 interface LabelProps {
     text: string;
     required?: boolean;
@@ -25,22 +34,24 @@ export function Label({ text, required }: LabelProps) {
 interface ButtonProps {
     text: string;
     level?: "default"|"success"|"danger";
+    right?: boolean;
     submit?: boolean;
     disabled?: boolean;
     onClick?: React.MouseEventHandler<HTMLButtonElement>|null;
 }
 export function Button({ text, 
-                         level = "default", 
+                         level = "default",
+                         right = false,
                          submit = false, 
-                         disabled = false, 
+                         disabled = false,
                          onClick = null }: ButtonProps) {
     var colors = "";
     switch(level) {
         case "success":
-            colors = "bg-green-500 text-white border border-green-600 enabled:hover:bg-green-400";
+            colors = "bg-green-500 text-white enabled:hover:bg-green-400";
             break;
         case "danger":
-            colors = "bg-red-500 text-white border border-red-600 enabled:hover:bg-red-400";
+            colors = "bg-red-500 text-white enabled:hover:bg-red-400";
             break;
         case "default":
         default:
@@ -49,8 +60,9 @@ export function Button({ text,
 
     return (
         <button type={submit ? "submit": undefined}
-                className={`py-1 px-2 my-4 rounded-md cursor-pointer ${colors}
-                            disabled:opacity-60 disabled:cursor-not-allowed`}
+                className={`py-1 px-2 my-1 rounded-md cursor-pointer ${colors}
+                            disabled:opacity-60 disabled:cursor-not-allowed
+                            ${right ? "float-right" : ""}`}
                 disabled={disabled}
                 onClick={onClick ? onClick : () => {}}>
             {text}
@@ -59,7 +71,7 @@ export function Button({ text,
 }
 
 interface InputProps {
-    type: "text"|"date"|"time";
+    type: "text"|"number"|"date"|"time";
     name?: string;
     value?: string;
     maxLength?: number;
@@ -75,12 +87,13 @@ export function Input({ type,
                         required = false, 
                         placeholder = undefined }: InputProps) {
     return (
-        <input  className="px-1 mb-4 bg-white rounded-none outline-none font-mono box-border placeholder:italic
-                border-b-2 border-gray-200 focus:border-primary-400"
+        <input  className={`${type == "text" ? "w-full" : ""} px-1 mb-4 bg-white rounded-none outline-none font-mono box-border 
+                            placeholder:italic border-b-2 border-gray-200 focus:border-primary-400`}
                 type={type}
                 name={name} 
                 value={value} 
                 maxLength={maxLength}
+                min={type == "number" ? 0 : type == "date" ? "1970-01-01" : undefined}
                 onChange={onChange ? onChange : () => {}}
                 required={required}
                 placeholder={placeholder}/>
@@ -120,5 +133,56 @@ export function Select({name = undefined,
                 <Option text={option.text} value={option.value}/>  
             ))} 
         </select>
+    );
+}
+
+interface DialogProps {
+    title: string;
+    formBody: any; // ?
+    onSubmit: React.FormEventHandler<HTMLFormElement>;
+}
+export function Dialog({ title, formBody, onSubmit }: DialogProps) {
+    const openModal = () => {
+        const modalElement = document.getElementById("modal") as HTMLDialogElement;
+        modalElement.showModal();
+    }
+
+    const closeModal = () => {
+        const modalElement = document.getElementById("modal") as HTMLDialogElement;
+        modalElement.close();
+    }
+
+    const handleSubmit = (event) => {
+        closeModal();
+        onSubmit(event);
+    }
+
+    return (
+    <>
+            <Button text={title} onClick={openModal}/>
+
+            <dialog id="modal" className="md:w-2/3 max-md:w-4/5 rounded-md">
+            <form className="flex flex-col" onSubmit={handleSubmit}>
+                
+                <div className="pl-5 pt-2 border-b border-b-gray-400">
+                    <Subheading text={title} />
+                </div>
+
+                <div className="p-5">
+                    {formBody}
+                </div>
+
+                <div className="px-5 py-2 border-t border-t-gray-400">
+                    <Button text="Cancel"
+                            onClick={closeModal} />
+                    <Button text="Done" 
+                            level="success"
+                            right
+                            submit/>
+                </div>
+
+            </form>
+            </dialog>
+        </>
     );
 }

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import { Button, Heading } from '../components/Elements'
+import { Button, Heading, Subheading } from '../components/Elements'
 import { Flight } from '../models';
 import API from '../api';
 
@@ -32,10 +32,11 @@ export default function SingleFlight({ flightID }) {
         <>
             <Heading text={`${flight.origin.iata || flight.origin.city } to ${flight.destination.iata || flight.destination.city}`} />
             <h2 className="-mt-4 mb-4 text-xl">{flight.date}</h2>
-            
-            <div className="flex">
+           
+            <div>
+            <div className="flex flex-wrap">
                 <div className="container">
-                    <h3 className="mb-2 font-bold text-lg">Timings</h3>
+                    <Subheading text="Timings" />
 
                     <p>Date: <span>{flight.date}</span></p>
                     <p>Departure Time: <span>{flight.departureTime || "N/A"}</span></p>
@@ -44,7 +45,7 @@ export default function SingleFlight({ flightID }) {
                 </div>
 
                 <div className="container">
-                    <h3 className="mb-2 font-bold text-lg">Airports</h3>
+                    <Subheading text="Airports" />
 
                     <p>Origin: <span>{flight.origin.iata || flight.origin.icao} ({flight.origin.city}/{flight.origin.country})</span></p>
                     <p>Destination: <span>{flight.destination.iata || flight.destination.icao} ({flight.destination.city}/{flight.destination.country})</span></p>
@@ -52,16 +53,15 @@ export default function SingleFlight({ flightID }) {
                 </div>
 
                 <div className="container">
-                    <h3 className="mb-2 font-bold text-lg">Other</h3>
+                    <Subheading text="Other" />
 
                     <p>Seat: <span>{flight.seat || "N/A"}</span></p>
                     <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
                 </div>
             </div>
 
-            <br />
-
             <Button text="Delete" level="danger" onClick={handleDeleteClick}/>
+            </div>
         </>
     );
 }

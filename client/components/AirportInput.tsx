@@ -56,15 +56,15 @@ export default function AirportInput({ callback }: AirportInputProps) {
     return (
     <>
         <Input type="text"
-               maxLength={10}
+               maxLength={16}
                onChange={handleInputChange}
                placeholder="Search"/>
 
         {  airportsData.length > 0 &&
-        <ul className="airport-select">
+        <ul className="-mt-4 mb-2 border-x-2 border-b-2 border-gray-200">
 
             { airportsData.map((airport: Airport) => (
-            <li className="airport-option"
+            <li className="py-1 px-2 even:bg-gray-100 cursor-pointer hover:bg-gray-200"
                 value={airport.icao} 
                 onClick={handleOptionClick}>
                 {getDescriptor(airport)}
@@ -75,7 +75,9 @@ export default function AirportInput({ callback }: AirportInputProps) {
         }
 
         { selectedAirport &&
-        <span className="input-whisper">selected: {getDescriptor(selectedAirport)}</span>
+        <p className="-mt-2 text-sm font-mono text-gray-700/60">
+            selected: {getDescriptor(selectedAirport)}
+        </p>
         }
         </>
     );

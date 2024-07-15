@@ -24,11 +24,11 @@ class APIClass {
         }
     }
 
-    async get(endpoint: string, success: Function|null = null) {
-        endpoint= endpoint.trim();
+    async get(endpoint: string, parameters: Object = {}, success: Function|null = null) {
+        endpoint = endpoint.trim();
 
         try {
-            const res = await this.client.get(endpoint);
+            const res = await this.client.get(endpoint, { params: parameters });
             if(success) success();
             return res.data;
         } 
@@ -39,7 +39,7 @@ class APIClass {
     }
 
     async post(endpoint: string, data: Object, success: Function|null = null) {
-        endpoint= endpoint.trim();
+        endpoint = endpoint.trim();
 
         try {
             const res = await this.client.post(endpoint, data);

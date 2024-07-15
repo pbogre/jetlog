@@ -21,16 +21,16 @@ function TableHeading({ text }) {
 }
 
 //TODO UI elements to make use of query flights
-export default function FlightsTable() {
+export default function FlightsTable({ filters }) {
     const [flights, setFlights] = useState<Flight[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        API.get("/flights")
+        API.get("/flights", filters)
         .then((data) => {
             setFlights(data);
         });
-    }, []);
+    }, [filters]);
 
     if(flights === null) {
         return (
@@ -48,6 +48,7 @@ export default function FlightsTable() {
     }
 
     return (
+        <div className="overflow-x-auto">
         <table className="table-auto w-full">
             <tr>
                 <TableHeading text="Date"/>
@@ -75,5 +76,6 @@ export default function FlightsTable() {
             </tr>
             ))}
         </table>
+        </div>
     );
 }

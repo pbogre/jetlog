@@ -4,7 +4,12 @@
 
 @layer components {
     .container {
-        @apply p-4 mx-5 bg-gray-100 rounded shadow-md;
+        @apply p-4 mr-5 mb-4 grow border border-gray-400 rounded shadow-md;
+        width: max-content;
+    }
+
+    hr {
+        @apply w-full mb-4
     }
 
     span {

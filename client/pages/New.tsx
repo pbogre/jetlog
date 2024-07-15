@@ -11,7 +11,7 @@ import { Airport, Flight } from '../models';
 export default function New() {
     return (
     <>
-        <Heading text="New flight" />
+        <Heading text="New Flight" />
         <FlightDetails />
     </>
     );
@@ -95,7 +95,7 @@ function FlightDetails() {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className="flex items-start">
+            <div className="flex flex-wrap items-start">
 
                 <div className="container">
                     <Label text="Origin" required />
@@ -106,7 +106,6 @@ function FlightDetails() {
                     <br />
                     <Label text="Date" required />
                     <Input type="date"
-                           name="date"
                            value={flight.date}
                            onChange={handleChange}
                            required />
@@ -115,24 +114,21 @@ function FlightDetails() {
                 <div className="container">
                     <Label text="Departure Time" />
                     <Input type="time"
-                           name="departureTime"
                            value={flight.departureTime}
                            onChange={handleChange} />
                     <br />
                     <Label text="Arrival Time"/>
                     <Input type="time"
-                           name="arrivalTime"
                            value={flight.arrivalTime}
                            onChange={handleChange}/>
                 </div>
 
                 <div className="container">
                     <Label text="Seat Type"/>
-                    <Select name="seat"
-                            value={flight.seat}
+                    <Select value={flight.seat}
                             onChange={handleChange}
                             options={[
-                                { text: "Select", value: "" },
+                                { text: "Choose", value: "" },
                                 { text: "Aisle", value: "aisle" },
                                 { text: "Middle", value: "middle" },
                                 { text: "Window", value: "window" }
@@ -140,7 +136,6 @@ function FlightDetails() {
                     <br />
                     <Label text="Airplane"/>
                     <Input type="text"
-                           name="airplane"
                            value={flight.airplane}
                            placeholder="B738"
                            onChange={handleChange} />

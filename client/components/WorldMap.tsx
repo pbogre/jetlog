@@ -1,15 +1,21 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { ComposableMap, Geographies, Geography, Marker, Line } from "react-simple-maps";
 
-import { Coord, Trajectory } from '../models'
+import API from '../api';
+import { Coord, Trajectory } from '../models';
 
-interface WorldMapProps {
-    markers: Coord[];
-    lines: Trajectory[];
-}
-
-export default function WorldMap({ markers, lines }: WorldMapProps) {
+export default function WorldMap() {
     const geoUrl = "/api/geography/world";
+    const [markers, setMarkers] = useState<Coord[]>([])
+    const [lines, setLines] = useState<Trajectory[]>([])
+
+    useEffect(() => {
+        API.get("/geography/markers")
+        .then((data) => setMarkers(data));
+
+        API.get("/geography/lines")
+        .then((data) => setLines(data));
+    }, []);
 
     return (
         <>

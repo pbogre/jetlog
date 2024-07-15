@@ -1,20 +1,19 @@
-import React, {useState, useMemo} from 'react';
+import React, {useState, useMemo, useEffect} from 'react';
 
 import { Statistics } from '../models';
-import API from '../api'
+import API from '../api';
+import {Heading} from './Elements';
 
-function StatBox({first, stat, second = ""}) {
+function StatBox({stat, description}) {
     return (
-        <div className="container text-center">
-            {first}
-            <span className="text-2xl block">{stat}</span>
-            {second}
+        <div className="container bg-gray-100 text-center rounded-full">
+            <span className="text-3xl block">{stat}</span>
+            {description}
         </div>
     );
 }
 
-//TODO UI elements to make use of query statistics
-export default function Stats() {
+export function ShortStats() {
     const [statistics, setStatistics] = useState<Statistics>(new Statistics)
 
     // runs before render
@@ -24,34 +23,47 @@ export default function Stats() {
     }, []);
 
     return (
-        <div className="flex">
-            <StatBox first="You flew"
-                     stat={statistics.amount || 0}
-                     second="times!"/>
+        <div className="flex mb-4 whitespace-nowrap overflow-x-auto ">
+            <StatBox stat={statistics.amount || 0}
+                     description="flights"/>
 
-            <StatBox first="You spent"
-                     stat={((statistics.time || 0) / 60).toLocaleString()}
-                     second="hours in the air!"/>
+            <StatBox stat={((statistics.time || 0) / 60).toLocaleString()}
+                     description="hours"/>
 
-            <StatBox first="You travelled"
-                     stat={statistics.distance?.toLocaleString() || 0}
-                     second="kilometers!"/>
+            <StatBox stat={statistics.distance?.toLocaleString() || 0}
+                     description="kilometers"/>
 
-            <StatBox first="You boarded a plane every"
-                     stat={statistics.dpf?.toLocaleString() || 0}
-                     second="days!"/>
+            <StatBox stat={statistics.dpf?.toLocaleString() || 0}
+                     description="days per flight"/>
 
-            <StatBox first="You visited"
-                     stat={statistics.uniqueAirports || 0}
-                     second="airports!"/>
-
-            <StatBox first="You favorite airport is"
-                     stat={ statistics.commonAirport ? 
-                            (statistics.commonAirport.iata || statistics.commonAirport.icao) + " (" + statistics.commonAirport.city + ")" :
-                            "unknown"}/>
-
-            <StatBox first="Your favorite seat is"
-                     stat={statistics.commonSeat || "unknown"}/>
+            <StatBox stat={statistics.uniqueAirports || 0}
+                     description="airports"/>
         </div>
+    );
+}
+
+export function AllStats({ filters }) {
+    const [statistics, setStatistics] = useState<Statistics>(new Statistics)
+
+    useEffect(() => {
+        API.get("/statistics", filters)
+        .then((data) => setStatistics(data));
+    }, [filters]);
+
+    return (
+        <>
+        { !statistics.commonAirport ?
+        <p>loading...</p> :
+        <div className="container">
+            <p>Number of flights: <span>{statistics.amount}</span></p>
+            <p>Total (registered) time spent flying: <span>{(statistics.time / 60).toLocaleString()} hours</span></p>
+            <p>Total distance travelled: <span>{statistics.distance.toLocaleString()} km</span></p>
+            <p>Average days between flights: <span>{statistics.dpf.toLocaleString()} d/f</span></p>
+            <p>Total unique airports visited: <span>{statistics.uniqueAirports}</span></p>
+            <p>Most common airport: <span>{statistics.commonAirport.iata || statistics.commonAirport.icao} - {statistics.commonAirport.name} ({statistics.commonAirport.city})</span></p>
+            <p>Most common seat: <span>{statistics.commonSeat}</span></p>
+        </div>
+        }
+        </>
     );
 }
