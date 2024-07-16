@@ -87,17 +87,6 @@ class FlightModel(CustomModel):
     distance:       int|None = None
     airplane:       str|None = None
 
-    @field_validator('date')
-    @classmethod
-    def date_format_validate(cls, v) -> str|None:
-        if not v:
-            return None
-
-        try:
-            datetime.date.fromisoformat(v)
-        except:
-            raise ValueError(f"must have YYYY-mm-dd format")
-
     @field_validator('origin', 'destination')
     @classmethod
     def airport_must_exist(cls, v) -> str|AirportModel|None:
@@ -119,8 +108,7 @@ class FlightModel(CustomModel):
                 if type(value) == AirportModel:
                     value = value.icao
 
-            if value:
-                values.append(value)
+            values.append(value)
 
         return values
 

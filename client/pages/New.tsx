@@ -26,6 +26,7 @@ function FlightDetails() {
 
     const updateFlight = (key: string, value: any) => {
         setFlight({...flight, [key]: value});
+        console.log(flight);
     };
 
     const setAirport = (airport: Airport, type: "origin"|"destination") => {
@@ -106,6 +107,7 @@ function FlightDetails() {
                     <br />
                     <Label text="Date" required />
                     <Input type="date"
+                           name="date"
                            value={flight.date}
                            onChange={handleChange}
                            required />
@@ -114,18 +116,21 @@ function FlightDetails() {
                 <div className="container">
                     <Label text="Departure Time" />
                     <Input type="time"
+                           name="departureTime"
                            value={flight.departureTime}
                            onChange={handleChange} />
                     <br />
                     <Label text="Arrival Time"/>
                     <Input type="time"
+                           name="arrivalTime"
                            value={flight.arrivalTime}
                            onChange={handleChange}/>
                 </div>
 
                 <div className="container">
                     <Label text="Seat Type"/>
-                    <Select value={flight.seat}
+                    <Select name="seat"
+                            value={flight.seat}
                             onChange={handleChange}
                             options={[
                                 { text: "Choose", value: "" },
@@ -136,6 +141,7 @@ function FlightDetails() {
                     <br />
                     <Label text="Airplane"/>
                     <Input type="text"
+                           name="airplane"
                            value={flight.airplane}
                            placeholder="B738"
                            onChange={handleChange} />

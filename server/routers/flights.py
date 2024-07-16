@@ -48,7 +48,7 @@ async def update_flight(id: int, new_flight: FlightModel) -> int:
 
     query += f" WHERE id = {str(id)} RETURNING id;"
 
-    values = new_flight.get_values()
+    values = [value for value in new_flight.get_values() if value is not None]
 
     return database.execute_query(query, values)
 
