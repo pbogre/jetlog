@@ -4,13 +4,14 @@ import { useState } from 'react';
 import { Input } from '../components/Elements'
 import API from '../api';
 import { Airport } from '../models';
+import { stringifyAirport } from '../utils';
 
 interface AirportInputProps {
     type?: "origin"|"destination";
-    callback: (airport: Airport) => any;
+    onSelected: (airport: Airport) => any;
 }
 
-export default function AirportInput({ callback }: AirportInputProps) {
+export default function AirportInput({ onSelected }: AirportInputProps) {
     const [airportsData, setAirportsData] = useState<Airport[]>([]);
     const [selectedAirport, setSelectedAirport] = useState<Airport|null>(null);
 
@@ -22,10 +23,6 @@ export default function AirportInput({ callback }: AirportInputProps) {
 
      //   return random;
    // }
-
-    const getDescriptor = (airport: Airport) => {
-        return (airport.iata || airport.icao) + " - " + airport.city + "/" + airport.country;
-    }
 
     const handleInputChange = (event) => {
         const value = event.target.value;
@@ -44,7 +41,7 @@ export default function AirportInput({ callback }: AirportInputProps) {
         for(const airport of airportsData) {
             if(airport.icao === value) {
                 setSelectedAirport(airport);
-                callback(airport);
+                onSelected(airport);
 
                 break;
             }
@@ -61,13 +58,13 @@ export default function AirportInput({ callback }: AirportInputProps) {
                placeholder="Search"/>
 
         {  airportsData.length > 0 &&
-        <ul className="-mt-4 mb-2 border-x-2 border-b-2 border-gray-200">
+        <ul className="-mt-4 mb-4 border-x-2 border-b-2 border-gray-200">
 
             { airportsData.map((airport: Airport) => (
             <li className="py-1 px-2 even:bg-gray-100 cursor-pointer hover:bg-gray-200"
                 value={airport.icao} 
                 onClick={handleOptionClick}>
-                {getDescriptor(airport)}
+                {stringifyAirport(airport)}
             </li>
             ))}
 
@@ -75,8 +72,8 @@ export default function AirportInput({ callback }: AirportInputProps) {
         }
 
         { selectedAirport &&
-        <p className="-mt-2 text-sm font-mono text-gray-700/60">
-            selected: {getDescriptor(selectedAirport)}
+        <p className="-mt-4 mb-2 text-sm font-mono text-gray-700/60">
+            selected: {stringifyAirport(selectedAirport)}
         </p>
         }
         </>

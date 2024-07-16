@@ -23,6 +23,10 @@ class APIClass {
             alert("Unknown error: " + err);
         }
     }
+        
+    // TODO these functions are literally all the same
+    
+
 
     async get(endpoint: string, parameters: Object = {}, success: Function|null = null) {
         endpoint = endpoint.trim();
@@ -43,6 +47,20 @@ class APIClass {
 
         try {
             const res = await this.client.post(endpoint, data);
+            if(success) success();
+            return res.data;
+        }
+        catch(err) {
+            this.handleError(err);
+            throw err; // for caller to use
+        }
+    }
+
+    async patch(endpoint: string, data: Object, success: Function|null = null) {
+        endpoint = endpoint.trim();
+
+        try {
+            const res = await this.client.patch(endpoint, data);
             if(success) success();
             return res.data;
         }

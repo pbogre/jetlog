@@ -2,7 +2,7 @@ import React, {useState, useMemo, useEffect} from 'react';
 
 import { Statistics } from '../models';
 import API from '../api';
-import {Heading} from './Elements';
+import {stringifyAirport} from '../utils';
 
 function StatBox({stat, description}) {
     return (
@@ -43,7 +43,7 @@ export function ShortStats() {
 }
 
 export function AllStats({ filters }) {
-    const [statistics, setStatistics] = useState<Statistics>(new Statistics)
+    const [statistics, setStatistics] = useState<Statistics|null>(null)
 
     useEffect(() => {
         API.get("/statistics", filters)
@@ -52,16 +52,16 @@ export function AllStats({ filters }) {
 
     return (
         <>
-        { !statistics.commonAirport ?
+        { !statistics ?
         <p>loading...</p> :
         <div className="container">
-            <p>Number of flights: <span>{statistics.amount}</span></p>
-            <p>Total (registered) time spent flying: <span>{(statistics.time / 60).toLocaleString()} hours</span></p>
-            <p>Total distance travelled: <span>{statistics.distance.toLocaleString()} km</span></p>
-            <p>Average days between flights: <span>{statistics.dpf.toLocaleString()} d/f</span></p>
-            <p>Total unique airports visited: <span>{statistics.uniqueAirports}</span></p>
-            <p>Most common airport: <span>{statistics.commonAirport.iata || statistics.commonAirport.icao} - {statistics.commonAirport.name} ({statistics.commonAirport.city})</span></p>
-            <p>Most common seat: <span>{statistics.commonSeat}</span></p>
+            <p>Number of flights: <span>{statistics.amount || "N/A"}</span></p>
+            <p>Total (registered) time spent flying: <span>{statistics.time ? (statistics.time / 60).toLocaleString() : "N/A"} hours</span></p>
+            <p>Total distance travelled: <span>{statistics.distance ? statistics.distance.toLocaleString() : "N/A"} km</span></p>
+            <p>Average days between flights: <span>{statistics.dpf ? statistics.dpf.toLocaleString() : "N/A"} d/f</span></p>
+            <p>Total unique airports visited: <span>{statistics.uniqueAirports ? statistics.uniqueAirports : "N/A"}</span></p>
+            <p>Most common airport: <span>{statistics.commonAirport ? stringifyAirport(statistics.commonAirport) : "N/A"}</span></p>
+            <p>Most common seat: <span>{statistics.commonSeat ? statistics.commonSeat : "N/A"}</span></p>
         </div>
         }
         </>

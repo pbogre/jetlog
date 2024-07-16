@@ -78,11 +78,11 @@ class FlightModel(CustomModel):
             value = getattr(self, attr)
 
             if attr == "origin" or attr == "destination":
-                if type(value) == str:
-                    continue
-                value = value.icao
+                if type(value) == AirportModel:
+                    value = value.icao
 
-            values.append(value)
+            if value:
+                values.append(value)
 
         return values
 

@@ -60,7 +60,7 @@ export function Button({ text,
 
     return (
         <button type={submit ? "submit": undefined}
-                className={`py-1 px-2 my-1 rounded-md cursor-pointer ${colors}
+                className={`py-1 px-2 my-1 mr-1 rounded-md cursor-pointer ${colors}
                             disabled:opacity-60 disabled:cursor-not-allowed
                             ${right ? "float-right" : ""}`}
                 disabled={disabled}
@@ -102,7 +102,7 @@ export function Input({ type,
 
 interface OptionProps {
     text: string;
-    value: string;
+    value?: string;
 }
 function Option({text, value}: OptionProps) {
     return (

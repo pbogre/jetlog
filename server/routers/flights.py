@@ -14,11 +14,30 @@ class Order(str, Enum):
     asc = "ASC"
     desc = "DESC"
 
+def check_date(date: str):
+    try:
+        datetime.date.fromisoformat(date)
+    except:
+        raise HTTPException(status_code=400, 
+                            detail="Incorrect date format, should be 'YYYY-mm-dd'")
+
+def check_airport(airport: str|AirportModel):
+    icao = airport.icao if type(airport) == AirportModel else airport
+    res = database.execute_read_query(f"SELECT icao FROM airports WHERE LOWER(icao) = LOWER(?);", [icao]);
+
+    if len(res) < 1:
+        raise HTTPException(status_code=400,
+                            detail=f"Provided airport has invalid ICAO code: '{icao}'")
+
 @router.post("", status_code=201)
 async def add_flight(flight: FlightModel) -> int:
     if not (flight.date and flight.origin and flight.destination):
         raise HTTPException(status_code=404, 
                             detail="Insufficient flight data. Date, Origin, and Destination are required")
+
+    check_date(flight.date)
+    check_airport(flight.origin)
+    check_airport(flight.destination)
 
     columns = FlightModel.get_attributes(False)
 
@@ -34,21 +53,28 @@ async def add_flight(flight: FlightModel) -> int:
 
     return database.execute_query(query, values)
 
-# TODO fix with airportmodel as airport input
 @router.patch("", status_code=200)
 async def update_flight(id: int, new_flight: FlightModel) -> int:
     query = "UPDATE flights SET "
  
     for attr in FlightModel.get_attributes(False):
         value = getattr(new_flight, attr)
-        query += f"{attr}='{str(value)}'," if value else ""
+        if value:
+            query += f"{attr}=?," if value else ""
+
+            if attr == "date":
+                check_date(value)
+            if attr == "origin" or attr == "destination":
+                check_airport(value)
 
     if query[-1] == ',':
         query = query[:-1]
 
-    query += " WHERE id = " + str(id) + " RETURNING id;"
+    query += f" WHERE id = {str(id)} RETURNING id;"
 
-    return database.execute_query(query)
+    values = new_flight.get_values()
+
+    return database.execute_query(query, values)
 
 @router.delete("", status_code=200)
 async def delete_flight(id: int) -> int:
@@ -97,8 +123,8 @@ async def get_flights(id: int|None = None,
             o.*, 
             d.*
         FROM flights f 
-        JOIN airports o ON f.origin = o.icao 
-        JOIN airports d ON f.destination = d.icao
+        JOIN airports o ON LOWER(f.origin) = LOWER(o.icao) 
+        JOIN airports d ON LOWER(f.destination) = LOWER(d.icao)
         {id_filter}
         {date_filter_start} {date_filter}
         ORDER BY f.date {order.value}

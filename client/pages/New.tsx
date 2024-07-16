@@ -99,10 +99,10 @@ function FlightDetails() {
 
                 <div className="container">
                     <Label text="Origin" required />
-                    <AirportInput callback={(airport: Airport ) => setAirport(airport, "origin")} />
+                    <AirportInput onSelected={(airport: Airport ) => setAirport(airport, "origin")} />
                     <br />
                     <Label text="Destination" required />
-                    <AirportInput callback={(airport: Airport ) => setAirport(airport, "destination")} />
+                    <AirportInput onSelected={(airport: Airport ) => setAirport(airport, "destination")} />
                     <br />
                     <Label text="Date" required />
                     <Input type="date"
