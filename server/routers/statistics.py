@@ -1,6 +1,6 @@
 from server.database import database
 from server.models import AirportModel, StatisticsModel
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 import datetime
 
 router = APIRouter(
@@ -9,18 +9,8 @@ router = APIRouter(
     redirect_slashes=True
 )
 
-
 @router.get("", status_code=200)
-async def get_statistics(start: str|None = None, end: str|None = None) -> StatisticsModel:    
-    try:
-        if start:
-            datetime.date.fromisoformat(start)
-        if end:
-            datetime.date.fromisoformat(end)
-    except:
-        raise HTTPException(status_code=400, 
-                            detail="Incorrect date format for start or end parameters, should be 'YYYY-mm-dd'")
-
+async def get_statistics(start: datetime.date|None = None, end: datetime.date|None = None) -> StatisticsModel:    
     date_filter_start = "WHERE" if start or end else ""
 
     date_filter = ""

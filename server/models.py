@@ -1,4 +1,6 @@
-from pydantic import BaseModel
+import datetime
+from server.database import database
+from pydantic import BaseModel, field_validator
 from enum     import Enum
 
 #  camel case convertion
@@ -55,13 +57,27 @@ class AirportModel(CustomModel):
     latitude:  float|None = None
     longitude: float|None = None
 
+    @field_validator('icao')
+    @classmethod
+    def icao_must_exist(cls, v) -> str|None:
+        if not v:
+            return None
+
+        res = database.execute_read_query(f"SELECT icao FROM airports WHERE LOWER(icao) = LOWER(?);", [v]);
+
+        if len(res) < 1:
+            raise ValueError(f"must have valid ICAO code")
+
+        return v
+
+
 # TODO domestic/international (bool), ...?
 # note: for airports, the database type
 # is string (icao code), while the type
 # returned by the API is AirportModel
 class FlightModel(CustomModel):
     id:             int|None = None
-    date:           str|None = None
+    date:           datetime.date|None = None
     origin:         str|AirportModel|None = None
     destination:    str|AirportModel|None = None
     departure_time: str|None = None
@@ -70,6 +86,28 @@ class FlightModel(CustomModel):
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
+
+    @field_validator('date')
+    @classmethod
+    def date_format_validate(cls, v) -> str|None:
+        if not v:
+            return None
+
+        try:
+            datetime.date.fromisoformat(v)
+        except:
+            raise ValueError(f"must have YYYY-mm-dd format")
+
+    @field_validator('origin', 'destination')
+    @classmethod
+    def airport_must_exist(cls, v) -> str|AirportModel|None:
+        if not v:
+            return None
+
+        v = v.icao if type(v) == AirportModel else v
+        AirportModel.__pydantic_validator__.validate_assignment(AirportModel.model_construct(), "icao", v)
+
+        return v
 
     def get_values(self) -> list:
         values = []

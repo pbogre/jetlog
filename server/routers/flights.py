@@ -14,30 +14,11 @@ class Order(str, Enum):
     asc = "ASC"
     desc = "DESC"
 
-def check_date(date: str):
-    try:
-        datetime.date.fromisoformat(date)
-    except:
-        raise HTTPException(status_code=400, 
-                            detail="Incorrect date format, should be 'YYYY-mm-dd'")
-
-def check_airport(airport: str|AirportModel):
-    icao = airport.icao if type(airport) == AirportModel else airport
-    res = database.execute_read_query(f"SELECT icao FROM airports WHERE LOWER(icao) = LOWER(?);", [icao]);
-
-    if len(res) < 1:
-        raise HTTPException(status_code=400,
-                            detail=f"Provided airport has invalid ICAO code: '{icao}'")
-
 @router.post("", status_code=201)
 async def add_flight(flight: FlightModel) -> int:
     if not (flight.date and flight.origin and flight.destination):
         raise HTTPException(status_code=404, 
                             detail="Insufficient flight data. Date, Origin, and Destination are required")
-
-    check_date(flight.date)
-    check_airport(flight.origin)
-    check_airport(flight.destination)
 
     columns = FlightModel.get_attributes(False)
 
@@ -62,11 +43,6 @@ async def update_flight(id: int, new_flight: FlightModel) -> int:
         if value:
             query += f"{attr}=?," if value else ""
 
-            if attr == "date":
-                check_date(value)
-            if attr == "origin" or attr == "destination":
-                check_airport(value)
-
     if query[-1] == ',':
         query = query[:-1]
 
@@ -90,16 +66,8 @@ async def get_flights(id: int|None = None,
                       limit: int = 50, 
                       offset: int = 0, 
                       order: Order = Order.desc,
-                      start: str|None = None,
-                      end: str|None = None) -> list[FlightModel]|FlightModel:
-    try:
-        if start:
-            datetime.date.fromisoformat(start)
-        if end:
-            datetime.date.fromisoformat(end)
-    except:
-        raise HTTPException(status_code=400, 
-                            detail="Incorrect date format for start or end parameters, should be 'YYYY-mm-dd'")
+                      start: datetime.date|None = None,
+                      end: datetime.date|None = None) -> list[FlightModel]|FlightModel:
 
     id_filter = f"WHERE f.id = {str(id)}" if id else ""
 
