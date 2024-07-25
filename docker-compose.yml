@@ -1,8 +1,8 @@
 services:
   jetlog:
-    image: jetlog
+    image: pbogre/jetlog
     volumes:
-      - /Users/pietro/Desktop/data:/data
+      - your/data/path:/data
     restart: unless-stopped
     ports:
       - 3000:3000

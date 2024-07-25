@@ -3,6 +3,5 @@ build
 dist
 __pycache__
 package-lock.json
-Pipfile.lock
 .parcel-cache
 *.old
