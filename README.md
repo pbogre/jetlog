@@ -2,6 +2,8 @@
 
 Self-hostable personal flight tracker and viewer
 
+![homepage preview](images/homepage.png)
+
 ## features
 
 - World map view of all visited airports and trajectories of flights
