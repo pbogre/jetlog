@@ -6,7 +6,10 @@
 
 A self-hostable personal flight tracker and viewer
 
-![homepage preview](images/homepage.png)
+![homepage preview](images/homepage.png)|![all flights preview](images/all-flights.png)
+:--------------------------------------:|:---------------------------------------------:
+
+
 
 ## features
 
