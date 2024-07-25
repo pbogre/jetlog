@@ -2,6 +2,8 @@
 
 Self-hostable personal flight tracker and viewer
 
+[Docker Image](https://hub.docker.com/repository/docker/pbogre/jetlog/general)
+
 ![homepage preview](images/homepage.png)
 
 ## features
