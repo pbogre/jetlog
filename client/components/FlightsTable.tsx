@@ -33,12 +33,12 @@ export default function FlightsTable({ filters }) {
 
     if(flights === null) {
         return (
-            <p>Loading...</p>
+            <p className="m-4">Loading...</p>
         );
     }
     else if (flights.length === 0) {
         return (
-            <p>No flights!</p>
+            <p className="m-4">No flights!</p>
         );
     }
 

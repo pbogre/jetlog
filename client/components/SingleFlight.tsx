@@ -32,7 +32,7 @@ export default function SingleFlight({ flightID }) {
 
     if(!flight) {
         return (
-            <p>Loading...</p>
+            <p className="m-4">Loading...</p>
         );
     }
 

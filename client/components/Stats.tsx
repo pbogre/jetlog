@@ -53,7 +53,7 @@ export function AllStats({ filters }) {
     return (
         <>
         { !statistics ?
-        <p>loading...</p> :
+        <p className="m-4">loading...</p> :
         <div className="container">
             <p>Number of flights: <span>{statistics.amount || "N/A"}</span></p>
             <p>Total (registered) time spent flying: <span>{statistics.time ? (statistics.time / 60).toLocaleString() : "N/A"} hours</span></p>
