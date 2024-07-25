@@ -1,18 +1,20 @@
 # jetlog
+<p align="center">
+    <img src="https://img.shields.io/docker/pulls/pbogre/jetlog?style=for-the-badge" />
+    <img src="https://img.shields.io/docker/image-size/pbogre/jetlog?style=for-the-badge" />
+</p>
 
-Self-hostable personal flight tracker and viewer
-
-[Docker Image](https://hub.docker.com/repository/docker/pbogre/jetlog/general)
+A self-hostable personal flight tracker and viewer
 
 ![homepage preview](images/homepage.png)
 
 ## features
 
-- World map view of all visited airports and trajectories of flights
-- Statistics for all your flights
-- (semi-)Responsive design
-- Sleek and intuitive UI
-- Effortlessly add, edit, and delete past flights
+- 🌍 World map view of all visited airports and trajectories of flights
+- 📊 Statistics for all your flights
+- 📱 (semi-)Responsive design
+- 👨‍💻 Sleek and intuitive UI
+- ✅ Effortlessly add, edit, and delete past flights
 
 ## installation
 
