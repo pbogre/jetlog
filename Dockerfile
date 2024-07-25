@@ -1,13 +1,13 @@
 # BUILD
 ARG BUILD_PATH=/build
-FROM --platform=$BUILDPLATFORM node:bullseye-slim AS build
+FROM node:bookworm-slim AS build
 
 ARG BUILD_PATH
 
 RUN mkdir ${BUILD_PATH}
 WORKDIR ${BUILD_PATH}
 
-RUN apt update -y && apt upgrade -y
+RUN apt-get update -y && apt-get upgrade -y
 COPY package.json ./
 RUN npm i --package-lock-only
 RUN npm ci
@@ -17,8 +17,9 @@ COPY ./tailwind.config.js ./.postcssrc ./
 RUN npm run build
 
 # RUNTIME
-FROM python:3.11-slim-bullseye
-RUN apt update && apt install -y gosu && rm -rf /var/lib/apt/lists/*
+FROM python:3.11-slim-bookworm
+RUN apt-get update -y && apt-get upgrade -y
+RUN apt-get install -y gosu sqlite3 && rm -rf /var/lib/apt/lists/*
 RUN pip install pipenv
 
 
