@@ -1,0 +1,8 @@
+services:
+  jetlog:
+    image: jetlog
+    volumes:
+      - /Users/pietro/Desktop/data:/data
+    restart: unless-stopped
+    ports:
+      - 3000:3000
