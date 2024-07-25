@@ -54,6 +54,13 @@ export default function SingleFlight({ flightID }) {
     }
 
     const handleSaveClick = () => {
+        console.log(flightPatch);
+
+        if(!flightPatch) {
+            this.toggleEditMode();
+            return;
+        }
+
         API.patch(`flights?id=${flight.id}`, flightPatch, () => window.location.reload());
     }
 
@@ -127,7 +134,10 @@ export default function SingleFlight({ flightID }) {
             </div>
 
             { editMode &&
-                <Button text="Save" level="success" onClick={handleSaveClick} />
+                <Button text="Save" 
+                        level="success" 
+                        disabled={!flightPatch || Object.keys(flightPatch).length === 0} 
+                        onClick={handleSaveClick} />
             }
             <Button text={editMode ? "Cancel" : "Edit" } level="default" onClick={toggleEditMode}/>
             <Button text="Delete" level="danger" onClick={handleDeleteClick}/>

@@ -70,6 +70,7 @@ export function Button({ text,
     );
 }
 
+//TODO: number only inputs should only allow numbers to be typed
 interface InputProps {
     type: "text"|"number"|"date"|"time";
     name?: string;

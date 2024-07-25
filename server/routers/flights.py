@@ -36,6 +36,9 @@ async def add_flight(flight: FlightModel) -> int:
 
 @router.patch("", status_code=200)
 async def update_flight(id: int, new_flight: FlightModel) -> int:
+    if new_flight.empty():
+        return id
+
     query = "UPDATE flights SET "
  
     for attr in FlightModel.get_attributes(False):

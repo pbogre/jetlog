@@ -43,6 +43,15 @@ class CustomModel(CamelableModel):
 
         return attributes[1:]
 
+    def empty(self) -> bool:
+        columns = self.get_attributes()
+
+        for attr in columns:
+            if getattr(self, attr) != None:
+               return False
+
+        return True
+
 class SeatType(str, Enum):
     AISLE = "aisle"
     MIDDLE = "middle"
