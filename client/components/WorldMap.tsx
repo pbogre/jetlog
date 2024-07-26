@@ -46,7 +46,7 @@ export default function WorldMap() {
                         from={[line.first.longitude, line.first.latitude]}
                         to={[line.second.longitude, line.second.latitude]}
                         stroke="#FF5533"
-                        strokeWidth={Math.min(1 + Math.floor(line.frequency / 3), 12)}
+                        strokeWidth={Math.min(1 + Math.floor(line.frequency / 3), 6)}
                         strokeLinecap="round"/>
                 ))} 
 
