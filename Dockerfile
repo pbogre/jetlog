@@ -1,6 +1,6 @@
 # BUILD
 ARG BUILD_PATH=/build
-FROM node:bookworm-slim AS build
+FROM --platform=$BUILDPLATFORM node:bookworm-slim AS build
 
 ARG BUILD_PATH
 
