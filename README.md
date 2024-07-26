@@ -27,8 +27,11 @@ Use the sample `docker-compose.yml` from the repo or make your own.
 Make sure to add a volume from your data path to `/data`, and remember
 that the application in the container runs on port `3000`.
 
-Note: Please make sure that the volume you are binding to the container
+**Note**: Please make sure that the volume you are binding to the container
 has appropriate ownership, otherwise it won't start.
+
+**Non-stable releases**: You can pull the image with the `:experimental` tag
+to gain access to the latest featuers which have not been thoroughly tested yet.
 
 ### manual (development)
 
@@ -48,7 +51,7 @@ has appropriate ownership, otherwise it won't start.
     pipenv shell
     (jetlog) python -m uvicorn main:app --app-dir server --host 0.0.0.0 --port 3000
     ```
-5. All done, you can open `http://localhost:3000` on your browser to view jetlog running
+5. All done, you can open `http://localhost:3000` on your browser to view jetlog
 
 ## stack
 
