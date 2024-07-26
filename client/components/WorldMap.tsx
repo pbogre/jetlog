@@ -2,6 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { ComposableMap, Geographies, Geography, Marker, Line } from "react-simple-maps";
 
 import API from '../api';
+import { SettingsManager } from '../settings';
 import { Coord, Trajectory } from '../models';
 
 export default function WorldMap() {
@@ -47,7 +48,7 @@ export default function WorldMap() {
                         to={[line.second.longitude, line.second.latitude]}
                         stroke="#FF5533"
                         strokeWidth={
-                                    localStorage.getItem("frequencyBasedLine") === "true" ?
+                                    SettingsManager.getSetting("frequencyBasedMarker") === "true" ?
                                     Math.min(1 + Math.floor(line.frequency / 3), 6)
                                     : 1
                                 } 
@@ -57,7 +58,7 @@ export default function WorldMap() {
                 { markers.map((marker) => (
                     <Marker coordinates={[marker.longitude, marker.latitude]}>
                         <circle r={
-                                    localStorage.getItem("frequencyBasedMarker") === "true" ?
+                                    SettingsManager.getSetting("frequencyBasedLine") === "true" ?
                                     Math.min(3 + Math.floor(marker.frequency / 3), 6)
                                     : 3
                                 } 

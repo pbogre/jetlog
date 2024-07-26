@@ -1,24 +1,13 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import API from '../api';
 import {Heading, Label, Input, Checkbox, Subheading, Button} from '../components/Elements'
-import {SettingsInterface} from '../settings';
+import {SettingsInterface, SettingsManager} from '../settings';
 
 export default function Settings() {
-    const [options, setOptions] = useState<SettingsInterface>({
-       frequencyBasedMarker: localStorage.getItem("frequencyBasedMarker") || "true",
-       frequencyBasedLine: localStorage.getItem("frequencyBasedLine") || "true",
-       militaryClock: localStorage.getItem("militaryClock") || "true",
-       metricUnits: localStorage.getItem("metricUnits") || "true"
-    })
+    const [options, setOptions] = useState<SettingsInterface>(SettingsManager.getAllSettings())
     const navigate = useNavigate();
-
-    useEffect(() => {
-        for(var key in options)  {
-            localStorage.setItem(key, options[key]);
-        }
-    }, [options]) 
 
     const handleImportSubmit = (event) => {
         event.preventDefault();
@@ -40,6 +29,7 @@ export default function Settings() {
         const value = event.target.checked.toString();
 
         setOptions({...options, [key]: value})
+        SettingsManager.setSetting(key, value);
     }
 
     return (
@@ -67,28 +57,28 @@ export default function Settings() {
             <div className="flex justify-between">
                 <Label text="Frequency based marker size" />
                 <Checkbox name="frequencyBasedMarker" 
-                            checked={options.frequencyBasedMarker == "true"} 
+                            checked={options.frequencyBasedMarker === "true"} 
                             onChange={handleOptionChange} />
             </div>
 
             <div className="flex justify-between">
                 <Label text="Frequency based line size" />
                 <Checkbox name="frequencyBasedLine" 
-                            checked={options.frequencyBasedLine == "true"} 
+                            checked={options.frequencyBasedLine === "true"} 
                             onChange={handleOptionChange} />
             </div>
 
             <div className="flex justify-between">
                 <Label text="Use military clock time (24h)" />
                 <Checkbox name="militaryClock" 
-                            checked={options.militaryClock == "true"} 
+                            checked={options.militaryClock === "true"} 
                             onChange={handleOptionChange} />
             </div>
 
             <div className="flex justify-between">
                 <Label text="Use metric units" />
                 <Checkbox name="metricUnits" 
-                            checked={options.metricUnits == "true"} 
+                            checked={options.metricUnits === "true"} 
                             onChange={handleOptionChange} />
             </div>
         </div>
