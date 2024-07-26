@@ -46,13 +46,22 @@ export default function WorldMap() {
                         from={[line.first.longitude, line.first.latitude]}
                         to={[line.second.longitude, line.second.latitude]}
                         stroke="#FF5533"
-                        strokeWidth={Math.min(1 + Math.floor(line.frequency / 3), 6)}
+                        strokeWidth={
+                                    localStorage.getItem("frequencyBasedLine") === "true" ?
+                                    Math.min(1 + Math.floor(line.frequency / 3), 6)
+                                    : 1
+                                } 
                         strokeLinecap="round"/>
                 ))} 
 
                 { markers.map((marker) => (
                     <Marker coordinates={[marker.longitude, marker.latitude]}>
-                        <circle r={Math.min(3 + Math.floor(marker.frequency / 3), 6)} fill="#FFA500"/>
+                        <circle r={
+                                    localStorage.getItem("frequencyBasedMarker") === "true" ?
+                                    Math.min(3 + Math.floor(marker.frequency / 3), 6)
+                                    : 3
+                                } 
+                                fill="#FFA500"/>
                     </Marker>
                 ))} 
 
