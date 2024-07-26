@@ -24,8 +24,10 @@ A self-hostable personal flight tracker and viewer
 ### docker (recommended)
 
 Use the sample `docker-compose.yml` from the repo or make your own.
-Make sure to add a volume from your data path to `/data`, and remember
-that the application in the container runs on port `3000`.
+
+Make sure to add a volume from your data path to `/data` and populate the directory with the contents from the [`data directory`](https://github.com/pbogre/jetlog/tree/main/data).
+
+Remember the container is required to run on port `3000`.
 
 ### manual (development)
 

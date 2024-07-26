@@ -3,6 +3,7 @@ services:
     image: pbogre/jetlog
     volumes:
       - your/data/path:/data
+      # add airports.db and world.geo.json to /data
     restart: unless-stopped
     ports:
       - 3000:3000
