@@ -72,7 +72,7 @@ export function Button({ text,
 
 //TODO: number only inputs should only allow numbers to be typed
 interface InputProps {
-    type: "text"|"number"|"date"|"time";
+    type: "text"|"number"|"date"|"time"|"file";
     name?: string;
     value?: string;
     maxLength?: number;
@@ -91,6 +91,7 @@ export function Input({ type,
         <input  className={`${type == "text" ? "w-full" : ""} px-1 mb-4 bg-white rounded-none outline-none font-mono box-border 
                             placeholder:italic border-b-2 border-gray-200 focus:border-primary-400`}
                 type={type}
+                accept={type == "file" ? ".csv,.db" : undefined}
                 name={name} 
                 value={value} 
                 maxLength={maxLength}

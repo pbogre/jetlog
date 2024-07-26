@@ -5,13 +5,9 @@ import New from './pages/New';
 import Home from './pages/Home'
 import AllFlights from './pages/AllFlights'
 import Statistics from './pages/Statistics';
-import Navbar from './components/Navbar';
+import Settings from './pages/Settings';
 
-function Settings() {
-    return (
-        <h1>coming soon...</h1>
-    );
-}
+import Navbar from './components/Navbar';
 
 export function App() {
     return (
