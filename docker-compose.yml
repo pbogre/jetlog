@@ -1,6 +1,10 @@
 services:
   jetlog:
     image: pbogre/jetlog
+    environment:
+     #- PUID=1000
+     #- PGID=1000
+     #- JETLOG_PORT=3000
     volumes:
       - your/data/path:/data
     restart: unless-stopped

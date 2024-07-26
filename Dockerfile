@@ -28,6 +28,7 @@ ENV PUID=1000
 ENV PGID=1000
 ENV APP_PATH=/app
 ENV DATA_PATH=/data 
+ENV JETLOG_PORT=3000
 
 RUN mkdir -p ${APP_PATH}
 RUN mkdir -p ${DATA_PATH}
@@ -44,7 +45,7 @@ COPY ./data ${APP_PATH}/data
 COPY --from=build /build/dist ${APP_PATH}/dist
 
 VOLUME ${DATA_PATH}
-EXPOSE 3000/tcp
+EXPOSE ${JETLOG_PORT}/tcp
 
 RUN chown ${PUID}:${PGID} ${APP_PATH}
 RUN chown ${PUID}:${PGID} ${DATA_PATH}
