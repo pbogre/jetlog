@@ -47,6 +47,7 @@ export default function FlightsTable({ filters }) {
     }
 
     return (
+    <>
         <div className="overflow-x-auto">
         <table className="table-auto w-full">
             <tr>
@@ -76,5 +77,10 @@ export default function FlightsTable({ filters }) {
             ))}
         </table>
         </div>
+
+        <p className="text-sm font-mono text-gray-700/60">
+            Showing at most 50 flights by default. Adjust filters for more.
+        </p>
+    </>
     );
 }
