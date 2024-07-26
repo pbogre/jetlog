@@ -2,16 +2,16 @@
 export interface SettingsInterface {
     frequencyBasedMarker: string;
     frequencyBasedLine: string;
-    militaryClock: string;
+    //militaryClock: string;
     metricUnits: string;
 }
-const SettingsKeys = ["frequencyBasedMarker", "frequencyBasedLine", "militaryClock", "metricUnits"];
+const SettingsKeys = ["frequencyBasedMarker", "frequencyBasedLine", /*"militaryClock",*/ "metricUnits"];
 type Setting = typeof SettingsKeys[number];
 
 const defaultSettings: SettingsInterface = {
     frequencyBasedMarker: "false",
     frequencyBasedLine: "false",
-    militaryClock: "true",
+    //militaryClock: "true",
     metricUnits: "true"
 }
 
