@@ -10,7 +10,6 @@ A self-hostable personal flight tracker and viewer
 :--------------------------------------:|:---------------------------------------------:
 
 
-
 ## features
 
 - 🌍 World map view of all visited airports and trajectories of flights
@@ -53,12 +52,20 @@ to gain access to the latest featuers which have not been thoroughly tested yet.
     ```
 5. All done, you can open `http://localhost:3000` on your browser to view jetlog
 
+## technical documentation
+
+You can make use of the automatically generated docs (thanks to FastAPI) by
+going to `http://<your-ip>:<your-port>/docs`.
+
 ## stack
 
 - [FastAPI](https://fastapi.tiangolo.com/)
 - [SQLite](https://www.sqlite.org/)
 - [React](https://react.dev/)
 - [TailwindCSS](https://tailwindcss.com/)
+
+## other credits 
+
 - [Airports database](https://github.com/jpatokal/openflights/)
 - [react-simple-map](https://www.react-simple-maps.io/)
 - [World GeoJSON](https://geojson-maps.kyd.au/)
