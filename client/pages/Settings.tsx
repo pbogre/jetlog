@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import API from '../api';
 import {Heading, Label, Input, Checkbox, Subheading, Button} from '../components/Elements'
-import {SettingsInterface, SettingsManager} from '../settings';
+import {SettingsInterface, SettingsManager} from '../settingsManager';
 
 export default function Settings() {
     const [options, setOptions] = useState<SettingsInterface>(SettingsManager.getAllSettings())
@@ -65,13 +65,6 @@ export default function Settings() {
                 <Label text="Frequency based line size" />
                 <Checkbox name="frequencyBasedLine" 
                             checked={options.frequencyBasedLine === "true"} 
-                            onChange={handleOptionChange} />
-            </div>
-
-            <div className="flex justify-between">
-                <Label text="Use military clock time (24h)" />
-                <Checkbox name="militaryClock" 
-                            checked={options.militaryClock === "true"} 
                             onChange={handleOptionChange} />
             </div>
 

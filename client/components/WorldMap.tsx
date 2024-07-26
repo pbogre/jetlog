@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import { ComposableMap, Geographies, Geography, Marker, Line } from "react-simple-maps";
 
 import API from '../api';
-import { SettingsManager } from '../settings';
+import { SettingsManager } from '../settingsManager';
 import { Coord, Trajectory } from '../models';
 
 export default function WorldMap() {

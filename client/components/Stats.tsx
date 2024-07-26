@@ -1,8 +1,13 @@
 import React, {useState, useMemo, useEffect} from 'react';
 
 import { Statistics } from '../models';
+import { SettingsManager } from '../settingsManager';
 import API from '../api';
 import {stringifyAirport} from '../utils';
+
+function kmToMiles(km: number): number {
+   return Math.round(km * 0.6213711922);
+}
 
 function StatBox({stat, description}) {
     return (
@@ -15,11 +20,19 @@ function StatBox({stat, description}) {
 
 export function ShortStats() {
     const [statistics, setStatistics] = useState<Statistics>(new Statistics)
+    const metricUnits = SettingsManager.getSetting("metricUnits");
 
     // runs before render
     useMemo(() => {
         API.get("/statistics")
-        .then((data) => setStatistics(data));
+        .then((data) => {
+            if(metricUnits === "false") {
+                data.distance = kmToMiles(data.distance);
+            }
+
+            setStatistics(data);
+        });
+
     }, []);
 
     return (
@@ -31,7 +44,7 @@ export function ShortStats() {
                      description="hours"/>
 
             <StatBox stat={statistics.distance?.toLocaleString() || 0}
-                     description="kilometers"/>
+                     description={metricUnits === "true" ? "kilometers" : "miles"}/>
 
             <StatBox stat={statistics.dpf?.toLocaleString() || 0}
                      description="days per flight"/>
@@ -44,10 +57,17 @@ export function ShortStats() {
 
 export function AllStats({ filters }) {
     const [statistics, setStatistics] = useState<Statistics|null>(null)
+    const metricUnits = SettingsManager.getSetting("metricUnits");
 
     useEffect(() => {
         API.get("/statistics", filters)
-        .then((data) => setStatistics(data));
+        .then((data) => {
+            if(metricUnits === "false") {
+                data.distance = kmToMiles(data.distance);
+            }
+
+            setStatistics(data)
+        });
     }, [filters]);
 
     return (
@@ -57,7 +77,7 @@ export function AllStats({ filters }) {
         <div className="container">
             <p>Number of flights: <span>{statistics.amount || "N/A"}</span></p>
             <p>Total (registered) time spent flying: <span>{statistics.time ? (statistics.time / 60).toLocaleString() : "N/A"} hours</span></p>
-            <p>Total distance travelled: <span>{statistics.distance ? statistics.distance.toLocaleString() : "N/A"} km</span></p>
+            <p>Total distance travelled: <span>{statistics.distance ? statistics.distance.toLocaleString() : "N/A"} {metricUnits === "true" ? "km" : "mi"}</span></p>
             <p>Average days between flights: <span>{statistics.dpf ? statistics.dpf.toLocaleString() : "N/A"} d/f</span></p>
             <p>Total unique airports visited: <span>{statistics.uniqueAirports ? statistics.uniqueAirports : "N/A"}</span></p>
             <p>Most common airport: <span>{statistics.commonAirport ? stringifyAirport(statistics.commonAirport) : "N/A"}</span></p>
