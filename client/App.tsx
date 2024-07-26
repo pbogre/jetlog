@@ -18,7 +18,7 @@ export function App() {
         <BrowserRouter>
         <Navbar />
 
-        <div className="p-3">
+        <div className="p-3 overflow-x-auto">
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/new" element={<New />} />
