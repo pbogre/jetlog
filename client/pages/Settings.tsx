@@ -36,43 +36,45 @@ export default function Settings() {
     <>
         <Heading text="Settings" />
 
-        <div className="container">
-            <Subheading text="Import"/>
+        <div className="flex flex-wrap items-start">
+            <div className="container">
+                <Subheading text="Import"/>
 
-            <form onSubmit={handleImportSubmit}>
-                <Label text="MyFlightRadar24" />
-                <Input type="file" name="myflightradar24" />
+                <form onSubmit={handleImportSubmit}>
+                    <Label text="MyFlightRadar24" />
+                    <Input type="file" name="myflightradar24" />
 
-                <Label text="Custom CSV" />
-                <Input type="file" name="custom" />
+                    <Label text="Custom CSV" />
+                    <Input type="file" name="custom" />
 
-                <br />
-                <Button text="Import" level="success" submit/>
-            </form>
-        </div>
-
-        <div className="container">
-            <Subheading text="Customization" />
-
-            <div className="flex justify-between">
-                <Label text="Frequency based marker size" />
-                <Checkbox name="frequencyBasedMarker" 
-                            checked={options.frequencyBasedMarker === "true"} 
-                            onChange={handleOptionChange} />
+                    <br />
+                    <Button text="Import" level="success" submit/>
+                </form>
             </div>
 
-            <div className="flex justify-between">
-                <Label text="Frequency based line size" />
-                <Checkbox name="frequencyBasedLine" 
-                            checked={options.frequencyBasedLine === "true"} 
-                            onChange={handleOptionChange} />
-            </div>
+            <div className="container">
+                <Subheading text="Customization" />
 
-            <div className="flex justify-between">
-                <Label text="Use metric units" />
-                <Checkbox name="metricUnits" 
-                            checked={options.metricUnits === "true"} 
-                            onChange={handleOptionChange} />
+                <div className="flex justify-between">
+                    <Label text="Frequency based marker size" />
+                    <Checkbox name="frequencyBasedMarker" 
+                                checked={options.frequencyBasedMarker === "true"} 
+                                onChange={handleOptionChange} />
+                </div>
+
+                <div className="flex justify-between">
+                    <Label text="Frequency based line size" />
+                    <Checkbox name="frequencyBasedLine" 
+                                checked={options.frequencyBasedLine === "true"} 
+                                onChange={handleOptionChange} />
+                </div>
+
+                <div className="flex justify-between">
+                    <Label text="Use metric units" />
+                    <Checkbox name="metricUnits" 
+                                checked={options.metricUnits === "true"} 
+                                onChange={handleOptionChange} />
+                </div>
             </div>
         </div>
     </>
