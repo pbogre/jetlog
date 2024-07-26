@@ -1,4 +1,5 @@
 # jetlog
+
 <p align="center">
     <img src="https://img.shields.io/docker/pulls/pbogre/jetlog?style=for-the-badge" />
     <img src="https://img.shields.io/docker/image-size/pbogre/jetlog?style=for-the-badge" />
@@ -8,8 +9,6 @@ A self-hostable personal flight tracker and viewer
 
 ![homepage preview](images/homepage.png)|![all flights preview](images/all-flights.png)
 :--------------------------------------:|:---------------------------------------------:
-
-
 
 ## features
 
