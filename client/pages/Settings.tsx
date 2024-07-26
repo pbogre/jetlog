@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import API from '../api';
 import {Heading, Label, Input, Subheading, Button} from '../components/Elements'
 
 export default function Settings() {
+    const navigate = useNavigate();
 
     const handleImportSubmit = (event) => {
         event.preventDefault();
@@ -13,7 +15,9 @@ export default function Settings() {
             const file = pair[1];
 
             if(file instanceof Blob && file.size > 0) {
-                API.post(`/import?type=${pair[0]}`, file.text()) 
+                var sendFormData = new FormData();
+                sendFormData.append('file', file);
+                API.post(`/importing?csv_type=${pair[0]}`,sendFormData, () => navigate("/"));
             }
         }
     }
