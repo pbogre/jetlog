@@ -72,7 +72,7 @@ export function Button({ text,
 
 //TODO: number only inputs should only allow numbers to be typed
 interface InputProps {
-    type: "text"|"number"|"date"|"time"|"file";
+    type: "text"|"number"|"date"|"time"|"file"|"checkbox";
     name?: string;
     value?: string;
     maxLength?: number;
@@ -100,6 +100,21 @@ export function Input({ type,
                 required={required}
                 placeholder={placeholder}/>
     );
+}
+
+interface CheckboxProps {
+    name?: string;
+    checked?: boolean;
+    onChange?: ((event: ChangeEvent<HTMLInputElement>) => any)|null;
+}
+export function Checkbox({ checked, name, onChange }: CheckboxProps) {
+    return (
+        <input  className="ml-5 bg-white rounded-none outline-none box-border border-2 border-gray-200 hover:border-primary-400"
+                type="checkbox"
+                name={name} 
+                onChange={onChange ? onChange : () => {}}
+                checked={checked} />
+    )
 }
 
 interface OptionProps {
