@@ -30,7 +30,7 @@ that the application in the container runs on port `3000`.
 has appropriate ownership, otherwise it won't start.
 
 **Non-stable releases**: You can pull the image with the `:experimental` tag
-to gain access to the latest featuers which have not been thoroughly tested yet.
+to gain access to the latest features which have not been thoroughly tested yet.
 
 ### manual (development)
 
@@ -52,7 +52,7 @@ to gain access to the latest featuers which have not been thoroughly tested yet.
     ```
 5. All done, you can open `http://localhost:3000` on your browser to view jetlog
 
-## technical documentation
+## API documentation
 
 You can make use of the automatically generated docs (thanks to FastAPI) by
 going to `http://<your-ip>:<your-port>/docs`.
