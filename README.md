@@ -27,6 +27,9 @@ Use the sample `docker-compose.yml` from the repo or make your own.
 Make sure to add a volume from your data path to `/data`, and remember
 that the application in the container runs on port `3000`.
 
+Note: Please make sure that the volume you are binding to the container
+has appropriate ownership, otherwise it won't start.
+
 ### manual (development)
 
 1. Clone the repository and `cd` to it
