@@ -52,7 +52,7 @@ export default function WorldMap() {
 
                 { markers.map((marker) => (
                     <Marker coordinates={[marker.longitude, marker.latitude]}>
-                        <circle r={Math.min(3 + Math.floor(marker.frequency / 3), 12)} fill="#FFA500"/>
+                        <circle r={Math.min(3 + Math.floor(marker.frequency / 3), 6)} fill="#FFA500"/>
                     </Marker>
                 ))} 
 
