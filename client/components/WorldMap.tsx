@@ -41,18 +41,19 @@ export default function WorldMap() {
                     }
                 </Geographies>
 
-                { markers.map((marker) => (
-                    <Marker coordinates={[marker.longitude, marker.latitude]}>
-                        <circle r={3} fill="#FFA500"/>
-                    </Marker>
-                ))} 
-
                 { lines.map((line) => (
                     <Line 
                         from={[line.first.longitude, line.first.latitude]}
                         to={[line.second.longitude, line.second.latitude]}
                         stroke="#FF5533"
-                        strokeWidth={1}/>
+                        strokeWidth={Math.min(1 + Math.floor(line.frequency / 3), 12)}
+                        strokeLinecap="round"/>
+                ))} 
+
+                { markers.map((marker) => (
+                    <Marker coordinates={[marker.longitude, marker.latitude]}>
+                        <circle r={Math.min(3 + Math.floor(marker.frequency / 3), 12)} fill="#FFA500"/>
+                    </Marker>
                 ))} 
 
             </ComposableMap>

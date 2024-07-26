@@ -34,9 +34,11 @@ export class Statistics {
 export class Coord {
     latitude: number;
     longitude: number;
+    frequency: number;
 }
 
 export class Trajectory {
     first: Coord;
     second: Coord;
+    frequency: number;
 }

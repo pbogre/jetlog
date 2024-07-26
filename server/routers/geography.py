@@ -13,6 +13,7 @@ router = APIRouter(
 class Coord(CustomModel):
     latitude: float|None = None
     longitude: float|None = None
+    frequency: int|None = None
 
     def __eq__(self, other) -> bool:
         return self.latitude == other.latitude and self.longitude == other.longitude
@@ -20,6 +21,7 @@ class Coord(CustomModel):
 class Trajectory(CustomModel):
     first: Coord|None = None
     second: Coord|None = None
+    frequency: int|None = None
 
     def __eq__(self, other) -> bool:
         if self.first == other.first and self.second == other.second:
@@ -45,21 +47,35 @@ async def get_airport_markers() -> list[Coord]:
 
     res = database.execute_read_query(query);
 
-    coordinates = []
+    coordinates: list[Coord] = []
 
     for airport_pair in res:
         origin_data = airport_pair[:2]
-        origin_coords = Coord.from_database(origin_data)
+        origin_coords = Coord.from_database(origin_data, explicit={'frequency': 1})
         origin_coords = Coord.model_validate(origin_coords)
-
-        if origin_coords not in coordinates:
-            coordinates.append(origin_coords)
-
+ 
         destination_coords= airport_pair[2:]
-        destination_coords = Coord.from_database(destination_coords)
+        destination_coords = Coord.from_database(destination_coords, explicit={'frequency': 1})
         destination_coords = Coord.model_validate(destination_coords)
 
-        if destination_coords not in coordinates:
+        found_origin = False
+        found_destination = False
+        for coord in coordinates:
+            if coord == origin_coords:
+                found_origin = True
+                if coord.frequency != None:
+                    coord.frequency += 1
+            if coord == destination_coords:
+                found_destination = True
+                if coord.frequency != None:
+                    coord.frequency += 1
+
+            if found_origin and found_destination:
+                break
+
+        if not found_origin:
+            coordinates.append(origin_coords)
+        if not found_destination:
             coordinates.append(destination_coords)
 
     return coordinates
@@ -67,33 +83,35 @@ async def get_airport_markers() -> list[Coord]:
 @router.get("/lines", status_code=200)
 async def get_flight_trajectories() -> list[Trajectory]:
     query = """
-        SELECT DISTINCT o.latitude, o.longitude, d.latitude, d.longitude
+        SELECT o.latitude, o.longitude, d.latitude, d.longitude
         FROM flights f
         JOIN airports o ON f.origin = o.icao 
         JOIN airports d ON f.destination = d.icao"""
 
     res = database.execute_read_query(query);
 
-    lines = []
+    lines: list[Trajectory] = []
 
     for airport_pair in res:
         origin_data = airport_pair[:2]
-        origin_coords = Coord.from_database(origin_data)
+        origin_coords = Coord.from_database(origin_data, explicit={'frequency': 1})
         origin_coords = Coord.model_validate(origin_coords)
 
         destination_coords= airport_pair[2:]
-        destination_coords = Coord.from_database(destination_coords)
+        destination_coords = Coord.from_database(destination_coords, explicit={'frequency': 1})
         destination_coords = Coord.model_validate(destination_coords)
 
-        line = Trajectory(first=origin_coords, second=destination_coords)
-        
-        unique = True
+        line = Trajectory(first=origin_coords, second=destination_coords, frequency=1)
+ 
+        found = False
         for l in lines:
             if l == line:
-                unique = False
+                found = True
+                if l.frequency != None:
+                    l.frequency += 1
                 break
 
-        if unique:
+        if not found:
             lines.append(line)
 
     return lines
