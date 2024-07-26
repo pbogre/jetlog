@@ -14,7 +14,7 @@ class CSVType(str, Enum):
     MYFLIGHTRADAR24 = "myflightradar24"
     CUSTOM = "custom"
 
-@router.post("/importing", status_code=202)
+@router.post("", status_code=202)
 async def import_csv(csv_type: CSVType, file: UploadFile):
     imported_flights: list[FlightModel] = []
     failed_imports: dict[int, Exception] = {}
