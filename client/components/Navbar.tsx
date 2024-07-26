@@ -29,7 +29,7 @@ function NavMenu({ items }) {
             <p className="p-4 text-white cursor-pointer float-right" onClick={() => setOpen(!open)}>{open ? "x" : "Menu"}</p>
             { open &&
             <div className="bg-gray-700 absolute top-[3.5em] right-0">
-                {[items.home, items.new, items.flight, items.statistics, items.settings]}
+                {[items.home, items.new, items.flights, items.statistics, items.settings]}
             </div>
             }
         </div>
