@@ -53,9 +53,9 @@ class CustomModel(CamelableModel):
         return True
 
 class SeatType(str, Enum):
-    AISLE = "aisle"
-    MIDDLE = "middle"
     WINDOW = "window"
+    MIDDLE = "middle"
+    AISLE = "aisle"
 
 class AirportModel(CustomModel):
     icao:      str|None = None
