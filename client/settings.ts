@@ -7,8 +7,8 @@ export interface SettingsInterface {
 }
 
 const defaultSettings: SettingsInterface = {
-    frequencyBasedMarker: "true",
-    frequencyBasedLine: "true",
+    frequencyBasedMarker: "false",
+    frequencyBasedLine: "false",
     militaryClock: "true",
     metricUnits: "true"
 }
