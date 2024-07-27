@@ -52,6 +52,47 @@ to gain access to the latest features which have not been thoroughly tested yet.
     ```
 5. All done, you can open `http://localhost:3000` on your browser to view jetlog
 
+## importing
+
+The API has a dedicated `/importing` endpoint, which supports the formats described below
+
+### MyFlightRadar24
+
+1. Go to `MyFlightRadar24 > Settings > Export` and download the CSV
+2. Go to `Jetlog > Settings > Import`
+3. Upload your CSV in the `MyFlightRadar24` section and press `Import`
+4. Check your logs for progress
+
+### Custom CSV
+
+This format allows you to create a custom CSV that will be imported.
+The CSV should have the following columns (order doesn't matter):
+
+|Column name     |Required|Format|
+|----------------|--------|-----------|
+|`date`          | `Yes`  |`YYYY-MM-DD`|
+|`origin`        | `Yes`  |ICAO code of origin airport (4 letters)|
+|`destination`   | `Yes`  |ICAO code of destination airport (4 letters)|
+|`departure_time`| `No`   |`HH:MM`|
+|`arrival_time`  | `No`   |`HH:MM`|
+|`seat`          | `No`   |One of `window`,`middle`,`aisle`|
+|`duration`      | `No`   |Number of minutes (integer)|
+|`distance`      | `No`   |Kilometers (!)|
+|`airplane`      | `No`   |String|
+
+The importing logs should give you information about any errors.
+
+Here's an example custom CSV:
+```csv
+date,distance,origin,destination,arrival_time,departure_time
+2024-03-14,800,lime,eheh,11:20,10:00
+2024-03-19,800,eheh,lime,18:40,16:30
+```
+
+1. Go to `Jetlog > Settings > Import`
+2. Upload your CSV in the `Custom CSV` section and press `Import`
+3. Check your logs for progress
+
 ## API documentation
 
 You can make use of the automatically generated docs (thanks to FastAPI) by
