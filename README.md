@@ -52,9 +52,9 @@ Use the sample `docker-compose.yml` from the repo or make your own. Make sure to
 
 | Name        | Default | Function            |
 |-------------|---------|---------------------|
-| PGID        | 1000    | Group ID for JetLog |
-| PUID        | 1000    | User ID for JetLog  |
-| JETLOG_PORT | 3000    | HTTP Port           |
+| `PGID`        | `1000`    | Group ID for Jetlog |
+| `PUID`        | `1000`    | User ID for Jetlog  |
+| `JETLOG_PORT` | `3000`    | HTTP Port           |
 
 ## API documentation
 
