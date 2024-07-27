@@ -5,10 +5,6 @@ import { SettingsManager } from '../settingsManager';
 import API from '../api';
 import {stringifyAirport} from '../utils';
 
-function kmToMiles(km: number): number {
-   return Math.round(km * 0.6213711922);
-}
-
 function StatBox({stat, description}) {
     return (
         <div className="container bg-gray-100 text-center rounded-full">
@@ -24,12 +20,8 @@ export function ShortStats() {
 
     // runs before render
     useMemo(() => {
-        API.get("/statistics")
+        API.get(`/statistics?metric=${metricUnits}`)
         .then((data) => {
-            if(metricUnits === "false") {
-                data.distance = kmToMiles(data.distance);
-            }
-
             setStatistics(data);
         });
 
@@ -44,7 +36,7 @@ export function ShortStats() {
                      description="hours"/>
 
             <StatBox stat={statistics.distance?.toLocaleString() || 0}
-                     description={metricUnits === "true" ? "kilometers" : "miles"}/>
+                     description={metricUnits === "false" ? "miles" : "kilometers"}/>
 
             <StatBox stat={statistics.dpf?.toLocaleString() || 0}
                      description="days per flight"/>
@@ -60,12 +52,8 @@ export function AllStats({ filters }) {
     const metricUnits = SettingsManager.getSetting("metricUnits");
 
     useEffect(() => {
-        API.get("/statistics", filters)
+        API.get(`/statistics?metric=${metricUnits}`, filters)
         .then((data) => {
-            if(metricUnits === "false") {
-                data.distance = kmToMiles(data.distance);
-            }
-
             setStatistics(data)
         });
     }, [filters]);
@@ -77,7 +65,7 @@ export function AllStats({ filters }) {
         <div className="container">
             <p>Number of flights: <span>{statistics.amount || "N/A"}</span></p>
             <p>Total (registered) time spent flying: <span>{statistics.time ? (statistics.time / 60).toLocaleString() : "N/A"} hours</span></p>
-            <p>Total distance travelled: <span>{statistics.distance ? statistics.distance.toLocaleString() : "N/A"} {metricUnits === "true" ? "km" : "mi"}</span></p>
+            <p>Total distance travelled: <span>{statistics.distance ? statistics.distance.toLocaleString() : "N/A"} {metricUnits === "false" ? "mi" : "km"}</span></p>
             <p>Average days between flights: <span>{statistics.dpf ? statistics.dpf.toLocaleString() : "N/A"} d/f</span></p>
             <p>Total unique airports visited: <span>{statistics.uniqueAirports ? statistics.uniqueAirports : "N/A"}</span></p>
             <p>Most common airport: <span>{statistics.commonAirport ? stringifyAirport(statistics.commonAirport) : "N/A"}</span></p>

@@ -66,6 +66,7 @@ async def delete_flight(id: int) -> int:
 
 @router.get("", status_code=200)
 async def get_flights(id: int|None = None, 
+                      metric: bool = True,
                       limit: int = 50, 
                       offset: int = 0, 
                       order: Order = Order.desc,
@@ -116,7 +117,11 @@ async def get_flights(id: int|None = None,
         origin = AirportModel.from_database(db_origin)
         destination = AirportModel.from_database(db_destination)
 
-        flight = FlightModel.from_database(db_flight, { "origin": origin, "destination": destination } ) 
+        flight = FlightModel.from_database(db_flight, { "origin": origin, "destination": destination } )
+
+        if not metric and flight.distance:
+            flight.distance = round(flight.distance * 0.6213711922)
+
         flights.append(flight)
 
     if id and not flights:

@@ -10,7 +10,9 @@ router = APIRouter(
 )
 
 @router.get("", status_code=200)
-async def get_statistics(start: datetime.date|None = None, end: datetime.date|None = None) -> StatisticsModel:    
+async def get_statistics(metric: bool = True,
+                         start: datetime.date|None = None,
+                         end: datetime.date|None = None) -> StatisticsModel:    
     date_filter_start = "WHERE" if start or end else ""
 
     date_filter = ""
@@ -73,4 +75,8 @@ async def get_statistics(start: datetime.date|None = None, end: datetime.date|No
     airport = AirportModel.from_database(airport_db)
 
     stats = StatisticsModel.from_database(res[:begin_airport], { "common_airport": airport })
+
+    if not metric and stats.distance:
+        stats.distance = round(stats.distance * 0.6213711922)
+
     return StatisticsModel.model_validate(stats)
