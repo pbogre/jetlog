@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { SettingsManager } from '../settingsManager';
 import { Flight } from '../models'
 import API from '../api'
 
@@ -23,9 +24,10 @@ function TableHeading({ text }) {
 export default function FlightsTable({ filters }) {
     const [flights, setFlights] = useState<Flight[]>([]);
     const navigate = useNavigate();
+    const metricUnits = SettingsManager.getSetting("metricUnits");
 
     useEffect(() => {
-        API.get("/flights", filters)
+        API.get(`/flights?metric=${metricUnits}`, filters)
         .then((data) => {
             setFlights(data);
         });
@@ -70,7 +72,7 @@ export default function FlightsTable({ filters }) {
                 <TableCell text={flight.departureTime || "N/A"}/>
                 <TableCell text={flight.arrivalTime || "N/A"}/>
                 <TableCell text={flight.duration ? flight.duration + " min" : "N/A"}/>
-                <TableCell text={flight.distance ? flight.distance.toLocaleString() + " km" : "N/A"}/>
+                <TableCell text={flight.distance ? flight.distance.toLocaleString() + (metricUnits === "false" ? " mi" : " km") : "N/A"}/>
                 <TableCell text={flight.seat || "N/A"}/>
                 <TableCell text={flight.airplane || "N/A"}/>
             </tr>
