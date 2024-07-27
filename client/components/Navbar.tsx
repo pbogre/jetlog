@@ -24,11 +24,15 @@ function NavItem({ to, text, right = false }: NavItemProps) {
 function NavMenu({ items }) {
     const [open, setOpen] = useState<boolean>(false);
 
+    const toggleOpen = () => {
+        setOpen(!open);
+    }
+
     return (
         <div>
-            <p className="p-4 text-white cursor-pointer float-right" onClick={() => setOpen(!open)}>{open ? "x" : "Menu"}</p>
+            <p className="p-4 text-white cursor-pointer float-right" onClick={toggleOpen}>{open ? "x" : "Menu"}</p>
             { open &&
-            <div className="bg-gray-700 absolute top-[3.5em] right-0">
+            <div className="bg-gray-700 absolute top-[3.5em] right-0" onClick={toggleOpen}>
                 {[items.home, items.new, items.flights, items.statistics, items.settings]}
             </div>
             }
