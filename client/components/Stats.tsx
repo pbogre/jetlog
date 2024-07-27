@@ -68,7 +68,7 @@ export function AllStats({ filters }) {
             <p>Total distance travelled: <span>{statistics.distance ? statistics.distance.toLocaleString() : "N/A"} {metricUnits === "false" ? "mi" : "km"}</span></p>
             <p>Average days between flights: <span>{statistics.dpf ? statistics.dpf.toLocaleString() : "N/A"} d/f</span></p>
             <p>Total unique airports visited: <span>{statistics.uniqueAirports ? statistics.uniqueAirports : "N/A"}</span></p>
-            <p>Most common airport: <span>{statistics.commonAirport ? stringifyAirport(statistics.commonAirport) : "N/A"}</span></p>
+            <p>Most common airport: <span>{stringifyAirport(statistics.commonAirport)}</span></p>
             <p>Most common seat: <span>{statistics.commonSeat ? statistics.commonSeat : "N/A"}</span></p>
         </div>
         }
