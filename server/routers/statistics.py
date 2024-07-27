@@ -54,8 +54,8 @@ async def get_statistics(metric: bool = True,
         FROM flights 
 
         JOIN airports AS common_airport 
-        ON icao = (
-            SELECT ap
+        ON LOWER(icao) = (
+            SELECT LOWER(ap)
             FROM (
                 SELECT origin AS ap FROM flights {date_filter_start} {date_filter}
                 UNION ALL

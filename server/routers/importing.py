@@ -113,12 +113,13 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
                     attr_index = present_columns[key]
                     setattr(flight, key, values[attr_index])
 
-                # validate date, airports, times
+                # validate date, airports, times, seat
                 FlightModel(date=flight.date, 
                             origin=flight.origin, 
                             destination=flight.destination,
                             departure_time=flight.departure_time,
-                            arrival_time=flight.arrival_time)
+                            arrival_time=flight.arrival_time,
+                            seat=flight.seat)
 
                 imported_flights.append(flight)
 
