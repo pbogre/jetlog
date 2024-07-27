@@ -50,11 +50,13 @@ Use the sample `docker-compose.yml` from the repo or make your own. Make sure to
 
 ### Configuration
 
-| Name        | Default | Function            |
-|-------------|---------|---------------------|
-| `PGID`        | `1000`    | Group ID for Jetlog |
-| `PUID`        | `1000`    | User ID for Jetlog  |
-| `JETLOG_PORT` | `3000`    | HTTP Port           |
+| Name          | Default | Function            |
+|---------------|---------|---------------------|
+| `APP_PATH`    | `/app`  | App path            |
+| `DATA_PATH`   | `/data` | Data path           |
+| `PGID`        | `1000`  | Group ID for Jetlog |
+| `PUID`        | `1000`  | User ID for Jetlog  |
+| `JETLOG_PORT` | `3000`  | HTTP Port           |
 
 ## API documentation
 
