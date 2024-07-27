@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { SettingsManager } from '../settingsManager';
+import { Whisper } from './Elements';
 import { Flight } from '../models'
 import API from '../api'
 
@@ -80,9 +81,7 @@ export default function FlightsTable({ filters }) {
         </table>
         </div>
 
-        <p className="text-sm font-mono text-gray-700/60">
-            Showing at most 50 flights by default. Adjust filters for more.
-        </p>
+        <Whisper text="Showing at most 50 flights by default. Adjust filters for more." />
     </>
     );
 }

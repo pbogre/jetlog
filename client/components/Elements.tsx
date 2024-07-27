@@ -5,7 +5,7 @@ interface HeadingProps {
 }
 export function Heading({ text }: HeadingProps) {
     return (
-        <h1 className="mb-3 text-3xl font-bold">{ text }</h1>
+        <h1 className="mb-3 text-3xl font-bold">{text}</h1>
     );
 }
 
@@ -16,6 +16,18 @@ export function Subheading({ text }: SubheadingProps) {
     return (
         <h3 className="mb-2 font-bold text-lg">{text}</h3>
     );
+}
+
+interface WhisperProps {
+    text: string;
+    negativeTopMargin?: boolean;
+}
+export function Whisper({ text, negativeTopMargin = false}: WhisperProps) {
+    return (
+        <p className={`${negativeTopMargin ? "-mt-4" : ""} text-sm font-mono text-gray-700/60`}>
+            {text}
+        </p>
+    )
 }
 
 interface LabelProps {
@@ -70,7 +82,6 @@ export function Button({ text,
     );
 }
 
-//TODO: number only inputs should only allow numbers to be typed
 interface InputProps {
     type: "text"|"number"|"date"|"time"|"file"|"checkbox";
     name?: string;

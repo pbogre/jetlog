@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 
-import { Input } from '../components/Elements'
+import { Input, Whisper } from '../components/Elements'
 import API from '../api';
 import { Airport } from '../models';
 import { stringifyAirport } from '../utils';
@@ -14,15 +14,6 @@ interface AirportInputProps {
 export default function AirportInput({ onSelected }: AirportInputProps) {
     const [airportsData, setAirportsData] = useState<Airport[]>([]);
     const [selectedAirport, setSelectedAirport] = useState<Airport|null>(null);
-
-    //const randomPlaceholder = () => {
-    //   const array = [ "BGY", "EIN", "FNC", "DEN", "ORD", "HKG", "MAD", "MIA", "MUC",
-   //                     "Bergamo", "Eindhoven", "Funchal", "Denver", "Chicago", "Hong Kong",
-    //                    "Miami", "Munich" ];
-    //    const random = array[Math.floor(Math.random() * array.length)];
-
-     //   return random;
-   // }
 
     const handleInputChange = (event) => {
         const value = event.target.value;
@@ -72,9 +63,7 @@ export default function AirportInput({ onSelected }: AirportInputProps) {
         }
 
         { selectedAirport &&
-        <p className="-mt-4 mb-2 text-sm font-mono text-gray-700/60">
-            selected: {stringifyAirport(selectedAirport)}
-        </p>
+        <Whisper text={`selected: ${stringifyAirport(selectedAirport)}`} negativeTopMargin />
         }
         </>
     );
