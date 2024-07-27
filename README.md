@@ -40,7 +40,7 @@ Make sure to add a volume from your data path to `/data`, and remember that the 
 **Note**: Please make sure that the volume you are binding to the container has appropriate ownership, otherwise it won't start. 
 To do this, you can either create the folder to be used as volume before running the container for the first time, or let docker 
 create it first and then set its ownership manually by running `sudo chown -R 1000:1000 /path/to/volume/folder` (you can change
-`1000:1000` to whatever your user and group IDs are.
+`1000:1000` to whatever your user and group IDs are).
 
 **Non-stable releases**: You can pull the image with the `:experimental` tag to gain access to the latest features which have not been thoroughly tested yet.
 
