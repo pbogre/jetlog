@@ -25,7 +25,7 @@ A self-hostable personal flight tracker and viewer
 
 - 🌍 World map view of all visited airports and trajectories of flights
 - 📊 Statistics for all your flights
-- 📱 (semi-)Responsive design
+- 📱 Responsive design
 - 👨‍💻 Sleek and intuitive UI
 - ✅ Effortlessly add, edit, and delete past flights
 
