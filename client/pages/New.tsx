@@ -26,7 +26,6 @@ function FlightDetails() {
 
     const updateFlight = (key: string, value: any) => {
         setFlight({...flight, [key]: value});
-        console.log(flight);
     };
 
     const setAirport = (airport: Airport, type: "origin"|"destination") => {

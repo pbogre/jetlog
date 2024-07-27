@@ -37,7 +37,6 @@ class SettingsManagerClass {
             settings[key] = this.getSetting(key);
         }
 
-        console.log(settings);
         return settings;
     }
 

@@ -54,8 +54,6 @@ export default function SingleFlight({ flightID }) {
     }
 
     const handleSaveClick = () => {
-        console.log(flightPatch);
-
         if(!flightPatch) {
             this.toggleEditMode();
             return;
