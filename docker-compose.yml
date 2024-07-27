@@ -1,6 +1,6 @@
 services:
   jetlog:
-    image: pbogre/jetlog
+    image: pbogre/jetlog:latest
     environment:
      #- PUID=1000
      #- PGID=1000
