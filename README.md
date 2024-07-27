@@ -9,6 +9,17 @@ A self-hostable personal flight tracker and viewer
 ![homepage preview](images/homepage.png)|![all flights preview](images/all-flights.png)
 :--------------------------------------:|:---------------------------------------------:
 
+## Index
+- [Features](#features)
+- [Installation](#installation)
+  - [Docker](#docker-recommended)
+  - [Manual](#manual-development)
+- [Importing](#importing)
+  - [MyFlightRadar24](#myflightradar24)
+  - [Custom](#custom-csv)
+- [API](#api-documentation)
+- [Stack](#stack)
+- [Other credits](#other-credits)
 
 ## features
 
