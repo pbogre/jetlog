@@ -42,8 +42,8 @@ async def get_airport_markers() -> list[Coord]:
     query = """
         SELECT o.latitude, o.longitude, d.latitude, d.longitude
         FROM flights f
-        JOIN airports o ON f.origin = o.icao 
-        JOIN airports d ON f.destination = d.icao"""
+        JOIN airports o ON LOWER(f.origin) = LOWER(o.icao)
+        JOIN airports d ON LOWER(f.destination) = LOWER(d.icao)"""
 
     res = database.execute_read_query(query);
 
@@ -85,8 +85,8 @@ async def get_flight_trajectories() -> list[Trajectory]:
     query = """
         SELECT o.latitude, o.longitude, d.latitude, d.longitude
         FROM flights f
-        JOIN airports o ON f.origin = o.icao 
-        JOIN airports d ON f.destination = d.icao"""
+        JOIN airports o ON LOWER(f.origin) = LOWER(o.icao) 
+        JOIN airports d ON LOWER(f.destination) = LOWER(d.icao)"""
 
     res = database.execute_read_query(query);
 

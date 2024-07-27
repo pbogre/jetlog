@@ -43,7 +43,12 @@ class Database(AbstractDatabase):
 
         else:
             print("Database file not found, creating it...")
-            self.connection = sqlite3.connect(db_path)
+            
+            try:
+                self.connection = sqlite3.connect(db_path)
+            except Exception:
+                print(f"Could not create database. Please check your volume's ownership")
+                exit()
 
             try:
                 self.initialize_tables()

@@ -1,6 +1,7 @@
 import React from 'react';
 
-import {ShortStats} from '../components/Stats';
+import { Whisper } from '../components/Elements';
+import { ShortStats } from '../components/Stats';
 import WorldMap from '../components/WorldMap';
 
 export default function Home() {
@@ -8,8 +9,9 @@ export default function Home() {
         <>
             <ShortStats />
 
-            <div>
+            <div className="md:w-4/5 md:m-auto">
                 <WorldMap />
+                <Whisper text="Tip: You can zoom and pan the map!" />
             </div>
         </>
     );

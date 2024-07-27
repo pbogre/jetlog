@@ -1,4 +1,6 @@
 import datetime
+
+from pydantic import ValidationError
 from server.models import FlightModel, SeatType
 from server.routers.flights import add_flight
 from fastapi import APIRouter, HTTPException, UploadFile
@@ -15,10 +17,11 @@ class CSVType(str, Enum):
     CUSTOM = "custom"
 
 @router.post("", status_code=202)
-async def import_csv(csv_type: CSVType, file: UploadFile):
+async def import_CSV(csv_type: CSVType, file: UploadFile):
     imported_flights: list[FlightModel] = []
-    failed_imports: dict[int, Exception] = {}
+    fail_count = 0
 
+    print(f"Parsing CSV into flights...")
     if csv_type == CSVType.MYFLIGHTRADAR24:
         count = 0
         for line in file.file:
@@ -63,13 +66,80 @@ async def import_csv(csv_type: CSVType, file: UploadFile):
 
                 imported_flights.append(flight)
             except Exception as e:
-                failed_imports[count] = e
+                print(f"[{count}] Failed to parse: '{e}'")
+                fail_count += 1
 
             count += 1
 
-    if failed_imports:
-        print(f"Import failures: {failed_imports}")
+    elif csv_type == CSVType.CUSTOM:
+        expected = FlightModel.get_attributes()
+        present_columns: dict[str, int] = {}
 
-    for flight in imported_flights:
-        res = await add_flight(flight)
-        print(f"Successfully added flight, id={res}")
+        count = 0
+        for line in file.file:
+            line = line.decode()
+
+            if line == '\n':
+                continue
+
+            if count == 0:
+                columns = line.split(',')
+                columns = [ col.replace('\n', '') for col in columns ]
+
+                for i in range(len(columns)):
+                    col = columns[i]
+
+                    if col not in expected:
+                        print(f"Unidentifiable column name '{col}', skipping column...")
+                        continue
+
+                    if col in present_columns:
+                        print(f"Duplicate column name '{col}', using first instance...")
+                        continue
+
+                    present_columns[col] = i
+
+                print(f"Detected columns: {present_columns}")
+                count += 1
+                continue
+
+            values = line.split(',')
+            values = [ val.replace('\n', '') for val in values ] 
+            try:
+                assert len(values) == len(present_columns), f"Expected {len(present_columns)} entries, got {len(values)}"
+                flight = FlightModel()
+
+                for key in present_columns:
+                    attr_index = present_columns[key]
+                    setattr(flight, key, values[attr_index])
+
+                # validate date, airports, times, seat
+                FlightModel(date=flight.date, 
+                            origin=flight.origin, 
+                            destination=flight.destination,
+                            departure_time=flight.departure_time,
+                            arrival_time=flight.arrival_time,
+                            seat=flight.seat)
+
+                imported_flights.append(flight)
+
+            except Exception as e:
+                print(f"[{count}] Failed to parse: '{e}'")
+                fail_count += 1
+
+            count += 1
+
+    print(f"Parsing process complete with {fail_count} failures")
+
+
+    print(f"Importing {len(imported_flights)} flights...")
+    for i in range(len(imported_flights)):
+        progress = f"[{i+1}/{len(imported_flights)}]" 
+        try:
+            res = await add_flight(imported_flights[i])
+            print(f"{progress} Successfully added flight (id: {res})")
+        except HTTPException as e:
+            print(f"{progress} Failed import: {e.detail}")
+            fail_count += 1
+
+    print(f"Importing process complete with {fail_count} total failures")

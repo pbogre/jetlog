@@ -3,6 +3,7 @@ from server.models import AirportModel, FlightModel
 from fastapi import APIRouter, HTTPException
 from enum import Enum
 import datetime
+import math
 
 router = APIRouter(
     prefix="/flights",
@@ -14,11 +15,56 @@ class Order(str, Enum):
     asc = "ASC"
     desc = "DESC"
 
+# https://en.wikipedia.org/wiki/Haversine_formula
+def spherical_distance(origin: AirportModel, destination: AirportModel) -> int:
+    if not origin.latitude or not origin.longitude or not destination.latitude or not destination.longitude:
+        return 0
+
+    #convert to radian
+    origin_lat = origin.latitude * math.pi / 180.0;
+    origin_lon = origin.longitude * math.pi / 180.0;
+    destination_lat = destination.latitude * math.pi / 180.0;
+    destination_lon = destination.longitude * math.pi / 180.0;
+
+    # get deltas
+    delta_lat = origin_lat - destination_lat;
+    delta_lon = origin_lon - destination_lon;
+
+    # apply Haversine formulas
+    hav_delta_lat = math.sin(delta_lat / 2) ** 2;
+    hav_delta_lon = math.sin(delta_lon / 2) ** 2;
+
+    hav_theta = hav_delta_lat + (hav_delta_lon * math.cos(origin_lat) * math.cos(destination_lat))
+
+    earth_radius = 6371; # km
+    distance = 2 * earth_radius * math.asin(math.sqrt(hav_theta));
+
+    return round(distance);
+
 @router.post("", status_code=201)
 async def add_flight(flight: FlightModel) -> int:
     if not (flight.date and flight.origin and flight.destination):
         raise HTTPException(status_code=404, 
                             detail="Insufficient flight data. Date, Origin, and Destination are required")
+
+    # if distance not given, calculate it
+    if not flight.distance:
+        # if only icao given, retrieve AirportModel
+        if type(flight.origin) == str:
+            res = database.execute_read_query(f"SELECT * FROM airports WHERE LOWER(icao) = LOWER(?);", [flight.origin])
+            origin = AirportModel.from_database(res[0])
+
+            flight.origin = origin
+
+        if type(flight.destination) == str:
+            res = database.execute_read_query(f"SELECT * FROM airports WHERE LOWER(icao) = LOWER(?);", [flight.destination])
+            destination = AirportModel.from_database(res[0])
+
+            flight.destination = destination
+
+        # finally, calculate and set distance
+        if type(flight.origin) == AirportModel and type(flight.destination) == AirportModel:
+            flight.distance = spherical_distance(flight.origin, flight.destination)
 
     columns = FlightModel.get_attributes(False)
 
@@ -66,6 +112,7 @@ async def delete_flight(id: int) -> int:
 
 @router.get("", status_code=200)
 async def get_flights(id: int|None = None, 
+                      metric: bool = True,
                       limit: int = 50, 
                       offset: int = 0, 
                       order: Order = Order.desc,
@@ -116,7 +163,11 @@ async def get_flights(id: int|None = None,
         origin = AirportModel.from_database(db_origin)
         destination = AirportModel.from_database(db_destination)
 
-        flight = FlightModel.from_database(db_flight, { "origin": origin, "destination": destination } ) 
+        flight = FlightModel.from_database(db_flight, { "origin": origin, "destination": destination } )
+
+        if not metric and flight.distance:
+            flight.distance = round(flight.distance * 0.6213711922)
+
         flights.append(flight)
 
     if id and not flights:

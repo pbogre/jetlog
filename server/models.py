@@ -1,4 +1,5 @@
 import datetime
+import time
 from server.database import database
 from pydantic import BaseModel, field_validator
 from enum     import Enum
@@ -75,7 +76,7 @@ class AirportModel(CustomModel):
         res = database.execute_read_query(f"SELECT icao FROM airports WHERE LOWER(icao) = LOWER(?);", [v]);
 
         if len(res) < 1:
-            raise ValueError(f"must have valid ICAO code")
+            raise ValueError("must have valid ICAO code")
 
         return v
 
@@ -103,7 +104,21 @@ class FlightModel(CustomModel):
             return None
 
         v = v.icao if type(v) == AirportModel else v
-        AirportModel.__pydantic_validator__.validate_assignment(AirportModel.model_construct(), "icao", v)
+        AirportModel(icao=v)
+
+        return v
+
+    @field_validator('departure_time', 'arrival_time')
+    @classmethod
+    def time_must_be_hh_mm(cls, v) -> str|None:
+        if not v:
+            return None
+
+        try:
+            time.strptime(v, '%H:%M')
+            assert len(v) == 5
+        except:
+            raise ValueError(f"must be in HH:MM format, got '{v}'")
 
         return v
 

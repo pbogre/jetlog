@@ -16,7 +16,7 @@ const defaultSettings: SettingsInterface = {
 }
 
 class SettingsManagerClass {
-    SettingsManager() {
+    constructor() {
         for(let key of SettingsKeys) {
             const current = localStorage.getItem(key);
 
@@ -37,7 +37,6 @@ class SettingsManagerClass {
             settings[key] = this.getSetting(key);
         }
 
-        console.log(settings);
         return settings;
     }
 

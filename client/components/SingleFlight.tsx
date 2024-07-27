@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
+import { SettingsManager } from '../settingsManager';
 import { Button, Heading, Input, Select, Subheading } from '../components/Elements'
 import { Airport, Flight } from '../models';
 import API from '../api';
@@ -22,9 +23,10 @@ export default function SingleFlight({ flightID }) {
     const [flightPatch, setFlightPatch] = useState<FlightPatchOptions>({});
     const [editMode, setEditMode] = useState<Boolean>(false);
     const navigate = useNavigate();
+    const metricUnits = SettingsManager.getSetting("metricUnits");
 
     useEffect(() => {
-        API.get(`/flights?id=${flightID}`)
+        API.get(`/flights?id=${flightID}&metric=${metricUnits}`)
         .then((data) => {
             setFlight(data);
         });
@@ -54,8 +56,6 @@ export default function SingleFlight({ flightID }) {
     }
 
     const handleSaveClick = () => {
-        console.log(flightPatch);
-
         if(!flightPatch) {
             this.toggleEditMode();
             return;
@@ -102,13 +102,13 @@ export default function SingleFlight({ flightID }) {
                     <>
                         <p>Origin: <AirportInput onSelected={(airport: Airport) => updateFlightPatch("origin", airport)} /></p>
                         <p>Destination: <AirportInput onSelected={(airport: Airport) => updateFlightPatch("destination", airport)} /></p>
-                        <p>Distance: <Input type="number" onChange={(e) => updateFlightPatch("distance", e.target.value)} /></p>
+                        <p>Distance (km): <Input type="number" onChange={(e) => updateFlightPatch("distance", e.target.value)} /></p>
                     </>
                     :
                     <>
                         <p>Origin: <span>{flight.origin.iata || flight.origin.icao} ({flight.origin.city}/{flight.origin.country})</span></p>
                         <p>Destination: <span>{flight.destination.iata || flight.destination.icao} ({flight.destination.city}/{flight.destination.country})</span></p>
-                        <p>Distance: <span>{flight.distance ? flight.distance + " km" : "N/A"}</span></p>
+                        <p>Distance: <span>{flight.distance ? flight.distance + (metricUnits === "false" ? " mi" : " km") : "N/A"}</span></p>
                     </>
                     }
                 </div>

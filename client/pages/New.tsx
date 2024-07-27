@@ -26,7 +26,6 @@ function FlightDetails() {
 
     const updateFlight = (key: string, value: any) => {
         setFlight({...flight, [key]: value});
-        console.log(flight);
     };
 
     const setAirport = (airport: Airport, type: "origin"|"destination") => {
@@ -38,32 +37,6 @@ function FlightDetails() {
         const value = event.target.value;
 
         updateFlight(key, value);
-    }
-
-    // https://en.wikipedia.org/wiki/Haversine_formula
-    const sphericalDistance = (originLat: number, originLon: number, 
-                               destinationLat: number, destinationLon: number) => {
-        // convert to radian
-        originLat *= Math.PI / 180.0;
-        originLon *= Math.PI / 180.0;
-        destinationLat *= Math.PI / 180.0;
-        destinationLon *= Math.PI / 180.0;
-
-        // get delta's
-        const deltaLat = originLat - destinationLat;
-        const deltaLon = originLon - destinationLon;
-
-        // apply Haversine formulas
-        const havDeltaLat = Math.pow(Math.sin(deltaLat / 2), 2);
-        const havDeltaLon = Math.pow(Math.sin(deltaLon / 2), 2);
-
-        const havTheta = havDeltaLat + 
-                         havDeltaLon * Math.cos(originLat) * Math.cos(destinationLat)
-
-        const earthRadius = 6371; // km
-        const distance = 2 * earthRadius * Math.asin(Math.sqrt(havTheta));
-
-        return Math.round(distance);
     }
 
     const handleSubmit = (event) => {
@@ -83,13 +56,6 @@ function FlightDetails() {
 
             flight.duration = duration_minutes; // no time to lose
         };
-
-        // calculate distance
-        const distance = sphericalDistance(flight.origin.latitude,
-                                           flight.origin.longitude,
-                                           flight.destination.latitude,
-                                           flight.destination.longitude);
-        flight.distance = distance;
 
         API.post("/flights", flight, () => navigate("/"))
     }
