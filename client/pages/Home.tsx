@@ -8,8 +8,11 @@ export default function Home() {
         <>
             <ShortStats />
 
-            <div>
+            <div className="md:w-4/5 md:m-auto">
                 <WorldMap />
+                <p className="text-sm font-mono text-gray-700/60">
+                    Tip: You can zoom and pan the map!
+                </p>
             </div>
         </>
     );
