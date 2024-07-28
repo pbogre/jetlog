@@ -171,7 +171,7 @@ async def get_flights(id: int|None = None,
         flights.append(flight)
 
     if id and not flights:
-        raise HTTPException(status_code=400, detail=f"Flight with id '{str(id)}' not found.")
+        raise HTTPException(status_code=404, detail=f"Flight with id '{str(id)}' not found.")
 
     if id:
         return FlightModel.model_validate(flights[0])
