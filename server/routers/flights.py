@@ -130,14 +130,7 @@ async def get_flights(id: int|None = None,
 
     query = f"""
         SELECT 
-            f.id, 
-            f.date, 
-            f.departure_time, 
-            f.arrival_time, 
-            f.seat,
-            f.duration, 
-            f.distance, 
-            f.airplane,
+            f.*,
             o.*, 
             d.*
         FROM flights f 
@@ -150,6 +143,9 @@ async def get_flights(id: int|None = None,
         OFFSET {offset};"""
 
     res = database.execute_read_query(query);
+
+    # get rid of origin, destination ICAOs for proper conversion
+    res = [ flight_db[:2] + flight_db[4:] for flight_db in res ]
 
     flights = []
 
