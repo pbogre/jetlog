@@ -111,6 +111,13 @@ function FlightDetails() {
                            value={flight.airplane}
                            placeholder="B738"
                            onChange={handleChange} />
+                    <br />
+                    <Label text="Flight Number"/>
+                    <Input type="text"
+                           name="flightNumber"
+                           value={flight.flightNumber}
+                           placeholder="FR2460"
+                           onChange={handleChange} />
                 </div>
 
             </div>

@@ -63,6 +63,7 @@ export default function FlightsTable({ filters }) {
                 <TableHeading text="Distance"/>
                 <TableHeading text="Seat"/>
                 <TableHeading text="Airplane"/>
+                <TableHeading text="Flight Number"/>
             </tr>
             { flights.map((flight: Flight) => (
             <tr className="cursor-pointer even:bg-gray-100 hover:bg-gray-200 duration-75" 
@@ -76,6 +77,7 @@ export default function FlightsTable({ filters }) {
                 <TableCell text={flight.distance ? flight.distance.toLocaleString() + (metricUnits === "false" ? " mi" : " km") : "N/A"}/>
                 <TableCell text={flight.seat || "N/A"}/>
                 <TableCell text={flight.airplane || "N/A"}/>
+                <TableCell text={flight.flightNumber || "N/A"}/>
             </tr>
             ))}
         </table>

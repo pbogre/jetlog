@@ -9,6 +9,8 @@ export class Flight {
     duration: number;
     distance: number;
     airplane: string;
+    flightNumber: string;
+    notes: string;
 }
 
 export class Airport {

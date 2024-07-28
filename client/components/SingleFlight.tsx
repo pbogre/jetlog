@@ -17,6 +17,8 @@ interface FlightPatchOptions {
     duration?: number;
     distance?: number;
     airplane?: string;
+    flight_number?: string;
+    notes?: string;
 }
 export default function SingleFlight({ flightID }) {
     const [flight, setFlight] = useState<Flight|null>(null);
@@ -124,11 +126,13 @@ export default function SingleFlight({ flightID }) {
                             { text: "Window", value: "window" }
                         ]} /></p>
                         <p>Airplane: <Input type="text" onChange={(e) => updateFlightPatch("airplane", e.target.value)} /></p>
+                        <p>Flight Number: <Input type="text" onChange={(e) => updateFlightPatch("flightNumber", e.target.value)} /></p>
                     </>
                     :
                     <>
                         <p>Seat: <span>{flight.seat || "N/A"}</span></p>
                         <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
+                        <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
                     </>}
                 </div>
             </div>
