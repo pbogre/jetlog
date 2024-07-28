@@ -62,7 +62,7 @@ function FlightDetails() {
 
     return (
         <form onSubmit={handleSubmit}>
-            <div className="flex flex-wrap items-start">
+            <div className="flex flex-wrap">
 
                 <div className="container">
                     <Label text="Origin" required />
@@ -110,6 +110,7 @@ function FlightDetails() {
                            name="airplane"
                            value={flight.airplane}
                            placeholder="B738"
+                           maxLength={16}
                            onChange={handleChange} />
                     <br />
                     <Label text="Flight Number"/>
@@ -117,6 +118,7 @@ function FlightDetails() {
                            name="flightNumber"
                            value={flight.flightNumber}
                            placeholder="FR2460"
+                           maxLength={7}
                            onChange={handleChange} />
                 </div>
 
