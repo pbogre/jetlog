@@ -101,6 +101,8 @@ The CSV should have the following columns (order doesn't matter):
 |`duration`      | `No`   |Number of minutes (integer)|
 |`distance`      | `No`   |Kilometers (!)|
 |`airplane`      | `No`   |String|
+|`flight_number` | `No`   |String|
+|`notes`         | `No`   |String|
 
 The importing logs should give you information about any errors.
 
