@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Heading, Label, Button, Input, Select } from '../components/Elements'
+import { Heading, Label, Button, Input, Select, TextArea } from '../components/Elements'
 import AirportInput from '../components/AirportInput';
 
 import API from '../api';
@@ -120,6 +120,12 @@ function FlightDetails() {
                            placeholder="FR2460"
                            maxLength={7}
                            onChange={handleChange} />
+                    <br />
+                    <Label text="Notes"/>
+                    <TextArea name="notes"
+                              value={flight.notes}
+                              maxLength={150}
+                              onChange={handleChange} />
                 </div>
 
             </div>

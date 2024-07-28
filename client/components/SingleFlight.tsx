@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import { SettingsManager } from '../settingsManager';
-import { Button, Heading, Input, Select, Subheading } from '../components/Elements'
+import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
 import { Airport, Flight } from '../models';
 import API from '../api';
 import AirportInput from './AirportInput';
@@ -40,7 +40,7 @@ export default function SingleFlight({ flightID }) {
         );
     }
 
-    const updateFlightPatch = (key, value) => {
+    const updateFlightPatch = (key: string, value: any) => {
         if(!value) {
             setFlightPatch(current => {
                 const copy = {...current};
@@ -55,6 +55,13 @@ export default function SingleFlight({ flightID }) {
 
     const toggleEditMode = () => {
         setEditMode(!editMode);
+    }
+
+    const handleInputChange = (event) => {
+        const key = event.target.name;
+        const value = event.target.value;
+
+        updateFlightPatch(key, value);
     }
 
     const handleSaveClick = () => {
@@ -83,10 +90,10 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Timings" />
                     { editMode ? 
                     <>
-                        <p>Date: <Input type="date" onChange={(e) => updateFlightPatch("date", e.target.value)} /></p>
-                        <p>Departure Time: <Input type="time" onChange={(e) => updateFlightPatch("departureTime", e.target.value)} /></p>
-                        <p>Arrival Time: <Input type="time" onChange={(e) => updateFlightPatch("arrivalTime", e.target.value)} /></p>
-                        <p>Duration: <Input type="number" onChange={(e) => updateFlightPatch("duration", e.target.value)} /></p>
+                        <p>Date: <Input type="date" name="date" onChange={handleInputChange} /></p>
+                        <p>Departure Time: <Input type="time" name="departureTime" onChange={handleInputChange} /></p>
+                        <p>Arrival Time: <Input type="time" name="arrivalTime" onChange={handleInputChange} /></p>
+                        <p>Duration: <Input type="number" name="duration" onChange={handleInputChange} /></p>
                     </>
                     :
                     <>
@@ -104,7 +111,7 @@ export default function SingleFlight({ flightID }) {
                     <>
                         <p>Origin: <AirportInput onSelected={(airport: Airport) => updateFlightPatch("origin", airport)} /></p>
                         <p>Destination: <AirportInput onSelected={(airport: Airport) => updateFlightPatch("destination", airport)} /></p>
-                        <p>Distance (km): <Input type="number" onChange={(e) => updateFlightPatch("distance", e.target.value)} /></p>
+                        <p>Distance (km): <Input type="number" name="distance" onChange={handleInputChange} /></p>
                     </>
                     :
                     <>
@@ -119,20 +126,23 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Other" />
                     { editMode ?
                     <>
-                        <p>Seat: <Select onChange={(e) =>  updateFlightPatch("seat", e.target.value)} options={[
+                        <p>Seat: <Select onChange={handleInputChange} options={[
                             { text: "Choose", value: "" },
                             { text: "Aisle", value: "aisle" },
                             { text: "Middle", value: "middle" },
                             { text: "Window", value: "window" }
                         ]} /></p>
-                        <p>Airplane: <Input type="text" onChange={(e) => updateFlightPatch("airplane", e.target.value)} /></p>
-                        <p>Flight Number: <Input type="text" onChange={(e) => updateFlightPatch("flightNumber", e.target.value)} /></p>
+                        <p>Airplane: <Input type="text" name="airplane" onChange={handleInputChange} /></p>
+                        <p>Flight Number: <Input type="text" name="flightNumber" onChange={handleInputChange} /></p>
+                        <p>Notes</p>
+                        <TextArea name="notes" onChange={handleInputChange}/>
                     </>
                     :
                     <>
                         <p>Seat: <span>{flight.seat || "N/A"}</span></p>
                         <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
+                        <p>Notes: {flight.notes || "N/A"}</p>
                     </>}
                 </div>
             </div>

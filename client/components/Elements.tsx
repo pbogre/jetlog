@@ -83,7 +83,7 @@ export function Button({ text,
 }
 
 interface InputProps {
-    type: "text"|"number"|"date"|"time"|"file"|"checkbox";
+    type: "text"|"number"|"date"|"time"|"file";
     name?: string;
     value?: string;
     maxLength?: number;
@@ -106,10 +106,33 @@ export function Input({ type,
                 name={name} 
                 value={value} 
                 maxLength={maxLength}
-                min={type == "number" ? 0 : type == "date" ? "1970-01-01" : undefined}
+                min={type == "number" ? 0 : undefined}
                 onChange={onChange ? onChange : () => {}}
                 required={required}
                 placeholder={placeholder}/>
+    );
+}
+
+interface TextAreaProps {
+    name?: string; 
+    value?: string;
+    maxLength?: number;
+    onChange?: ((event: ChangeEvent<HTMLTextAreaElement>) => any)|null;
+}
+export function TextArea ({ name = undefined,
+                            value = undefined,
+                            maxLength = undefined,
+                            onChange = null }: TextAreaProps) {
+    return (
+        <textarea rows={5} 
+                  className="w-full px-1 mb-4 bg-white rounded-none outline-none font-mono box-border
+                             border-2 border-gray-200 focus:border-primary-400"
+                  name={name}
+                  value={value}
+                  maxLength={maxLength}
+                  onChange={onChange ? onChange : () => {}}>
+            {value}
+        </textarea>
     );
 }
 
