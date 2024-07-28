@@ -1,6 +1,5 @@
 import datetime
 import time
-from server.database import database
 from pydantic import BaseModel, field_validator
 from enum     import Enum
 
@@ -70,18 +69,19 @@ class AirportModel(CustomModel):
     @field_validator('icao')
     @classmethod
     def icao_must_exist(cls, v) -> str|None:
+        from server.database import database
+
         if not v:
             return None
 
         res = database.execute_read_query(f"SELECT icao FROM airports WHERE LOWER(icao) = LOWER(?);", [v]);
 
         if len(res) < 1:
-            raise ValueError("must have valid ICAO code")
+            raise ValueError(f"must have valid ICAO code, got '{v}'")
 
         return v
 
 
-# TODO domestic/international (bool), ...?
 # note: for airports, the database type
 # is string (icao code), while the type
 # returned by the API is AirportModel
@@ -96,6 +96,8 @@ class FlightModel(CustomModel):
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
+    flight_number:  str|None = None
+    notes:          str|None = None
 
     @field_validator('origin', 'destination')
     @classmethod
