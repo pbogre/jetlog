@@ -130,6 +130,7 @@ You can make use of the automatically generated docs (thanks to FastAPI) by goin
 
 ## Other credits
 
+- [Favicon](https://www.flaticon.com/free-icon/flight_16863550?term=plane&page=1&position=36&origin=search&related_id=16863550)
 - [Airports database](https://github.com/jpatokal/openflights/)
 - [react-simple-map](https://www.react-simple-maps.io/)
 - [World GeoJSON](https://geojson-maps.kyd.au/)
