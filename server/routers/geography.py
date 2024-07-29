@@ -11,16 +11,16 @@ router = APIRouter(
 )
 
 class Coord(CustomModel):
-    latitude: float|None = None
-    longitude: float|None = None
+    latitude: float
+    longitude: float
     frequency: int|None = None
 
     def __eq__(self, other) -> bool:
         return self.latitude == other.latitude and self.longitude == other.longitude
 
 class Trajectory(CustomModel):
-    first: Coord|None = None
-    second: Coord|None = None
+    first: Coord
+    second: Coord
     frequency: int|None = None
 
     def __eq__(self, other) -> bool:
@@ -28,7 +28,6 @@ class Trajectory(CustomModel):
             return True
 
         return self.first == other.second and self.second == other.first
-
 
 @router.get("/world", status_code=200)
 async def get_world_geojson() -> object:
@@ -94,11 +93,11 @@ async def get_flight_trajectories() -> list[Trajectory]:
 
     for airport_pair in res:
         origin_data = airport_pair[:2]
-        origin_coords = Coord.from_database(origin_data, explicit={'frequency': 1})
+        origin_coords = Coord.from_database(origin_data)
         origin_coords = Coord.model_validate(origin_coords)
 
         destination_coords= airport_pair[2:]
-        destination_coords = Coord.from_database(destination_coords, explicit={'frequency': 1})
+        destination_coords = Coord.from_database(destination_coords)
         destination_coords = Coord.model_validate(destination_coords)
 
         line = Trajectory(first=origin_coords, second=destination_coords, frequency=1)

@@ -18,21 +18,24 @@ class CamelableModel(BaseModel):
 class CustomModel(CamelableModel):
     @classmethod
     def from_database(cls, db: tuple, explicit: dict|None = None):
-        real = cls()
         columns = cls.get_attributes()
+        values = {}
 
         i = 0
         for attr in columns:
             if not explicit or attr not in explicit:
-                value = db[i] if db[i] else None
-                setattr(real, attr, value)
+                value = db[i] if i < len(db) else None
+                values[attr] = value
                 i += 1
 
         if explicit:
             for attr in explicit:
-                setattr(real, attr, explicit[attr])
+                values[attr] = explicit[attr]
 
-        return real
+        instance = cls(**values)
+
+
+        return instance
 
     @classmethod
     def get_attributes(cls, with_id: bool = True) -> list[str]:
@@ -42,6 +45,10 @@ class CustomModel(CamelableModel):
             return attributes
 
         return attributes[1:]
+
+    @classmethod
+    def validate_single_field(cls, key, value):
+        cls.__pydantic_validator__.validate_assignment(cls.model_construct(), key, value)
 
     def empty(self) -> bool:
         columns = self.get_attributes()
@@ -58,13 +65,13 @@ class SeatType(str, Enum):
     AISLE = "aisle"
 
 class AirportModel(CustomModel):
-    icao:      str|None = None
-    iata:      str|None = None
-    name:      str|None = None
-    city:      str|None = None
-    country:   str|None = None
-    latitude:  float|None = None
-    longitude: float|None = None
+    icao:      str
+    iata:      str|None # some airports don't have a IATA
+    name:      str
+    city:      str
+    country:   str
+    latitude:  float
+    longitude: float
 
     @field_validator('icao')
     @classmethod
@@ -81,15 +88,15 @@ class AirportModel(CustomModel):
 
         return v
 
-
 # note: for airports, the database type
 # is string (icao code), while the type
 # returned by the API is AirportModel
 class FlightModel(CustomModel):
+    # all optional to accomodate patch
     id:             int|None = None
     date:           datetime.date|None = None
-    origin:         str|AirportModel|None = None
-    destination:    str|AirportModel|None = None
+    origin:         AirportModel|str|None = None
+    destination:    AirportModel|str|None = None
     departure_time: str|None = None
     arrival_time:   str|None = None
     seat:           SeatType|None = None
@@ -105,8 +112,8 @@ class FlightModel(CustomModel):
         if not v:
             return None
 
-        v = v.icao if type(v) == AirportModel else v
-        AirportModel(icao=v)
+        icao = v.icao if type(v) == AirportModel else v
+        AirportModel.validate_single_field('icao', icao) 
 
         return v
 
