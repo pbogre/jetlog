@@ -122,7 +122,7 @@ export default function SingleFlight({ flightID }) {
                     }
                 </div>
 
-                <div className="container">
+                <div className="container max-w-[33%]">
                     <Subheading text="Other" />
                     { editMode ?
                     <>
