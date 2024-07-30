@@ -44,6 +44,8 @@ create it first and then set its ownership manually by running `sudo chown -R 10
 
 **Non-stable releases**: You can pull the image with the `:experimental` tag to gain access to the latest features which have not been thoroughly tested yet.
 
+**Supported platforms**: `linux/amd64`, `linux/arm64`. 
+
 Below are some of the environment variables you can set in the Docker Compose.
 
 | Name          | Default | Function            |
