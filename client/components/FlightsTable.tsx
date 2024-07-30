@@ -55,6 +55,7 @@ export default function FlightsTable({ filters }) {
         <table className="table-auto w-full">
             <tr>
                 <TableHeading text="Date"/>
+                <TableHeading text="Arrival Date"/>
                 <TableHeading text="Origin"/>
                 <TableHeading text="Destination"/>
                 <TableHeading text="Departure Time"/>
@@ -69,6 +70,7 @@ export default function FlightsTable({ filters }) {
             <tr className="cursor-pointer even:bg-gray-100 hover:bg-gray-200 duration-75" 
                 onClick={() => handleRowClick(flight.id)}>
                 <TableCell text={flight.date}/>
+                <TableCell text={flight.arrivalDate || "N/A"}/>
                 <TableCell text={flight.origin.city + ' (' + (flight.origin.iata || flight.origin.icao) + ')'}/>
                 <TableCell text={flight.destination.city + ' (' + (flight.destination.iata || flight.destination.icao) + ')'} />
                 <TableCell text={flight.departureTime || "N/A"}/>

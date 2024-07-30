@@ -45,10 +45,13 @@ function FlightDetails() {
         // calculate duration if possible
         if(flight.date && flight.departureTime && flight.arrivalTime) {
             const departure = new Date(flight.date + 'T' + flight.departureTime);
-            const arrival = new Date(flight.date + 'T' + flight.arrivalTime);
+            const arrival = flight.arrivalDate ?
+                            new Date(flight.arrivalDate + 'T' + flight.arrivalTime)
+                            : new Date(flight.date + 'T' + flight.arrivalTime);
 
-            if(arrival.getTime() <= departure.getTime()) {
+            if(!flight.arrivalDate && arrival.getTime() <= departure.getTime()) {
                 arrival.setDate(arrival.getDate() + 1);
+                flight.arrivalDate = arrival.toLocaleDateString("en-CA");
             }
 
             const duration_millis = arrival.getTime() - departure.getTime();
@@ -91,6 +94,12 @@ function FlightDetails() {
                            name="arrivalTime"
                            value={flight.arrivalTime}
                            onChange={handleChange}/>
+                    <br />
+                    <Label text="Arrival Date" />
+                    <Input type="date"
+                           name="arrivalDate"
+                           value={flight.arrivalDate}
+                           onChange={handleChange} />
                 </div>
 
                 <div className="container">
