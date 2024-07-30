@@ -8,6 +8,22 @@ from server.environment import DATA_PATH
 
 class Database():
     connection: sqlite3.Connection
+    flights_table = """
+        (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            date           TEXT NOT NULL,
+            origin         TEXT NOT NULL,
+            destination    TEXT NOT NULL,
+            departure_time TEXT,
+            arrival_time   TEXT,
+            arrival_date   TEXT,
+            seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
+            duration       INTEGER,
+            distance       INTEGER,
+            airplane       TEXT,
+            flight_number  TEXT,
+            notes          TEXT
+        )"""
 
     def __init__(self, db_dir: str):
         print("Initializing database connection")
@@ -25,11 +41,11 @@ class Database():
             needs_patch = False
             for key in FlightModel.get_attributes():
                 if key not in column_names:
-                    print(f"Detected missing column in flights table: '{key}'. Scheduling patch...")
+                    print(f"Detected missing column in flights table: '{key}'. Scheduled a patch...")
                     needs_patch = True
 
             if needs_patch:
-                self.patch_flights_table()
+                self.patch_flights_table(column_names)
 
         else:
             print("Database file not found, creating it...")
@@ -52,21 +68,7 @@ class Database():
     def initialize_tables(self):
         airports_db_path = Path(__file__).parent.parent / 'data' / 'airports.db'
         
-        self.execute_query("""
-        CREATE TABLE flights (
-            id             INTEGER PRIMARY KEY AUTOINCREMENT,
-            date           TEXT NOT NULL,
-            origin         TEXT NOT NULL,
-            destination    TEXT NOT NULL,
-            departure_time TEXT,
-            arrival_time   TEXT, 
-            seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
-            duration       INTEGER,
-            distance       INTEGER,
-            airplane       TEXT,
-            flight_number  TEXT,
-            notes          TEXT
-        );""")
+        self.execute_query(f"CREATE TABLE flights {self.flights_table};")
 
         self.execute_query("""
         CREATE TABLE airports (
@@ -86,10 +88,12 @@ class Database():
     # columns that were not present in the base 
     # version of Jetlog must be added here for 
     # backward compatibility
-    def patch_flights_table(self):
+    def patch_flights_table(self, present: list[str]):
         print("Patching flights table...")
-        self.execute_query("ALTER TABLE flights ADD flight_number TEXT;")
-        self.execute_query("ALTER TABLE flights ADD notes TEXT;")
+        self.execute_query(f"CREATE TABLE _flights {self.flights_table};")
+        self.execute_query(f"INSERT INTO _flights ({', '.join(present)}) SELECT * FROM flights;")
+        self.execute_query("DROP TABLE flights;")
+        self.execute_query("ALTER TABLE _flights RENAME TO flights;")
 
     def execute_query(self, query: str, parameters=[]) -> int:
         try:

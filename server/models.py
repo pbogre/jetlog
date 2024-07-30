@@ -31,9 +31,8 @@ class CustomModel(CamelableModel):
         if explicit:
             for attr in explicit:
                 values[attr] = explicit[attr]
-
+        
         instance = cls(**values)
-
 
         return instance
 
@@ -99,6 +98,7 @@ class FlightModel(CustomModel):
     destination:    AirportModel|str|None = None
     departure_time: str|None = None
     arrival_time:   str|None = None
+    arrival_date:   datetime.date|None = None
     seat:           SeatType|None = None
     duration:       int|None = None
     distance:       int|None = None
