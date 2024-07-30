@@ -21,7 +21,7 @@ export default function WorldMap() {
     return (
         <>
             <ComposableMap width={1000} height={470}>
-                <ZoomableGroup center={[0, 0]}>
+                <ZoomableGroup center={[0, 0]} translateExtent={[[0, 0], [1000, 470]]}>
                     <Geographies geography={geoUrl}>
                         {({ geographies }) =>
                           geographies.map((geo) => (
