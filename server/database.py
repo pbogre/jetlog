@@ -85,9 +85,6 @@ class Database():
         self.execute_query("INSERT INTO main.airports SELECT * FROM a.airports;")
         self.execute_query("DETACH a;") 
 
-    # columns that were not present in the base 
-    # version of Jetlog must be added here for 
-    # backward compatibility
     def patch_flights_table(self, present: list[str]):
         print("Patching flights table...")
         self.execute_query(f"CREATE TABLE _flights {self.flights_table};")
