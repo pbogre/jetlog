@@ -1,7 +1,7 @@
 import {Airport} from './models';
 
-export function stringifyAirport(airport: Airport) {
-    if(airport.iata == null && airport.icao == null) {
+export function stringifyAirport(airport: Airport|null) {
+    if(airport === null) {
         return "N/A";
     }
 

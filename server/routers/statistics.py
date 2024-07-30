@@ -72,7 +72,10 @@ async def get_statistics(metric: bool = True,
     begin_airport = len(StatisticsModel.get_attributes()) - 1
 
     airport_db = res[begin_airport:]
-    airport = AirportModel.from_database(airport_db)
+    try:
+        airport = AirportModel.from_database(airport_db)
+    except:
+        airport = None
 
     stats = StatisticsModel.from_database(res[:begin_airport], { "common_airport": airport })
 
