@@ -42,24 +42,6 @@ function FlightDetails() {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        // calculate duration if possible
-        if(flight.date && flight.departureTime && flight.arrivalTime) {
-            const departure = new Date(flight.date + 'T' + flight.departureTime);
-            const arrival = flight.arrivalDate ?
-                            new Date(flight.arrivalDate + 'T' + flight.arrivalTime)
-                            : new Date(flight.date + 'T' + flight.arrivalTime);
-
-            if(!flight.arrivalDate && arrival.getTime() <= departure.getTime()) {
-                arrival.setDate(arrival.getDate() + 1);
-                flight.arrivalDate = arrival.toLocaleDateString("en-CA");
-            }
-
-            const duration_millis = arrival.getTime() - departure.getTime();
-            const duration_minutes = Math.round(duration_millis / (60 * 1000));
-
-            flight.duration = duration_minutes; // no time to lose
-        };
-
         API.post("/flights", flight, () => navigate("/"))
     }
 

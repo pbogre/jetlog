@@ -66,6 +66,24 @@ async def add_flight(flight: FlightModel) -> int:
         if type(flight.origin) == AirportModel and type(flight.destination) == AirportModel:
             flight.distance = spherical_distance(flight.origin, flight.destination)
 
+    # if duration not given, calculate it
+    if not flight.duration and flight.departure_time and flight.arrival_time:
+        departure = datetime.datetime.strptime(f"{flight.date} {flight.departure_time}", "%Y-%m-%d %H:%M")
+        arrival = datetime.datetime.strptime(f"{flight.date} {flight.arrival_time}", "%Y-%m-%d %H:%M")
+
+        if flight.arrival_date:
+            arrival_date = datetime.datetime.fromisoformat(f"{flight.arrival_date}")
+            arrival = datetime.datetime.combine(arrival_date, arrival.time())
+        elif arrival.time() <= departure.time():
+            arrival_date = arrival.date() + datetime.timedelta(days=1)
+            arrival = datetime.datetime.combine(arrival_date, arrival.time())
+            flight.arrival_date = arrival_date
+
+        delta = arrival - departure
+        delta_minutes = delta.total_seconds() / 60
+
+        flight.duration = round(delta_minutes)
+
     columns = FlightModel.get_attributes(False)
 
     query = "INSERT INTO flights ("
