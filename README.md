@@ -99,6 +99,7 @@ The CSV should have the following columns (order doesn't matter):
 |`destination`   | `Yes`  |ICAO code of destination airport (4 letters)|
 |`departure_time`| `No`   |`HH:MM`|
 |`arrival_time`  | `No`   |`HH:MM`|
+|`arrival_date`  | `No`   |`YYYY-MM-DD`|
 |`seat`          | `No`   |One of `window`,`middle`,`aisle`|
 |`duration`      | `No`   |Number of minutes (integer)|
 |`distance`      | `No`   |Kilometers (!)|
