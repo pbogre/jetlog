@@ -104,7 +104,7 @@ The CSV should have the following columns (order doesn't matter):
 |`arrival_date`  | `No`   |`YYYY-MM-DD`|
 |`seat`          | `No`   |One of `window`,`middle`,`aisle`|
 |`duration`      | `No`   |Number of minutes (integer)|
-|`distance`      | `No`   |Kilometers (!)|
+|`distance`      | `No`   |Kilometers (integer) (not miles!)|
 |`airplane`      | `No`   |String|
 |`flight_number` | `No`   |String|
 |`notes`         | `No`   |String|
