@@ -26,30 +26,10 @@ export default function Settings() {
     }
 
     const handleExportClick = (exportType: string) => {
-        if(exportType === "csv"){
-            API.post("/exporting/csv", {})
-            .then((res) => {
-                const blob = new Blob([res], {
-                    type: 'text/csv'
-                });
-
-                return blob;
-            })
-            .then((blob) => {
-                // create element that links to download and click it, then remove it
-                // https://stackoverflow.com/questions/41938718/how-to-download-files-using-axios 
-                const href = URL.createObjectURL(blob);
-
-                const link = document.createElement('a');
-                link.href = href;
-                link.setAttribute('download', 'jetlog.csv');
-
-                document.body.appendChild(link);
-                link.click();
-
-                document.body.removeChild(link);
-                URL.revokeObjectURL(href);
-            });
+        if(exportType === "csv") {
+            API.post("/exporting/csv", {}, true);
+        } else if(exportType === "ical") {
+            API.post("/exporting/ical", {}, true);
         }
     }
 
@@ -85,6 +65,8 @@ export default function Settings() {
                 <Subheading text="Export"/>
 
                 <Button text="Export to CSV" onClick={() => handleExportClick("csv")}/>
+                <br />
+                <Button text="Export to iCal" onClick={() => handleExportClick("ical")}/>
             </div>
 
             <div className="container">

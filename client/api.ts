@@ -41,12 +41,35 @@ class APIClass {
         }
     }
 
-    async post(endpoint: string, data: Object) {
+    async post(endpoint: string, data: Object, downloadResponse: boolean = false) {
         endpoint = endpoint.trim();
 
         try {
-            const res = await this.client.post(endpoint, data);
-            return res.data;
+            if(!downloadResponse) {
+                const res = await this.client.post(endpoint, data);
+                return res.data;
+            } else {
+                this.client.post(endpoint, data)
+                .then((res) => {
+                    // convert to blob and get fileName
+                    const fileName = res.headers["content-disposition"].split("filename=")[1].replace('/"/g', '');
+                    const blob = new Blob([res.data]);
+
+                    // create element that links to download and click it, then remove it
+                    // https://stackoverflow.com/questions/41938718/how-to-download-files-using-axios 
+                    const href = URL.createObjectURL(blob);
+
+                    const link = document.createElement('a');
+                    link.href = href;
+                    link.setAttribute('download', fileName);
+
+                    document.body.appendChild(link);
+                    link.click();
+
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(href);
+                });
+            }
         }
         catch(err) {
             this.handleError(err);
