@@ -28,12 +28,11 @@ class APIClass {
     
 
 
-    async get(endpoint: string, parameters: Object = {}, success: Function|null = null) {
+    async get(endpoint: string, parameters: Object = {}) {
         endpoint = endpoint.trim();
 
         try {
             const res = await this.client.get(endpoint, { params: parameters });
-            if(success) success();
             return res.data;
         } 
         catch(err) { 
@@ -42,12 +41,11 @@ class APIClass {
         }
     }
 
-    async post(endpoint: string, data: Object, success: Function|null = null) {
+    async post(endpoint: string, data: Object) {
         endpoint = endpoint.trim();
 
         try {
             const res = await this.client.post(endpoint, data);
-            if(success) success();
             return res.data;
         }
         catch(err) {
@@ -56,12 +54,11 @@ class APIClass {
         }
     }
 
-    async patch(endpoint: string, data: Object, success: Function|null = null) {
+    async patch(endpoint: string, data: Object) {
         endpoint = endpoint.trim();
 
         try {
             const res = await this.client.patch(endpoint, data);
-            if(success) success();
             return res.data;
         }
         catch(err) {
@@ -70,12 +67,11 @@ class APIClass {
         }
     }
 
-    async delete(endpoint: string, success: Function|null = null) {
+    async delete(endpoint: string) {
         endpoint = endpoint.trim();
 
         try {
             const res = await this.client.delete(endpoint);
-            if(success) success();
             return res.data;
         }
         catch(err) {

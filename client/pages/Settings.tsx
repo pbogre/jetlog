@@ -19,8 +19,37 @@ export default function Settings() {
             if(file instanceof Blob && file.size > 0) {
                 var sendFormData = new FormData();
                 sendFormData.append('file', file);
-                API.post(`/importing?csv_type=${pair[0]}`,sendFormData, () => navigate("/"));
+                API.post(`/importing?csv_type=${pair[0]}`,sendFormData)
+                .then(() => navigate("/"));
             }
+        }
+    }
+
+    const handleExportClick = (exportType: string) => {
+        if(exportType === "csv"){
+            API.post("/exporting/csv", {})
+            .then((res) => {
+                const blob = new Blob([res], {
+                    type: 'text/csv'
+                });
+
+                return blob;
+            })
+            .then((blob) => {
+                // create element that links to download and click it, then remove it
+                // https://stackoverflow.com/questions/41938718/how-to-download-files-using-axios 
+                const href = URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = href;
+                link.setAttribute('download', 'jetlog.csv');
+
+                document.body.appendChild(link);
+                link.click();
+
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
         }
     }
 
@@ -50,6 +79,12 @@ export default function Settings() {
                     <br />
                     <Button text="Import" level="success" submit/>
                 </form>
+            </div>
+            
+            <div className="container">
+                <Subheading text="Export"/>
+
+                <Button text="Export to CSV" onClick={() => handleExportClick("csv")}/>
             </div>
 
             <div className="container">

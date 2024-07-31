@@ -75,7 +75,8 @@ export default function SingleFlight({ flightID }) {
 
     const handleDeleteClick = () => {
         if(confirm("Are you sure?")) {
-            API.delete(`/flights?id=${flight.id}`, () => navigate("/flights"));
+            API.delete(`/flights?id=${flight.id}`)
+            .then(() => navigate("/"));
         }
     }
 

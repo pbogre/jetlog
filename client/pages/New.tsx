@@ -42,7 +42,8 @@ function FlightDetails() {
     const handleSubmit = (event) => {
         event.preventDefault();
 
-        API.post("/flights", flight, () => navigate("/"))
+        API.post("/flights", flight)
+        .then(() => navigate("/"));
     }
 
     return (
