@@ -70,7 +70,8 @@ export default function SingleFlight({ flightID }) {
             return;
         }
 
-        API.patch(`flights?id=${flight.id}`, flightPatch, () => window.location.reload());
+        API.patch(`flights?id=${flight.id}`, flightPatch)
+        .then(() => window.location.reload());
     }
 
     const handleDeleteClick = () => {
