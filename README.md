@@ -29,6 +29,8 @@ A self-hostable personal flight tracker and viewer
 - 📱 Responsive design
 - 👨‍💻 Sleek and intuitive UI
 - ✅ Effortlessly add, edit, and delete past flights
+- 💾 Ability to import from CSV, MyFlightRadar24
+- 💾 Ability to export to CSV, iCal
 
 ## Installation
 
