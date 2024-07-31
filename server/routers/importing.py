@@ -49,20 +49,21 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
                 continue
 
             values = line.split(',')
+            values_dict = {}
             try:
                 flight = FlightModel()
-                flight.date = datetime.date.fromisoformat(values[0])
-                flight.origin = values[2][-6:-2]
-                flight.destination = values[3][-6:-2]
-                flight.departure_time = values[4][:5] if values[4][:5] != "00:00" else None
-                flight.arrival_time = values[5][:5] if values[4][:5] != "00:00" else None
+                values_dict['date'] = datetime.date.fromisoformat(values[0])
+                values_dict['origin'] = values[2][-6:-2]
+                values_dict['destination'] = values[3][-6:-2]
+                values_dict['departure_time'] = values[4][:5] if values[4][:5] != "00:00" else None
+                values_dict['arrival_time'] = values[5][:5] if values[4][:5] != "00:00" else None
                 # from myflightradar24, 0=none, 1=window, 2=middle, 3=aisle
-                flight.seat = list(SeatType)[int(values[11]) - 1] if int(values[11]) > 0 else None
+                values_dict['seat'] = list(SeatType)[int(values[11]) - 1] if int(values[11]) > 0 else None
                 # conversion from hh:mm:ss to minutes
-                flight.duration = int(values[6][:2]) * 60 + int(values[6][3:5]) 
-                flight.distance = None # would need longitude and latitude
-                flight.airplane = values[8].replace('"', '') if values[8] != '" ()"' else None
+                values_dict['duration'] = int(values[6][:2]) * 60 + int(values[6][3:5]) 
+                values_dict['airplane'] = values[8].replace('"', '') if values[8] != '" ()"' else None
 
+                flight = FlightModel(**values_dict)
                 imported_flights.append(flight)
             except Exception as e:
                 print(f"[{count}] Failed to parse: '{e}'")
@@ -104,22 +105,15 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
 
             values = line.split(',')
             values = [ val.replace('\n', '') if val != '' else None for val in values ] 
+            values_dict = {}
             try:
                 assert len(values) == len(present_columns), f"Expected {len(present_columns)} entries, got {len(values)}"
-                flight = FlightModel()
 
                 for key in present_columns:
                     attr_index = present_columns[key]
-                    setattr(flight, key, values[attr_index])
+                    values_dict[key] = values[attr_index]
 
-                # validate date, airports, times, seat
-                FlightModel(date=flight.date, 
-                            origin=flight.origin, 
-                            destination=flight.destination,
-                            departure_time=flight.departure_time,
-                            arrival_time=flight.arrival_time,
-                            seat=flight.seat)
-
+                flight = FlightModel(**values_dict)
                 imported_flights.append(flight)
 
             except Exception as e:
