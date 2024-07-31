@@ -137,9 +137,12 @@ class FlightModel(CustomModel):
         for attr in FlightModel.get_attributes(False):
             value = getattr(self, attr)
 
-            if attr == "origin" or attr == "destination":
-                if type(value) == AirportModel:
-                    value = value.icao
+            if type(value) == AirportModel:
+                value = value.icao
+            elif type(value) == datetime.date:
+                value = value.isoformat()
+            elif type(value) == SeatType:
+                value = value.value
 
             values.append(value)
 

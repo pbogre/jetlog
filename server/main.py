@@ -1,4 +1,4 @@
-from server.routers import flights, airports, statistics, geography, importing
+from server.routers import flights, airports, statistics, geography, importing, exporting
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -9,7 +9,7 @@ tags_metadata=[
     { "name": "airports"},
     { "name": "statistics"},
     { "name": "geography"},
-    { "name": "importing"}
+    { "name": "importing/exporting"},
 ]
 
 app = FastAPI(openapi_tags=tags_metadata)
@@ -20,6 +20,7 @@ app.include_router(airports.router, prefix="/api")
 app.include_router(statistics.router, prefix="/api")
 app.include_router(geography.router, prefix="/api")
 app.include_router(importing.router, prefix="/api")
+app.include_router(exporting.router, prefix="/api")
 
 @app.get("/", include_in_schema=False)
 @app.get("/new", include_in_schema=False)

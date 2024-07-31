@@ -1,6 +1,5 @@
 import datetime
 
-from pydantic import ValidationError
 from server.models import FlightModel, SeatType
 from server.routers.flights import add_flight
 from fastapi import APIRouter, HTTPException, UploadFile
@@ -8,7 +7,7 @@ from enum import Enum
 
 router = APIRouter(
     prefix="/importing",
-    tags=["importing"],
+    tags=["importing/exporting"],
     redirect_slashes=True
 )
 
@@ -104,7 +103,7 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
                 continue
 
             values = line.split(',')
-            values = [ val.replace('\n', '') for val in values ] 
+            values = [ val.replace('\n', '') if val != '' else None for val in values ] 
             try:
                 assert len(values) == len(present_columns), f"Expected {len(present_columns)} entries, got {len(values)}"
                 flight = FlightModel()
