@@ -47,9 +47,6 @@ COPY --from=build /build/dist ${APP_PATH}/dist
 VOLUME ${DATA_PATH}
 EXPOSE ${JETLOG_PORT}/tcp
 
-RUN chown ${PUID}:${PGID} ${APP_PATH}
-RUN chown ${PUID}:${PGID} ${DATA_PATH}
-
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT [ "/entrypoint.sh" ]
