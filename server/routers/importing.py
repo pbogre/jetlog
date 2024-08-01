@@ -32,7 +32,7 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
             # check that columns are valid
             if count == 0:
                 columns = line.split(',')
-                columns = [ col.replace('"', '').replace('\n', '') for col in columns ]
+                columns = [ col.replace('"', '').rstrip('\r\n') for col in columns ]
                 try:
                     expected = ["Date", "Flight number", "From", "To", "Dep time", "Arr time",
                                 "Duration", "Airline", "Aircraft", "Registration", "Seat number",
@@ -84,7 +84,7 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
 
             if count == 0:
                 columns = line.split(',')
-                columns = [ col.replace('\n', '') for col in columns ]
+                columns = [ col.rstrip('\r\n') for col in columns ]
 
                 for i in range(len(columns)):
                     col = columns[i]
@@ -104,7 +104,7 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
                 continue
 
             values = line.split(',')
-            values = [ val.replace('\n', '') if val != '' else None for val in values ] 
+            values = [ val.rstrip('\r\n') if val != '' else None for val in values ] 
             values_dict = {}
             try:
                 assert len(values) == len(present_columns), f"Expected {len(present_columns)} entries, got {len(values)}"
