@@ -21,7 +21,7 @@ export default function WorldMap() {
     return (
         <>
             <ComposableMap width={1000} height={470}>
-                <ZoomableGroup center={[0, 0]} translateExtent={[[0, 0], [1000, 470]]}>
+                <ZoomableGroup maxZoom={10} center={[0, 0]} translateExtent={[[0, 0], [1000, 470]]}>
                     <Geographies geography={geoUrl}>
                         {({ geographies }) =>
                           geographies.map((geo) => (
@@ -46,7 +46,7 @@ export default function WorldMap() {
                         <Line 
                             from={[line.first.longitude, line.first.latitude]}
                             to={[line.second.longitude, line.second.latitude]}
-                            stroke="#FF5533"
+                            stroke="#FF5533CC"
                             strokeWidth={
                                         SettingsManager.getSetting("frequencyBasedMarker") === "true" ?
                                         Math.min(1 + Math.floor(line.frequency / 3), 6)
