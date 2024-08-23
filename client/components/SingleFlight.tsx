@@ -130,7 +130,7 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Other" />
                     { editMode ?
                     <>
-                        <p>Seat: <Select onChange={handleInputChange} options={[
+                        <p>Seat: <Select name="seat" onChange={handleInputChange} options={[
                             { text: "Choose", value: "" },
                             { text: "Aisle", value: "aisle" },
                             { text: "Middle", value: "middle" },
