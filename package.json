@@ -1,10 +1,9 @@
 {
     "name": "jetlog",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "source": "client/index.html",
     "scripts": {
-        "build": "parcel build --dist-dir dist",
-        "watch": "parcel --dist-dir dist"
+        "build": "PARCEL_WORKERS=0 parcel build --dist-dir dist"
     },
     "dependencies": {
         "axios": "^1.7.2",
