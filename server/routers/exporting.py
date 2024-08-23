@@ -41,7 +41,6 @@ async def export_to_CSV() -> FileResponse:
                         filename="jetlog.csv")
 
 @router.post("/ical", status_code=200)
-
 async def export_to_iCal() -> FileResponse:
     flights = await get_flights(limit=0)
     assert type(flights) == list # make linter happy
