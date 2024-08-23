@@ -22,7 +22,7 @@ def stringify_airport(airport: AirportModel) -> str:
 
 @router.post("/csv", status_code=200)
 async def export_to_CSV() -> FileResponse:
-    flights = await get_flights()
+    flights = await get_flights(limit=0)
     assert type(flights) == list # make linter happy
 
     file = open("/tmp/jetlog.csv", "a")
@@ -43,7 +43,7 @@ async def export_to_CSV() -> FileResponse:
 @router.post("/ical", status_code=200)
 
 async def export_to_iCal() -> FileResponse:
-    flights = await get_flights()
+    flights = await get_flights(limit=0)
     assert type(flights) == list # make linter happy
 
     file = open("/tmp/jetlog.ics", "a")
