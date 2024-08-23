@@ -52,7 +52,7 @@ class APIClass {
                 this.client.post(endpoint, data)
                 .then((res) => {
                     // convert to blob and get fileName
-                    const fileName = res.headers["content-disposition"].split("filename=")[1].replace('/"/g', '');
+                    const fileName = res.headers["content-disposition"].split("filename=\"")[1].replace('"', ''); // hacky
                     const blob = new Blob([res.data]);
 
                     // create element that links to download and click it, then remove it
