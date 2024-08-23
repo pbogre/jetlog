@@ -43,6 +43,7 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
                         assert columns[i] == expected[i], f"Expected column '{expected[i]}', got '{columns[i]}'"
 
                 except AssertionError as e:
+                    print("Importing aborted")
                     raise HTTPException(status_code=400, detail=f"Invalid MyFlightRadar24 CSV: {e}")
 
                 count += 1
@@ -90,12 +91,12 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
                     col = columns[i]
 
                     if col not in expected:
-                        print(f"Unidentifiable column name '{col}', skipping column...")
-                        continue
+                        print("Importing aborted")
+                        raise HTTPException(status_code=400, detail=f"Invalid column name '{col}'")
 
                     if col in present_columns:
-                        print(f"Duplicate column name '{col}', using first instance...")
-                        continue
+                        print("Importing aborted")
+                        raise HTTPException(status_code=400, detail=f"Duplicate column name '{col}'")
 
                     present_columns[col] = i
 
