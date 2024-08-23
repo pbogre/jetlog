@@ -93,7 +93,7 @@ function TableHeading({ text }) {
 }
 
 function FlightsTable({ filters }: { filters: FlightsFilters }) {
-    const [flights, setFlights] = useState<Flight[]>([]);
+    const [flights, setFlights] = useState<Flight[]>();
     const navigate = useNavigate();
     const metricUnits = SettingsManager.getSetting("metricUnits");
 
@@ -104,7 +104,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
         });
     }, [filters]);
 
-    if(flights === null) {
+    if(flights === undefined) {
         return (
             <p className="m-4">Loading...</p>
         );

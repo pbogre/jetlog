@@ -48,30 +48,32 @@ export function ShortStats() {
 }
 
 export function AllStats({ filters }) {
-    const [statistics, setStatistics] = useState<Statistics|null>(null)
+    const [statistics, setStatistics] = useState<Statistics>()
     const metricUnits = SettingsManager.getSetting("metricUnits");
 
     useEffect(() => {
         API.get(`/statistics?metric=${metricUnits}`, filters)
         .then((data) => {
-            setStatistics(data)
+            setStatistics(data);
+            console.log(data);
         });
     }, [filters]);
 
+    if (statistics === undefined) {
+        return <p className="m-4">loading...</p>;
+    }
+
     return (
         <>
-        { !statistics ?
-        <p className="m-4">loading...</p> :
-        <div className="container">
-            <p>Number of flights: <span>{statistics.amount || "N/A"}</span></p>
-            <p>Total (registered) time spent flying: <span>{statistics.time ? (statistics.time / 60).toLocaleString() : "N/A"} hours</span></p>
-            <p>Total distance travelled: <span>{statistics.distance ? statistics.distance.toLocaleString() : "N/A"} {metricUnits === "false" ? "mi" : "km"}</span></p>
-            <p>Average days between flights: <span>{statistics.dpf ? statistics.dpf.toLocaleString() : "N/A"} d/f</span></p>
-            <p>Total unique airports visited: <span>{statistics.uniqueAirports ? statistics.uniqueAirports : "N/A"}</span></p>
-            <p>Most common airport: <span>{stringifyAirport(statistics.commonAirport)}</span></p>
-            <p>Most common seat: <span>{statistics.commonSeat ? statistics.commonSeat : "N/A"}</span></p>
-        </div>
-        }
+            <div className="container">
+                <p>Number of flights: <span>{statistics.amount || 0}</span></p>
+                <p>Total (registered) time spent flying: <span>{statistics.time ? (statistics.time / 60).toLocaleString() : 0} hours</span></p>
+                <p>Total distance travelled: <span>{statistics.distance ? statistics.distance.toLocaleString() : 0} {metricUnits === "false" ? "mi" : "km"}</span></p>
+                <p>Average days between flights: <span>{statistics.dpf ? statistics.dpf.toLocaleString() : 0} d/f</span></p>
+                <p>Total unique airports visited: <span>{statistics.uniqueAirports ? statistics.uniqueAirports : 0}</span></p>
+                <p>Most common airport: <span>{stringifyAirport(statistics.commonAirport)}</span></p>
+                <p>Most common seat: <span>{statistics.commonSeat ? statistics.commonSeat : "N/A"}</span></p>
+            </div>
         </>
     );
 }

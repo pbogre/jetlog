@@ -21,7 +21,7 @@ interface FlightPatchOptions {
     notes?: string;
 }
 export default function SingleFlight({ flightID }) {
-    const [flight, setFlight] = useState<Flight|null>(null);
+    const [flight, setFlight] = useState<Flight>();
     const [flightPatch, setFlightPatch] = useState<FlightPatchOptions>({});
     const [editMode, setEditMode] = useState<Boolean>(false);
     const navigate = useNavigate();
@@ -34,7 +34,7 @@ export default function SingleFlight({ flightID }) {
         });
     }, []);
 
-    if(!flight) {
+    if(flight === undefined) {
         return (
             <p className="m-4">Loading...</p>
         );
