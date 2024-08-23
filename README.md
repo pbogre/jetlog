@@ -15,6 +15,7 @@ A self-hostable personal flight tracker and viewer
 - [Features](#features)
 - [Getting Started](#getting-started)
 - [Importing & Exporting](#importing--exporting)
+- [Contributing](#contributing)
 - [Stack](#stack)
 - [Other credits](#other-credits)
 
