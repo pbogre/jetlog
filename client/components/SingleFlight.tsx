@@ -95,7 +95,7 @@ export default function SingleFlight({ flightID }) {
                         <p>Date: <Input type="date" name="date" onChange={handleInputChange} /></p>
                         <p>Departure Time: <Input type="time" name="departureTime" onChange={handleInputChange} /></p>
                         <p>Arrival Time: <Input type="time" name="arrivalTime" onChange={handleInputChange} /></p>
-                        <p>Date: <Input type="date" name="arrivalDate" onChange={handleInputChange} /></p>
+                        <p>Arrival Date: <Input type="date" name="arrivalDate" onChange={handleInputChange} /></p>
                         <p>Duration: <Input type="number" name="duration" onChange={handleInputChange} /></p>
                     </>
                     :
