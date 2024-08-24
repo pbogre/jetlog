@@ -48,7 +48,7 @@ export default function WorldMap() {
                             to={[line.second.longitude, line.second.latitude]}
                             stroke="#FF5533CC"
                             strokeWidth={
-                                        SettingsManager.getSetting("frequencyBasedMarker") === "true" ?
+                                        SettingsManager.getSetting("frequencyBasedLine") === "true" ?
                                         Math.min(1 + Math.floor(line.frequency / 3), 6)
                                         : 1
                                     } 
@@ -58,7 +58,7 @@ export default function WorldMap() {
                     { markers.map((marker) => (
                         <Marker coordinates={[marker.longitude, marker.latitude]}>
                             <circle r={
-                                        SettingsManager.getSetting("frequencyBasedLine") === "true" ?
+                                        SettingsManager.getSetting("frequencyBasedMarker") === "true" ?
                                         Math.min(2 + Math.floor(marker.frequency / 3), 6)
                                         : 3
                                     } 
