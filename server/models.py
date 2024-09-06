@@ -67,6 +67,7 @@ class ClassType(str, Enum):
     PRIVATE = "private"
     FIRST = "first"
     BUSINESS = "business"
+    ECONOMYPLUS = "economy+"
     ECONOMY = "economy"
 
 class AirportModel(CustomModel):

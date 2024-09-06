@@ -106,6 +106,7 @@ function FlightDetails() {
                                 { text: "Private", value: "private" },
                                 { text: "First", value: "first" },
                                 { text: "Business", value: "business" },
+                                { text: "Economy+", value: "economy+" },
                                 { text: "Economy", value: "economy" }
                             ]} />
                     <br />

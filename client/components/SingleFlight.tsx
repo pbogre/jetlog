@@ -142,6 +142,7 @@ export default function SingleFlight({ flightID }) {
                             { text: "Private", value: "private" },
                             { text: "First", value: "first" },
                             { text: "Business", value: "business" },
+                            { text: "Economy+", value: "economy+" },
                             { text: "Economy", value: "economy" }
                         ]} /></p>
                         <p>Airplane: <Input type="text" name="airplane" onChange={handleInputChange} /></p>
