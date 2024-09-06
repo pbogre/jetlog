@@ -1,6 +1,6 @@
 import datetime
 
-from server.models import FlightModel, SeatType
+from server.models import FlightModel, SeatType, ClassType
 from server.routers.flights import add_flight
 from fastapi import APIRouter, HTTPException, UploadFile
 from enum import Enum
@@ -49,6 +49,14 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
                 count += 1
                 continue
 
+            ticket_class_conversion = {
+                "1": ClassType.ECONOMY,
+                "4": ClassType.ECONOMYPLUS,
+                "2": ClassType.BUSINESS,
+                "3": ClassType.FIRST,
+                "5": ClassType.PRIVATE
+            }
+
             values = line.split(',')
             values_dict = {}
             try:
@@ -60,6 +68,7 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
                 values_dict['arrival_time'] = values[5][:5] if values[4][:5] != "00:00" else None
                 # from myflightradar24, 0=none, 1=window, 2=middle, 3=aisle
                 values_dict['seat'] = list(SeatType)[int(values[11]) - 1] if int(values[11]) > 0 else None
+                values_dict['ticket_class'] = ticket_class_conversion[values[12]] if int(values[12]) > 0 else None
                 # conversion from hh:mm:ss to minutes
                 values_dict['duration'] = int(values[6][:2]) * 60 + int(values[6][3:5]) 
                 values_dict['airplane'] = values[8].replace('"', '') if values[8] != '" ()"' else None
