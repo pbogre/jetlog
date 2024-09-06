@@ -33,6 +33,7 @@ export class Statistics {
     uniqueAirports: number;
     commonAirport: Airport;
     commonSeat: string;
+    ticketClassFrequency: object;
 }
 
 export class Coord {

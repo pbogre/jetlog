@@ -73,6 +73,9 @@ export function AllStats({ filters }) {
                 <p>Total unique airports visited: <span>{statistics.uniqueAirports ? statistics.uniqueAirports : 0}</span></p>
                 <p>Most common airport: <span>{stringifyAirport(statistics.commonAirport)}</span></p>
                 <p>Most common seat: <span>{statistics.commonSeat ? statistics.commonSeat : "N/A"}</span></p>
+                { Object.keys(statistics.ticketClassFrequency).map((ticketClass) => {
+                    return <p>Frequency of class '{ticketClass}': <span>{statistics.ticketClassFrequency[ticketClass]}</span></p>
+                })}
             </div>
         </>
     );
