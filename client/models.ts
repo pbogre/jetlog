@@ -7,6 +7,7 @@ export class Flight {
     arrivalTime: string;
     arrivalDate: string;
     seat: string;
+    ticketClass: string;
     duration: number;
     distance: number;
     airplane: string;

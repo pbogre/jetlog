@@ -14,6 +14,7 @@ interface FlightPatchOptions {
     departureTime?: string;
     arrivalTime?: string;
     seat?: string;
+    ticketClass?: string;
     duration?: number;
     distance?: number;
     airplane?: string;
@@ -136,6 +137,12 @@ export default function SingleFlight({ flightID }) {
                             { text: "Middle", value: "middle" },
                             { text: "Window", value: "window" }
                         ]} /></p>
+                        <p>Class: <Select name="ticketClass" onChange={handleInputChange} options={[
+                            { text: "Choose", value: "" },
+                            { text: "First", value: "first" },
+                            { text: "Business", value: "business" },
+                            { text: "Economy", value: "economy" }
+                        ]} /></p>
                         <p>Airplane: <Input type="text" name="airplane" onChange={handleInputChange} /></p>
                         <p>Flight Number: <Input type="text" name="flightNumber" onChange={handleInputChange} /></p>
                         <p>Notes</p>
@@ -144,6 +151,7 @@ export default function SingleFlight({ flightID }) {
                     :
                     <>
                         <p>Seat: <span>{flight.seat || "N/A"}</span></p>
+                        <p>Class: <span>{flight.ticketClass || "N/A"}</span></p>
                         <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
                         <p>Notes: {flight.notes || "N/A"}</p>

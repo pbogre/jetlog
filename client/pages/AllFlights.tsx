@@ -125,7 +125,6 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
         <table className="table-auto w-full">
             <tr>
                 <TableHeading text="Date"/>
-                <TableHeading text="Arrival Date"/>
                 <TableHeading text="Origin"/>
                 <TableHeading text="Destination"/>
                 <TableHeading text="Departure Time"/>
@@ -133,6 +132,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableHeading text="Duration"/>
                 <TableHeading text="Distance"/>
                 <TableHeading text="Seat"/>
+                <TableHeading text="Class"/>
                 <TableHeading text="Airplane"/>
                 <TableHeading text="Flight Number"/>
             </tr>
@@ -140,7 +140,6 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
             <tr className="cursor-pointer even:bg-gray-100 hover:bg-gray-200 duration-75" 
                 onClick={() => handleRowClick(flight.id)}>
                 <TableCell text={flight.date}/>
-                <TableCell text={flight.arrivalDate || "N/A"}/>
                 <TableCell text={flight.origin.city + ' (' + (flight.origin.iata || flight.origin.icao) + ')'}/>
                 <TableCell text={flight.destination.city + ' (' + (flight.destination.iata || flight.destination.icao) + ')'} />
                 <TableCell text={flight.departureTime || "N/A"}/>
@@ -148,6 +147,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableCell text={flight.duration ? flight.duration + " min" : "N/A"}/>
                 <TableCell text={flight.distance ? flight.distance.toLocaleString() + (metricUnits === "false" ? " mi" : " km") : "N/A"}/>
                 <TableCell text={flight.seat || "N/A"}/>
+                <TableCell text={flight.ticketClass || "N/A"} />
                 <TableCell text={flight.airplane || "N/A"}/>
                 <TableCell text={flight.flightNumber || "N/A"}/>
             </tr>

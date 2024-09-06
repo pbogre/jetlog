@@ -97,6 +97,17 @@ function FlightDetails() {
                                 { text: "Window", value: "window" }
                             ]} />
                     <br />
+                    <Label text="Class"/>
+                    <Select name="ticketClass"
+                            value={flight.ticketClass}
+                            onChange={handleChange}
+                            options={[
+                                { text: "Choose", value: "" },
+                                { text: "First", value: "first" },
+                                { text: "Business", value: "business" },
+                                { text: "Economy", value: "economy" }
+                            ]} />
+                    <br />
                     <Label text="Airplane"/>
                     <Input type="text"
                            name="airplane"
