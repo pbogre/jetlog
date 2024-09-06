@@ -63,6 +63,11 @@ class SeatType(str, Enum):
     MIDDLE = "middle"
     AISLE = "aisle"
 
+class ClassType(str, Enum):
+    FIRST = "first"
+    BUSINESS = "business"
+    ECONOMY = "economy"
+
 class AirportModel(CustomModel):
     icao:      str
     iata:      str|None # some airports don't have a IATA
@@ -100,6 +105,7 @@ class FlightModel(CustomModel):
     arrival_time:   str|None = None
     arrival_date:   datetime.date|None = None
     seat:           SeatType|None = None
+    ticket_class:   ClassType|None = None
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
