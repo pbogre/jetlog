@@ -164,3 +164,4 @@ class StatisticsModel(CustomModel):
     unique_airports:        int|None = None
     common_airport:         AirportModel|None = None
     common_seat:            SeatType|None = None
+    ticket_class_frequency: dict

@@ -77,7 +77,14 @@ async def get_statistics(metric: bool = True,
     except:
         airport = None
 
-    stats = StatisticsModel.from_database(res[:begin_airport], { "common_airport": airport })
+    statistics_db = res[:begin_airport]
+
+    # ticket class stats
+
+    res = database.execute_read_query("SELECT ticket_class, COUNT(*) FROM flights GROUP BY ticket_class;")
+    ticket_class_frequency = { pair[0]: pair[1] for pair in res }
+
+    stats = StatisticsModel.from_database(statistics_db, { "common_airport": airport, "ticket_class_frequency": ticket_class_frequency })
 
     if not metric and stats.distance:
         stats.distance = round(stats.distance * 0.6213711922)
