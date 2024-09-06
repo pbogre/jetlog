@@ -80,9 +80,13 @@ async def get_statistics(metric: bool = True,
     statistics_db = res[:begin_airport]
 
     # ticket class stats
-    res = database.execute_read_query("SELECT ticket_class, COUNT(*) FROM flights GROUP BY ticket_class;")
+    res = database.execute_read_query(f"""
+        SELECT ticket_class, COUNT(*) 
+        FROM flights
+        {date_filter_start} {date_filter}
+        GROUP BY ticket_class;""")
     ticket_class_frequency = { pair[0]: pair[1] for pair in res }
-    ticket_class_frequency.pop(None)
+    ticket_class_frequency.pop(None, None)
 
     stats = StatisticsModel.from_database(statistics_db, { "common_airport": airport, "ticket_class_frequency": ticket_class_frequency })
 
