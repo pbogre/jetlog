@@ -103,6 +103,7 @@ function FlightDetails() {
                             onChange={handleChange}
                             options={[
                                 { text: "Choose", value: "" },
+                                { text: "Private", value: "private" },
                                 { text: "First", value: "first" },
                                 { text: "Business", value: "business" },
                                 { text: "Economy", value: "economy" }

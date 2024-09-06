@@ -139,6 +139,7 @@ export default function SingleFlight({ flightID }) {
                         ]} /></p>
                         <p>Class: <Select name="ticketClass" onChange={handleInputChange} options={[
                             { text: "Choose", value: "" },
+                            { text: "Private", value: "private" },
                             { text: "First", value: "first" },
                             { text: "Business", value: "business" },
                             { text: "Economy", value: "economy" }

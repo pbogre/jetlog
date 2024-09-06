@@ -18,7 +18,7 @@ class Database():
             arrival_time   TEXT,
             arrival_date   TEXT,
             seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
-            ticket_class   TEXT NULL CHECK(ticket_class IN ('first', 'business', 'economy')),
+            ticket_class   TEXT NULL CHECK(ticket_class IN ('private', 'first', 'business', 'economy')),
             duration       INTEGER,
             distance       INTEGER,
             airplane       TEXT,

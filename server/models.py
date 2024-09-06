@@ -64,6 +64,7 @@ class SeatType(str, Enum):
     AISLE = "aisle"
 
 class ClassType(str, Enum):
+    PRIVATE = "private"
     FIRST = "first"
     BUSINESS = "business"
     ECONOMY = "economy"
