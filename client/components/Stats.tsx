@@ -1,9 +1,9 @@
 import React, {useState, useMemo, useEffect} from 'react';
 
+import { Subheading, Whisper } from './Elements';
 import { Statistics } from '../models';
 import { SettingsManager } from '../settingsManager';
 import API from '../api';
-import {stringifyAirport} from '../utils';
 
 function StatBox({stat, description}) {
     return (
@@ -15,7 +15,7 @@ function StatBox({stat, description}) {
 }
 
 export function ShortStats() {
-    const [statistics, setStatistics] = useState<Statistics>(new Statistics)
+    const [statistics, setStatistics] = useState<Statistics>()
     const metricUnits = SettingsManager.getSetting("metricUnits");
 
     // runs before render
@@ -24,27 +24,55 @@ export function ShortStats() {
         .then((data) => {
             setStatistics(data);
         });
-
     }, []);
+
+    if (statistics === undefined) {
+        return <p className="m-4">loading...</p>;
+    }
 
     return (
         <div className="flex mb-4 whitespace-nowrap overflow-x-auto ">
-            <StatBox stat={statistics.amount || 0}
+            <StatBox stat={statistics.totalFlights}
                      description="flights"/>
 
-            <StatBox stat={((statistics.time || 0) / 60).toLocaleString()}
+            <StatBox stat={statistics.totalUniqueAirports}
+                     description="airports"/>
+
+            <StatBox stat={(statistics.totalDuration / 60).toLocaleString()}
                      description="hours"/>
 
-            <StatBox stat={statistics.distance?.toLocaleString() || 0}
+            <StatBox stat={statistics.totalDistance.toLocaleString()}
                      description={metricUnits === "false" ? "miles" : "kilometers"}/>
 
-            <StatBox stat={statistics.dpf?.toLocaleString() || 0}
+            <StatBox stat={statistics.daysRange != 0 ? 
+                            (statistics.daysRange / (statistics.totalFlights)).toLocaleString()
+                            : 0}
                      description="days per flight"/>
-
-            <StatBox stat={statistics.uniqueAirports || 0}
-                     description="airports"/>
         </div>
     );
+}
+
+function StatFrequency({ object, measure }) {
+    if (Object.keys(object).length === 0) {
+        return <p>No records found</p>
+    };
+
+    return (
+        <ol className="list-decimal ml-5">
+        { Object.keys(object).map((key => {
+            return (
+                <li>
+                    <div className="flex justify-between">
+                        <span>{key}</span>
+                        <div className="inline">
+                            <Whisper text={`${object[key]} ${measure}`} />
+                        </div>
+                    </div>
+                </li>
+            )
+        }))}
+        </ol>
+    )
 }
 
 export function AllStats({ filters }) {
@@ -64,19 +92,31 @@ export function AllStats({ filters }) {
     }
 
     return (
-        <>
+        <div className="flex flex-wrap">
             <div className="container">
-                <p>Number of flights: <span>{statistics.amount || 0}</span></p>
-                <p>Total (registered) time spent flying: <span>{statistics.time ? (statistics.time / 60).toLocaleString() : 0} hours</span></p>
-                <p>Total distance travelled: <span>{statistics.distance ? statistics.distance.toLocaleString() : 0} {metricUnits === "false" ? "mi" : "km"}</span></p>
-                <p>Average days between flights: <span>{statistics.dpf ? statistics.dpf.toLocaleString() : 0} d/f</span></p>
-                <p>Total unique airports visited: <span>{statistics.uniqueAirports ? statistics.uniqueAirports : 0}</span></p>
-                <p>Most common airport: <span>{stringifyAirport(statistics.commonAirport)}</span></p>
-                <p>Most common seat: <span>{statistics.commonSeat ? statistics.commonSeat : "N/A"}</span></p>
-                { Object.keys(statistics.ticketClassFrequency).map((ticketClass) => {
-                    return <p>Frequency of class '{ticketClass}': <span>{statistics.ticketClassFrequency[ticketClass]}</span></p>
-                })}
+                <Subheading text="Numerical statistics" />
+                
+                <p>Number of flights: <span>{statistics.totalFlights}</span></p>
+                <p>Total (registered) time spent flying: <span>{(statistics.totalDuration / 60).toLocaleString()} hours</span></p>
+                <p>Total distance travelled: <span>{statistics.totalDistance.toLocaleString()} {metricUnits === "false" ? "mi" : "km"}</span></p>
+                <p>Total unique airports visited: <span>{statistics.totalUniqueAirports}</span></p>
+                <p>Range of days: <span>{statistics.daysRange} days</span></p>
             </div>
-        </>
+
+            <div className="container">
+                <Subheading text="Most visited airports" />
+                <StatFrequency object={statistics.mostVisitedAirports} measure="visits"/>
+            </div>
+
+            <div className="container">
+                <Subheading text="Most common seat" />
+                <StatFrequency object={statistics.seatFrequency} measure="flights"/>
+            </div>
+
+            <div className="container">
+                <Subheading text="Most common class" />
+                <StatFrequency object={statistics.ticketClassFrequency} measure="flights"/>
+            </div>
+        </div>
     );
 }

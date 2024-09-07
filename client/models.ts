@@ -26,13 +26,13 @@ export class Airport {
 }
 
 export class Statistics {
-    amount: number;
-    distance: number;
-    time: number;
-    dpf: number;
-    uniqueAirports: number;
-    commonAirport: Airport;
-    commonSeat: string;
+    totalFlights: number;
+    totalDuration: number;
+    totalDistance: number;
+    totalUniqueAirports: number;
+    daysRange: number;
+    mostVisitedAirports: object;
+    seatFrequency: object;
     ticketClassFrequency: object;
 }
 
