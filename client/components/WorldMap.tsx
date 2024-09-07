@@ -29,14 +29,7 @@ export default function WorldMap() {
                                 key={geo.rsmKey} 
                                 geography={geo} 
                                 stroke="#111"
-                                style={{
-                                    default: {
-                                        fill: "#333"
-                                    },
-                                    hover: {
-                                        fill: "#262626"
-                                    }
-                                }}
+                                fill="#333"
                                 />
                           ))
                         }
