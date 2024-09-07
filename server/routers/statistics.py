@@ -48,13 +48,13 @@ async def get_statistics(metric: bool = True,
 
     # get top 5 visited airports
     res = database.execute_read_query(f"""
-        SELECT COUNT(f.origin) + COUNT(f.destination) AS visits,
+        SELECT COUNT(*) AS visits,
                a.icao,
                a.iata,
                a.city,
                a.country
         FROM airports a
-        LEFT JOIN flights f
+        JOIN flights f
         ON ( LOWER(a.icao) = LOWER(f.origin) OR LOWER(a.icao) = LOWER(f.destination) )
         {date_filter}
         GROUP BY a.icao
