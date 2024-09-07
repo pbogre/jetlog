@@ -157,11 +157,11 @@ class FlightModel(CustomModel):
         return values
 
 class StatisticsModel(CustomModel):
-    amount:                 int|None = None
-    time:                   int|None = None
-    distance:               int|None = None
-    dpf:                    float|None = None
-    unique_airports:        int|None = None
-    common_airport:         AirportModel|None = None
-    common_seat:            SeatType|None = None
+    total_flights:          int
+    total_duration:         int
+    total_distance:         int
+    total_unique_airports:  int
+    days_range:             int
+    most_visited_airports:  dict
+    seat_frequency:         dict
     ticket_class_frequency: dict

@@ -1,5 +1,5 @@
 from server.database import database
-from server.models import AirportModel, StatisticsModel
+from server.models import StatisticsModel
 from fastapi import APIRouter
 import datetime
 
@@ -12,85 +12,91 @@ router = APIRouter(
 @router.get("", status_code=200)
 async def get_statistics(metric: bool = True,
                          start: datetime.date|None = None,
-                         end: datetime.date|None = None) -> StatisticsModel:    
-    date_filter_start = "WHERE" if start or end else ""
-
-    date_filter = ""
-    date_filter += f"JULIANDAY(date) > JULIANDAY('{start}')" if start else ""
+                         end: datetime.date|None = None):
+    date_filter = "WHERE " if start or end else ""
+    date_filter += f"JULIANDAY(f.date) > JULIANDAY('{start}')" if start else ""
     date_filter += " AND " if start and end else ""
-    date_filter += f"JULIANDAY(date) < JULIANDAY('{end}')" if end else ""
+    date_filter += f"JULIANDAY(f.date) < JULIANDAY('{end}')" if end else ""
 
+    # get simple numerical stats
     res = database.execute_read_query(f"""
-        SELECT  COUNT(*) AS amount, 
+        SELECT COUNT(*) AS total_flights,
+               COALESCE(SUM(duration), 0) AS total_duration,
+               COALESCE(SUM(distance), 0) AS total_distance,
 
-                SUM(duration) AS total_time,
-
-                SUM(distance) AS total_distance,
-
-                ROUND(
-                    ( ( SELECT JULIANDAY(date) FROM flights {date_filter_start} {date_filter} ORDER BY date DESC LIMIT 1 ) -
-                      ( SELECT JULIANDAY(date) FROM flights {date_filter_start} {date_filter} ORDER BY date ASC LIMIT 1 ) 
-                        * 1.0 
-                    ) / ( ( SELECT COUNT(*) FROM flights {date_filter_start} {date_filter} ) * 1.0 )
-                    , 2) AS days_per_flight,
-
-                ( SELECT COUNT(DISTINCT ap) FROM (
-                    SELECT origin AS ap FROM flights {date_filter_start} {date_filter}
+               ( SELECT COUNT(DISTINCT ap) FROM (
+                    SELECT origin AS ap FROM flights f {date_filter}
                     UNION ALL
-                    SELECT destination as ap FROM flights {date_filter_start} {date_filter}
+                    SELECT destination as ap FROM flights f {date_filter}
                     )
-                ) AS unique_airports,
+               ) 
+               AS total_unique_airports,
 
-                ( SELECT seat FROM flights 
-                    WHERE seat NOT NULL
-                    {"AND" if start or end else ""} {date_filter}
-                    GROUP BY seat
-                    ORDER BY COUNT(*) DESC
-                    LIMIT 1 
-                ) AS common_seat,
+               COALESCE(( SELECT JULIANDAY(date)
+                 FROM flights f {date_filter}
+                 ORDER BY date DESC LIMIT 1 ) 
+               - 
+               ( SELECT JULIANDAY(date)
+                 FROM flights f {date_filter}
+                 ORDER BY date ASC LIMIT 1 ), 0)
+               AS days_range
 
-                common_airport.*
+               FROM flights f {date_filter};
+    """)
 
-        FROM flights 
+    statistics_db = res[0]
 
-        JOIN airports AS common_airport 
-        ON LOWER(icao) = (
-            SELECT LOWER(ap)
-            FROM (
-                SELECT origin AS ap FROM flights {date_filter_start} {date_filter}
-                UNION ALL
-                SELECT destination AS ap FROM flights {date_filter_start} {date_filter}
-            )
-            GROUP BY ap
-            ORDER BY COUNT(*) DESC
-            LIMIT 1
-        )
-
-        {date_filter_start} {date_filter};
-    """)[0]
-
-    begin_airport = len(StatisticsModel.get_attributes()) - 1
-
-    airport_db = res[begin_airport:]
-    try:
-        airport = AirportModel.from_database(airport_db)
-    except:
-        airport = None
-
-    statistics_db = res[:begin_airport]
-
-    # ticket class stats
+    # get top 5 visited airports
     res = database.execute_read_query(f"""
-        SELECT ticket_class, COUNT(*) 
-        FROM flights
-        {date_filter_start} {date_filter}
-        GROUP BY ticket_class;""")
+        SELECT COUNT(f.origin) + COUNT(f.destination) AS visits,
+               a.icao,
+               a.iata,
+               a.city,
+               a.country
+        FROM airports a
+        LEFT JOIN flights f
+        ON ( LOWER(a.icao) = LOWER(f.origin) OR LOWER(a.icao) = LOWER(f.destination) )
+        {date_filter}
+        GROUP BY a.icao
+        ORDER BY visits DESC
+        LIMIT 5;
+    """)
+
+    most_visited_airports = { }
+    for airport in res:
+        string = f"{airport[2] if airport[2] else airport[1]} - {airport[3]}/{airport[4]}"
+        most_visited_airports[string] = airport[0]
+
+    # get seats frequency
+    res = database.execute_read_query(f"""
+        SELECT seat, COUNT(*) AS freq
+        FROM flights f
+        {date_filter}
+        GROUP BY seat
+        ORDER BY freq DESC;
+    """)
+    seat_frequency = { pair[0]: pair[1] for pair in res }
+    seat_frequency.pop(None, None) # ignore entries with no seat
+
+    # get ticket class frequency
+    res = database.execute_read_query(f"""
+        SELECT ticket_class, COUNT(*) AS freq
+        FROM flights f
+        {date_filter}
+        GROUP BY ticket_class
+        ORDER BY freq DESC;
+    """)
     ticket_class_frequency = { pair[0]: pair[1] for pair in res }
-    ticket_class_frequency.pop(None, None)
+    ticket_class_frequency.pop(None, None) # ignore entries with no ticket class
 
-    stats = StatisticsModel.from_database(statistics_db, { "common_airport": airport, "ticket_class_frequency": ticket_class_frequency })
+    statistics = StatisticsModel.from_database(statistics_db, 
+                                               explicit={ 
+                                                         "most_visited_airports": most_visited_airports,
+                                                         "seat_frequency": seat_frequency,
+                                                         "ticket_class_frequency": ticket_class_frequency
+                                                         })
 
-    if not metric and stats.distance:
-        stats.distance = round(stats.distance * 0.6213711922)
+    if not metric and statistics.total_distance:
+        statistics.total_distance = round(statistics.total_distance * 0.6213711922)
 
-    return StatisticsModel.model_validate(stats)
+    return StatisticsModel.model_validate(statistics)
