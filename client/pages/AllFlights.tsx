@@ -11,6 +11,7 @@ interface FlightsFilters {
     limit?: number;
     offset?: number;
     order?: "DESC"|"ASC";
+    sort?: "date"|"seat"|"ticket_class"|"duration"|"distance";
     start?: string;
     end?: string;
 }
@@ -60,6 +61,17 @@ export default function AllFlights() {
                                 { text: "Choose", value: "" },
                                 { text: "Descending", value: "DESC" },
                                 { text: "Ascending", value: "ASC" }
+                            ]}/>
+                            <br />
+                            <Label text="Sort By" />
+                            <Select name="sort"
+                                    options={[
+                                { text: "Choose", value: "" },
+                                { text: "Date", value: "date" },
+                                { text: "Seat", value: "seat" },
+                                { text: "Ticket Class", value: "ticket_class" },
+                                { text: "Duration", value: "duration" },
+                                { text: "Distance", value: "distance" }
                             ]}/>
                             <br />
                             <Label text="Start Date" />
