@@ -142,14 +142,14 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableCell text={flight.date}/>
                 <TableCell text={flight.origin.city + ' (' + (flight.origin.iata || flight.origin.icao) + ')'}/>
                 <TableCell text={flight.destination.city + ' (' + (flight.destination.iata || flight.destination.icao) + ')'} />
-                <TableCell text={flight.departureTime || "N/A"}/>
-                <TableCell text={flight.arrivalTime || "N/A"}/>
-                <TableCell text={flight.duration ? flight.duration + " min" : "N/A"}/>
-                <TableCell text={flight.distance ? flight.distance.toLocaleString() + (metricUnits === "false" ? " mi" : " km") : "N/A"}/>
-                <TableCell text={flight.seat || "N/A"}/>
-                <TableCell text={flight.ticketClass || "N/A"} />
-                <TableCell text={flight.airplane || "N/A"}/>
-                <TableCell text={flight.flightNumber || "N/A"}/>
+                <TableCell text={flight.departureTime || ""}/>
+                <TableCell text={flight.arrivalTime || ""}/>
+                <TableCell text={flight.duration ? flight.duration + " min" : ""}/>
+                <TableCell text={flight.distance ? flight.distance.toLocaleString() + (metricUnits === "false" ? " mi" : " km") : ""}/>
+                <TableCell text={flight.seat || ""}/>
+                <TableCell text={flight.ticketClass || ""} />
+                <TableCell text={flight.airplane || ""}/>
+                <TableCell text={flight.flightNumber || ""}/>
             </tr>
             ))}
         </table>
