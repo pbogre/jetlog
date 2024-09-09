@@ -12,8 +12,15 @@ router = APIRouter(
 )
 
 class Order(str, Enum):
-    asc = "ASC"
-    desc = "DESC"
+    ASCENDING = "ASC"
+    DESCENDING = "DESC"
+
+class SortBy(str, Enum):
+    DATE = "date"
+    SEAT = "seat"
+    TICKET_CLASS = "ticket_class"
+    DURATION = "duration"
+    DISTANCE = "distance"
 
 # https://en.wikipedia.org/wiki/Haversine_formula
 def spherical_distance(origin: AirportModel, destination: AirportModel) -> int:
@@ -133,7 +140,8 @@ async def get_flights(id: int|None = None,
                       metric: bool = True,
                       limit: int = 50, 
                       offset: int = 0, 
-                      order: Order = Order.desc,
+                      order: Order = Order.DESCENDING,
+                      sort_by: SortBy = SortBy.DATE,
                       start: datetime.date|None = None,
                       end: datetime.date|None = None) -> list[FlightModel]|FlightModel:
 
@@ -156,7 +164,7 @@ async def get_flights(id: int|None = None,
         JOIN airports d ON LOWER(f.destination) = LOWER(d.icao)
         {id_filter}
         {date_filter_start} {date_filter}
-        ORDER BY f.date {order.value}
+        ORDER BY f.{sort_by.value} {order.value}
         LIMIT {limit}
         OFFSET {offset};"""
 
