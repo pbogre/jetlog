@@ -62,7 +62,7 @@ function StatFrequency({ object, measure }) {
         { Object.keys(object).map((key => {
             return (
                 <li>
-                    <div className="flex justify-between">
+                    <div className="flex flex-wrap justify-between">
                         <span>{key}</span>
                         <div className="inline">
                             <Whisper text={`${object[key]} ${measure}`} />
