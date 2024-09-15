@@ -149,7 +149,7 @@ class FlightModel(CustomModel):
                 value = value.icao
             elif type(value) == datetime.date:
                 value = value.isoformat()
-            elif type(value) == SeatType:
+            elif type(value) == SeatType or type(value) == ClassType:
                 value = value.value
 
             values.append(value)
