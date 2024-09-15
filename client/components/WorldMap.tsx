@@ -52,10 +52,16 @@ export default function WorldMap() {
                         <Marker coordinates={[marker.longitude, marker.latitude]}>
                             <circle r={
                                         SettingsManager.getSetting("frequencyBasedMarker") === "true" ?
-                                        Math.min(2 + Math.floor(marker.frequency / 3), 6)
+                                        Math.min(3 + Math.floor(marker.frequency / 3), 6)
                                         : 3
                                     } 
-                                    fill="#FFA500"/>
+                                    fill={
+                                        SettingsManager.getSetting("frequencyBasedMarker") === "true" ?
+                                        "#FFA50080"
+                                        : "#FFA500"
+                                    }
+                                    stroke="#FFA500"
+                                    strokeWidth={0.5}/>
                         </Marker>
                     ))} 
                 </ZoomableGroup>
