@@ -59,8 +59,10 @@ class CustomModel(CamelableModel):
         return True
 
 class User(CustomModel):
+    id:            int
     username:      str
     password_hash: str
+    is_admin:      bool
     last_login:    datetime.datetime|None
     created_on:    datetime.datetime
 

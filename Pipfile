@@ -10,7 +10,7 @@ pydantic = "2.3.0"
 requests = "2.31.0"
 python-multipart = "0.0.9"
 pyjwt = "2.9.0"
-passlib = {extras = ["bcrypt"], version = "1.7.4"}
+bcrypt = "4.2.0"
 
 [requires]
 python_version = "3.11"

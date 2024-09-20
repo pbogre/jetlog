@@ -1,4 +1,5 @@
-from server.routers import flights, airports, statistics, geography, importing, exporting, auth
+from server.routers import flights, airports, statistics, geography, importing, exporting
+from server.auth import auth
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -22,7 +23,8 @@ app.include_router(statistics.router, prefix="/api")
 app.include_router(geography.router, prefix="/api")
 app.include_router(importing.router, prefix="/api")
 app.include_router(exporting.router, prefix="/api")
-app.include_router(auth.router, prefix="/api")
+
+app.include_router(auth.router, prefix="/auth")
 
 @app.get("/", include_in_schema=False)
 @app.get("/new", include_in_schema=False)

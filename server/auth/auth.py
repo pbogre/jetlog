@@ -1,16 +1,15 @@
-from pydantic import BaseModel
-from server.database import database
 from server.models import User
+from server.database import database
+from server.auth.utils import hash_password, verify_password, oauth2_scheme
 
 import jwt
+from pydantic import BaseModel
 from datetime import datetime, timedelta
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from passlib.context import CryptContext
+from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(
-    prefix="/auth",
     tags=["auth"],
     redirect_slashes=True
 )
@@ -23,18 +22,10 @@ SECRET_KEY = "ad9df50bddc30ac206cd203a511285341b482d5e24f64c43579d4ade4d3b54fc"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 7
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/token")
-
 class Token(BaseModel):
     access_token: str
     token_type: str
 
-def verify_password(password: str, password_hash: str) -> bool:
-    return pwd_context.verify(password, password_hash)
-
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -46,8 +37,9 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+
 def get_user(username: str) -> User|None:
-    result = database .execute_read_query(f"SELECT * FROM users WHERE username = {username};")
+    result = database.execute_read_query(f"SELECT * FROM users WHERE username = '{username}';")
  
     if not result:
         return None
@@ -55,13 +47,33 @@ def get_user(username: str) -> User|None:
     user = User.from_database(result[0])
     return User.model_validate(user)
 
-@router.post("/token")
-async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
+def update_last_login(username: str) -> None:
+    database.execute_query(f"""UPDATE users
+                               SET last_login = current_timestamp
+                               WHERE username = '{username}';""")
+
+@router.post("/token", status_code=200)
+async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     user = get_user(form_data.username)
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, 
                             headers={"WWW-Authenticate": "Bearer"},
                             detail="Incorrect username or password")
 
+    update_last_login(user.username)
+
     access_token = create_access_token({"sub": user.username})
     return Token(access_token=access_token, token_type="bearer")
+
+@router.post("/user", status_code=201)
+async def create_user(token: Annotated[str, Depends(oauth2_scheme)], username: str, password: str):
+    password_hash = hash_password(password)
+    database.execute_query(f"INSERT INTO users (username, password_hash) VALUES (?, ?)",
+                           [username, password_hash])
+
+@router.patch("/user", status_code=200)
+async def update_password(token: Annotated[str, Depends(oauth2_scheme)], username: str, new_password: str):
+    password_hash = hash_password(new_password) 
+    database.execute_query(f"""UPDATE users
+                               SET password_hash = '{password_hash}'
+                               WHERE username = '{username}';""")

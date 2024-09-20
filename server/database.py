@@ -35,6 +35,7 @@ class Database():
                     id            INTEGER PRIMARY KEY AUTOINCREMENT,
                     username      TEXT NOT NULL UNIQUE,
                     password_hash TEXT NOT NULL,
+                    is_admin      BIT NOT NULL DEFAULT 0,
                     last_login    DATETIME,
                     created_on    DATETIME NOT NULL DEFAULT current_timestamp
                 )""",
@@ -97,6 +98,13 @@ class Database():
         for table in self.tables:
             table_pragma = self.tables[table]["pragma"]
             self.execute_query(f"CREATE TABLE {table} {table_pragma};")
+
+        # create default user
+        from server.auth.utils import hash_password
+        default_username = "admin"
+        default_password = hash_password("admin")
+        self.execute_query("INSERT INTO users (username, password_hash) VALUES (?, ?);",
+                           [default_username, default_password])
 
         self.execute_query("""
         CREATE TABLE airports (
