@@ -103,7 +103,7 @@ class Database():
         from server.auth.utils import hash_password
         default_username = "admin"
         default_password = hash_password("admin")
-        self.execute_query("INSERT INTO users (username, password_hash) VALUES (?, ?);",
+        self.execute_query("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1);",
                            [default_username, default_password])
 
         self.execute_query("""
