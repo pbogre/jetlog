@@ -58,6 +58,12 @@ class CustomModel(CamelableModel):
 
         return True
 
+class User(CustomModel):
+    username:      str
+    password_hash: str
+    last_login:    datetime.datetime|None
+    created_on:    datetime.datetime
+
 class SeatType(str, Enum):
     WINDOW = "window"
     MIDDLE = "middle"

@@ -3,28 +3,44 @@ import os.path
 from pathlib import Path
 from fastapi import HTTPException
 
-from server.models import FlightModel
+from server.models import FlightModel, User
 from server.environment import DATA_PATH
 
 class Database():
     connection: sqlite3.Connection
-    flights_table = """
-        (
-            id             INTEGER PRIMARY KEY AUTOINCREMENT,
-            date           TEXT NOT NULL,
-            origin         TEXT NOT NULL,
-            destination    TEXT NOT NULL,
-            departure_time TEXT,
-            arrival_time   TEXT,
-            arrival_date   TEXT,
-            seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
-            ticket_class   TEXT NULL CHECK(ticket_class IN ('private', 'first', 'business', 'economy+', 'economy')),
-            duration       INTEGER,
-            distance       INTEGER,
-            airplane       TEXT,
-            flight_number  TEXT,
-            notes          TEXT
-        )"""
+    tables = {
+        "flights": {
+            "pragma": """
+                (
+                    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+                    date           TEXT NOT NULL,
+                    origin         TEXT NOT NULL,
+                    destination    TEXT NOT NULL,
+                    departure_time TEXT,
+                    arrival_time   TEXT,
+                    arrival_date   TEXT,
+                    seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
+                    ticket_class   TEXT NULL CHECK(ticket_class IN ('private', 'first', 'business', 'economy+', 'economy')),
+                    duration       INTEGER,
+                    distance       INTEGER,
+                    airplane       TEXT,
+                    flight_number  TEXT,
+                    notes          TEXT
+                )""",
+            "model": FlightModel
+        },
+        "users": {
+            "pragma": """
+                (
+                    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username      TEXT NOT NULL,
+                    password_hash TEXT NOT NULL,
+                    last_login    DATETIME,
+                    created_on    DATETIME NOT NULL DEFAULT current_timestamp
+                )""",
+            "model": User
+        }
+    }
 
     def __init__(self, db_dir: str):
         print("Initializing database connection")
@@ -34,19 +50,28 @@ class Database():
         if os.path.isfile(db_path):
             self.connection = sqlite3.connect(db_path)
 
-            # verify that all fields are in the table
+            # verify that all tables are up-to-date
             # (backward compatibility)
-            table_info = self.execute_read_query("PRAGMA table_info(flights);")
-            column_names = [ col[1] for col in table_info ]
+            for table in self.tables:
+                table_info = self.execute_read_query(f"PRAGMA table_info({table});")
+                column_names = [ col[1] for col in table_info ]
 
-            needs_patch = False
-            for key in FlightModel.get_attributes():
-                if key not in column_names:
-                    print(f"Detected missing column in flights table: '{key}'. Scheduled a patch...")
-                    needs_patch = True
+                table_pragma = self.tables[table]["pragma"]
+                table_model = self.tables[table]["model"]
 
-            if needs_patch:
-                self.patch_flights_table(column_names)
+                if not column_names:
+                    print(f"Missing table '{table}'. Creating it...")
+                    self.execute_query(f"CREATE TABLE {table} {table_pragma};")
+                    continue
+
+                needs_patch = False
+                for key in table_model.get_attributes():
+                    if key not in column_names:
+                        print(f"Detected missing column in table '{table}': '{key}'. Scheduled a patch...")
+                        needs_patch = True
+
+                if needs_patch:
+                    self.patch_table(table, column_names)
 
         else:
             print("Database file not found, creating it...")
@@ -68,8 +93,10 @@ class Database():
  
     def initialize_tables(self):
         airports_db_path = Path(__file__).parent.parent / 'data' / 'airports.db'
-        
-        self.execute_query(f"CREATE TABLE flights {self.flights_table};")
+
+        for table in self.tables:
+            table_pragma = self.tables[table]["pragma"]
+            self.execute_query(f"CREATE TABLE {table} {table_pragma};")
 
         self.execute_query("""
         CREATE TABLE airports (
@@ -86,12 +113,15 @@ class Database():
         self.execute_query("INSERT INTO main.airports SELECT * FROM a.airports;")
         self.execute_query("DETACH a;") 
 
-    def patch_flights_table(self, present: list[str]):
-        print("Patching flights table...")
-        self.execute_query(f"CREATE TABLE _flights {self.flights_table};")
-        self.execute_query(f"INSERT INTO _flights ({', '.join(present)}) SELECT * FROM flights;")
-        self.execute_query("DROP TABLE flights;")
-        self.execute_query("ALTER TABLE _flights RENAME TO flights;")
+    def patch_table(self, table: str, present: list[str]):
+        print(f"Patching table '{table}'...")
+
+        table_pragma = self.tables[table]["pragma"]
+
+        self.execute_query(f"CREATE TABLE _{table} {table_pragma};")
+        self.execute_query(f"INSERT INTO _{table} ({', '.join(present)}) SELECT * FROM {table};")
+        self.execute_query(f"DROP TABLE {table};")
+        self.execute_query(f"ALTER TABLE _{table} RENAME TO {table};")
 
     def execute_query(self, query: str, parameters=[]) -> int:
         try:
