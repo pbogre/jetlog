@@ -33,7 +33,7 @@ class Database():
             "pragma": """
                 (
                     id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username      TEXT NOT NULL,
+                    username      TEXT NOT NULL UNIQUE,
                     password_hash TEXT NOT NULL,
                     last_login    DATETIME,
                     created_on    DATETIME NOT NULL DEFAULT current_timestamp
