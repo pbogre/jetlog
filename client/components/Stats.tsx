@@ -94,7 +94,7 @@ export function AllStats({ filters }) {
     return (
         <div className="flex flex-wrap">
             <div className="container">
-                <Subheading text="Numerical statistics" />
+                <Subheading text="Generic" />
                 
                 <p>Number of flights: <span>{statistics.totalFlights}</span></p>
                 <p>Total (registered) time spent flying: <span>{(statistics.totalDuration / 60).toLocaleString()} hours</span></p>

@@ -51,6 +51,9 @@ class Database():
         if os.path.isfile(db_path):
             self.connection = sqlite3.connect(db_path)
 
+            # update airports table
+            self.update_airports_table()
+
             # verify that all tables are up-to-date
             # (backward compatibility)
             for table in self.tables:
@@ -93,8 +96,6 @@ class Database():
         print("Database initialization complete")
  
     def initialize_tables(self):
-        airports_db_path = Path(__file__).parent.parent / 'data' / 'airports.db'
-
         for table in self.tables:
             table_pragma = self.tables[table]["pragma"]
             self.execute_query(f"CREATE TABLE {table} {table_pragma};")
@@ -106,15 +107,27 @@ class Database():
         self.execute_query("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1);",
                            [default_username, default_password])
 
+        self.update_airports_table(drop_old=False)
+
+    def update_airports_table(self, drop_old: bool = True):
+        print("Updating airports table...")
+        airports_db_path = Path(__file__).parent.parent / 'data' / 'airports.db'
+
+        if drop_old:
+            self.execute_query("DROP TABLE airports;")
+
         self.execute_query("""
         CREATE TABLE airports (
-            icao      TEXT,
-            iata      TEXT,
-            name      TEXT,
-            city      TEXT,
-            country   TEXT,
-            latitude  FLOAT,
-            longitude FLOAT
+            icao         TEXT,
+            iata         TEXT,
+            type         TEXT,
+            name         TEXT,
+            municipality TEXT,
+            region       TEXT,
+            country      TEXT,
+            continent    TEXT,
+            latitude     FLOAT,
+            longitude    FLOAT
         );""")
 
         self.execute_query(f"ATTACH '{airports_db_path}' AS a;")

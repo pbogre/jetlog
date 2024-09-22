@@ -14,11 +14,13 @@ async def get_airports(q: str) -> list[AirportModel]:
     SELECT * FROM airports WHERE 
     LOWER(iata) LIKE LOWER('%{q}%') OR 
     LOWER(name) LIKE LOWER('%{q}%') OR 
-    LOWER(city) LIKE LOWER('%{q}%') OR 
+    LOWER(municipality) LIKE LOWER('%{q}%') OR 
+    LOWER(region) LIKE LOWER('%{q}%') OR 
     LOWER(icao) LIKE LOWER('%{q}%') 
     ORDER BY LOWER(iata) = LOWER('{q}') DESC,
              LOWER(name) = LOWER('{q}') DESC,
-             LOWER(city) = LOWER('{q}') DESC,
+             LOWER(municipality) = LOWER('{q}') DESC,
+             LOWER(region) LIKE LOWER('%{q}%') DESC,
              LOWER(icao) = LOWER('{q}') 
     LIMIT 5;""")
 

@@ -152,8 +152,8 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
             <tr className="cursor-pointer even:bg-gray-100 hover:bg-gray-200 duration-75" 
                 onClick={() => handleRowClick(flight.id)}>
                 <TableCell text={flight.date}/>
-                <TableCell text={flight.origin.city + ' (' + (flight.origin.iata || flight.origin.icao) + ')'}/>
-                <TableCell text={flight.destination.city + ' (' + (flight.destination.iata || flight.destination.icao) + ')'} />
+                <TableCell text={flight.origin.municipality + ' (' + (flight.origin.iata || flight.origin.icao) + ')'}/>
+                <TableCell text={flight.destination.municipality + ' (' + (flight.destination.iata || flight.destination.icao) + ')'} />
                 <TableCell text={flight.departureTime || ""}/>
                 <TableCell text={flight.arrivalTime || ""}/>
                 <TableCell text={flight.duration ? flight.duration + " min" : ""}/>

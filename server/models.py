@@ -78,14 +78,24 @@ class ClassType(str, Enum):
     ECONOMYPLUS = "economy+"
     ECONOMY = "economy"
 
+class AirportType(str, Enum):
+    CLOSED = "closed"
+    LARGE = "large_airport"
+    MEDIUM = "medium_airport"
+    #SMALL = "small_airport"
+    #SEAPLANE = "seaplane_base"
+
 class AirportModel(CustomModel):
-    icao:      str
-    iata:      str|None # some airports don't have a IATA
-    name:      str
-    city:      str
-    country:   str
-    latitude:  float
-    longitude: float
+    icao:         str
+    iata:         str|None
+    type:         AirportType
+    name:         str
+    municipality: str|None
+    region:       str
+    country:      str
+    continent:    str
+    latitude:     float
+    longitude:    float
 
     @field_validator('icao')
     @classmethod
