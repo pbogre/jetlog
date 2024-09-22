@@ -51,7 +51,7 @@ async def get_statistics(metric: bool = True,
         SELECT COUNT(*) AS visits,
                a.icao,
                a.iata,
-               a.city,
+               a.municipality,
                a.country
         FROM airports a
         JOIN flights f

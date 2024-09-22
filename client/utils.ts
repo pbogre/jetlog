@@ -5,5 +5,5 @@ export function stringifyAirport(airport: Airport|null) {
         return "N/A";
     }
 
-    return (airport.iata || airport.icao) + " - " + airport.city + "/" + airport.country;
+    return (airport.iata || airport.icao) + " - " + airport.municipality + "/" + airport.country;
 }

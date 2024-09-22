@@ -71,10 +71,9 @@ please read [CONTRIBUTING.md](https://github.com/pbogre/jetlog/blob/main/CONTRIB
 - [React](https://react.dev/)
 - [TailwindCSS](https://tailwindcss.com/)
 
-## Other credits
+## Acknowledgements
 
 - [Favicon](https://www.flaticon.com/free-icon/flight_16863550?term=plane&page=1&position=36&origin=search&related_id=16863550)
-- [Airports database](https://github.com/jpatokal/openflights/)
+- [Airports data](https://ourairports.com/)
 - [react-simple-map](https://www.react-simple-maps.io/)
 - [World GeoJSON](https://geojson-maps.kyd.au/)
-

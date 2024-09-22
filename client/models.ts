@@ -18,9 +18,12 @@ export class Flight {
 export class Airport {
     icao: string;
     iata: string;
+    type: string;
     name: string;
-    city: string;
+    municipality: string;
+    region: string;
     country: string;
+    continent: string;
     latitude: number;
     longitude: number;
 }

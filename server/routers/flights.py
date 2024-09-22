@@ -179,7 +179,7 @@ async def get_flights(id: int|None = None,
         begin = len(FlightModel.get_attributes()) - 2
         length = len(AirportModel.get_attributes())
 
-        db_origin = db_flight[begin:begin+ length]
+        db_origin = db_flight[begin:begin + length]
         db_destination = db_flight[begin + length: begin + 2*length]
 
         origin = AirportModel.from_database(db_origin)
