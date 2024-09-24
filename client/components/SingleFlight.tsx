@@ -84,7 +84,7 @@ export default function SingleFlight({ flightID }) {
 
     return (
         <>
-            <Heading text={`${flight.origin.iata || flight.origin.city } to ${flight.destination.iata || flight.destination.city}`} />
+            <Heading text={`${flight.origin.iata || flight.origin.municipality } to ${flight.destination.iata || flight.destination.municipality}`} />
             <h2 className="-mt-4 mb-4 text-xl">{flight.date}</h2>
            
             <div>
@@ -120,9 +120,22 @@ export default function SingleFlight({ flightID }) {
                     </>
                     :
                     <>
-                        <p>Origin: <span>{flight.origin.iata || flight.origin.icao} ({flight.origin.city}/{flight.origin.country})</span></p>
-                        <p>Destination: <span>{flight.destination.iata || flight.destination.icao} ({flight.destination.city}/{flight.destination.country})</span></p>
                         <p>Distance: <span>{flight.distance ? flight.distance + (metricUnits === "false" ? " mi" : " km") : "N/A"}</span></p>
+                        <p className="font-bold">Origin</p> 
+                        <ul className="mb-2">
+                            <li>ICAO/IATA: <span>{flight.origin.icao}/{flight.origin.iata}</span></li>
+                            <li>Type: <span>{flight.origin.type}</span></li>
+                            <li>Name: <span>{flight.origin.name}</span></li>
+                            <li>Location: <span>{flight.origin.continent}, {flight.origin.country}, {flight.origin.region}, {flight.origin.municipality}</span></li>
+                        </ul>
+
+                        <p className="font-bold">Destination</p> 
+                        <ul>
+                            <li>ICAO/IATA: <span>{flight.destination.icao}/{flight.destination.iata}</span></li>
+                            <li>Type: <span>{flight.destination.type}</span></li>
+                            <li>Name: <span>{flight.destination.name}</span></li>
+                            <li>Location: <span>{flight.destination.continent}, {flight.destination.country}, {flight.destination.region}, {flight.destination.municipality}</span></li>
+                        </ul>
                     </>
                     }
                 </div>
