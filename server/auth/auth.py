@@ -10,7 +10,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(
-    tags=["auth"],
+    prefix="/auth",
+    tags=["authentication"],
     redirect_slashes=True
 )
 
@@ -64,12 +65,11 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> T
     return Token(access_token=access_token, token_type="bearer")
 
 @router.get("/user")
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
-        status_code=401,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+            status_code=401,
+            headers={"WWW-Authenticate": "Bearer"},
+            detail="Invalid token")
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
@@ -89,7 +89,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> Use
 @router.post("/user", status_code=201)
 async def create_user(user: Annotated[User, Depends(get_current_user)], username: str, password: str):
     if not user.is_admin:
-        raise HTTPException(status_code=401, detail="Only admins change create new users")
+        raise HTTPException(status_code=403, detail="Only admins change create new users")
 
     password_hash = hash_password(password)
     database.execute_query(f"INSERT INTO users (username, password_hash) VALUES (?, ?)",
@@ -98,15 +98,15 @@ async def create_user(user: Annotated[User, Depends(get_current_user)], username
 class UserPatch(CustomModel):
     username: str|None = None
     password: str|None = None
-    is_admin: str|None = None
+    is_admin: bool|None = None
 
 @router.patch("/user", status_code=200)
 async def update_user(user: Annotated[User, Depends(get_current_user)], username: str, new_user: UserPatch):
     if user.username != username and not user.is_admin:
-        raise HTTPException(status_code=401, detail="Only admins can edit other users")
+        raise HTTPException(status_code=403, detail="Only admins can edit other users")
     if new_user.is_admin and (user.username == username or not user.is_admin):
-        raise HTTPException(status_code=401, detail="Only admins can change the admin status of other users")
-    
+        raise HTTPException(status_code=403, detail="Only admins can change the admin status of other users")
+
     query = "UPDATE users SET "
 
     values = []
@@ -127,6 +127,4 @@ async def update_user(user: Annotated[User, Depends(get_current_user)], username
         query = query[:-1]
 
     query += f" WHERE username = '{username}';"
-    print(query)
-    print(values)
     database.execute_query(query, values)

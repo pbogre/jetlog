@@ -2,7 +2,7 @@ import React, {useState, useMemo, useEffect} from 'react';
 
 import { Subheading, Whisper } from './Elements';
 import { Statistics } from '../models';
-import { SettingsManager } from '../settingsManager';
+import ConfigStorage from '../storage/configStorage';
 import API from '../api';
 
 function StatBox({stat, description}) {
@@ -16,7 +16,7 @@ function StatBox({stat, description}) {
 
 export function ShortStats() {
     const [statistics, setStatistics] = useState<Statistics>()
-    const metricUnits = SettingsManager.getSetting("metricUnits");
+    const metricUnits = ConfigStorage.getSetting("metricUnits");
 
     // runs before render
     useMemo(() => {
@@ -77,7 +77,7 @@ function StatFrequency({ object, measure }) {
 
 export function AllStats({ filters }) {
     const [statistics, setStatistics] = useState<Statistics>()
-    const metricUnits = SettingsManager.getSetting("metricUnits");
+    const metricUnits = ConfigStorage.getSetting("metricUnits");
 
     useEffect(() => {
         API.get(`/statistics?metric=${metricUnits}`, filters)

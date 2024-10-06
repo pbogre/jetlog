@@ -1,7 +1,7 @@
 from fastapi.security import OAuth2PasswordBearer
 import bcrypt
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token", auto_error=False)
 
 def verify_password(password: str, password_hash: str) -> bool:
     password_bytes = password.encode('utf-8')

@@ -5,7 +5,7 @@ import { Heading, Label, Input, Select, Dialog, Whisper } from '../components/El
 import SingleFlight from '../components/SingleFlight';
 import { Flight } from '../models'
 import API from '../api'
-import { SettingsManager } from '../settingsManager';
+import ConfigStorage from '../storage/configStorage';
 
 interface FlightsFilters {
     limit?: number;
@@ -107,7 +107,7 @@ function TableHeading({ text }) {
 function FlightsTable({ filters }: { filters: FlightsFilters }) {
     const [flights, setFlights] = useState<Flight[]>();
     const navigate = useNavigate();
-    const metricUnits = SettingsManager.getSetting("metricUnits");
+    const metricUnits = ConfigStorage.getSetting("metricUnits");
 
     useEffect(() => {
         API.get(`/flights?metric=${metricUnits}`, filters)
