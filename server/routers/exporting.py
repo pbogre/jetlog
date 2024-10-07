@@ -18,7 +18,7 @@ def cleanup(file_path: str):
 
 def stringify_airport(airport: AirportModel) -> str:
     code = airport.iata if airport.iata else airport.icao
-    return f"{code} - {airport.city}/{airport.country}"
+    return f"{code} - {airport.municipality}/{airport.country}"
 
 @router.post("/csv", status_code=200)
 async def export_to_CSV() -> FileResponse:
@@ -26,7 +26,7 @@ async def export_to_CSV() -> FileResponse:
     assert type(flights) == list # make linter happy
 
     file = open("/tmp/jetlog.csv", "a")
-    columns = FlightModel.get_attributes(with_id=False)
+    columns = FlightModel.get_attributes(ignore=["id"])
 
     file.write(','.join(columns) + '\n')
 
@@ -56,7 +56,7 @@ async def export_to_iCal() -> FileResponse:
         assert type(flight.destination) == AirportModel
 
         file.write("BEGIN:VEVENT\n")
-        file.write(f"SUMMARY:Flight from {flight.origin.city} to {flight.destination.city}\n")
+        file.write(f"SUMMARY:Flight from {flight.origin.municipality} to {flight.destination.municipality}\n")
         file.write(f"DESCRIPTION:Origin: {stringify_airport(flight.origin)}\\n" +
                                f"Destination: {stringify_airport(flight.destination)}" +
                                (f"\\n\\nNotes: {flight.notes}" if flight.notes else "") +

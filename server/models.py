@@ -37,13 +37,13 @@ class CustomModel(CamelableModel):
         return instance
 
     @classmethod
-    def get_attributes(cls, with_id: bool = True) -> list[str]:
+    def get_attributes(cls, ignore: list = []) -> list[str]:
         attributes = list(cls.__fields__.keys())
 
-        if with_id:
-            return attributes
+        for ignored_attr in ignore:
+            attributes.remove(ignored_attr)
 
-        return attributes[1:]
+        return attributes
 
     @classmethod
     def validate_single_field(cls, key, value):
@@ -118,6 +118,7 @@ class AirportModel(CustomModel):
 class FlightModel(CustomModel):
     # all optional to accomodate patch
     id:             int|None = None
+    user_id:        int|None = None
     date:           datetime.date|None = None
     origin:         AirportModel|str|None = None
     destination:    AirportModel|str|None = None
@@ -160,7 +161,7 @@ class FlightModel(CustomModel):
     def get_values(self) -> list:
         values = []
 
-        for attr in FlightModel.get_attributes(False):
+        for attr in FlightModel.get_attributes(ignore=["id"]):
             value = getattr(self, attr)
 
             if type(value) == AirportModel:

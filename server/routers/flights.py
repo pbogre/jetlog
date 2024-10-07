@@ -1,6 +1,8 @@
 from server.database import database
-from server.models import AirportModel, FlightModel
-from fastapi import APIRouter, HTTPException
+from server.auth.auth import get_current_user
+from server.models import AirportModel, FlightModel, User
+
+from fastapi import APIRouter, Depends, HTTPException
 from enum import Enum
 import datetime
 import math
@@ -49,7 +51,7 @@ def spherical_distance(origin: AirportModel, destination: AirportModel) -> int:
     return round(distance);
 
 @router.post("", status_code=201)
-async def add_flight(flight: FlightModel) -> int:
+async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)) -> int:
     if not (flight.date and flight.origin and flight.destination):
         raise HTTPException(status_code=404, 
                             detail="Insufficient flight data. Date, Origin, and Destination are required")
@@ -91,7 +93,7 @@ async def add_flight(flight: FlightModel) -> int:
 
         flight.duration = round(delta_minutes)
 
-    columns = FlightModel.get_attributes(False)
+    columns = FlightModel.get_attributes(ignore=["id"])
 
     query = "INSERT INTO flights ("
     for attr in columns:
@@ -102,6 +104,7 @@ async def add_flight(flight: FlightModel) -> int:
     query += ") RETURNING id;"
 
     values = flight.get_values()
+    values[0] = user.id;
 
     return database.execute_query(query, values)
 
@@ -112,7 +115,7 @@ async def update_flight(id: int, new_flight: FlightModel) -> int:
 
     query = "UPDATE flights SET "
  
-    for attr in FlightModel.get_attributes(False):
+    for attr in FlightModel.get_attributes(ignore=["id", "user_id"]):
         value = getattr(new_flight, attr)
         if value:
             query += f"{attr}=?," if value else ""
@@ -143,11 +146,12 @@ async def get_flights(id: int|None = None,
                       order: Order = Order.DESCENDING,
                       sort: Sort = Sort.DATE,
                       start: datetime.date|None = None,
-                      end: datetime.date|None = None) -> list[FlightModel]|FlightModel:
+                      end: datetime.date|None = None,
+                      ) -> list[FlightModel]|FlightModel:
 
     id_filter = f"WHERE f.id = {str(id)}" if id else ""
 
-    date_filter_start = "WHERE" if not id and (start or end) else "AND" if start or end else ""
+    date_filter_start = "WHERE" if id and (start or end) else "AND" if start or end else ""
 
     date_filter = ""
     date_filter += f"JULIANDAY(date) > JULIANDAY('{start}')" if start else ""
@@ -171,7 +175,9 @@ async def get_flights(id: int|None = None,
     res = database.execute_read_query(query);
 
     # get rid of origin, destination ICAOs for proper conversion
-    res = [ flight_db[:2] + flight_db[4:] for flight_db in res ]
+    # after this, each flight_db is in the format:
+    # [id, user_id, date, departure_time, ..., AirportModel, AirportModel]
+    res = [ flight_db[:3] + flight_db[5:] for flight_db in res ]
 
     flights = []
 
