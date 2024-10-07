@@ -1,6 +1,6 @@
 from server.database import database
 from server.auth.auth import get_current_user
-from server.models import AirportModel, FlightModel, User
+from server.models import AirportModel, ClassType, CustomModel, FlightModel, SeatType, User
 
 from fastapi import APIRouter, Depends, HTTPException
 from enum import Enum
@@ -103,19 +103,32 @@ async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)
     query = query[:-1]
     query += ") RETURNING id;"
 
-    values = flight.get_values()
-    values[0] = user.id;
+    values = flight.get_values(ignore=["id"], explicit={"user_id": user.id})
 
     return database.execute_query(query, values)
 
+class FlightPatchModel(CustomModel):
+    date:           datetime.date|None = None
+    origin:         AirportModel|str|None = None
+    destination:    AirportModel|str|None = None
+    departure_time: str|None = None
+    arrival_time:   str|None = None
+    arrival_date:   datetime.date|None = None
+    seat:           SeatType|None = None
+    ticket_class:   ClassType|None = None
+    duration:       int|None = None
+    distance:       int|None = None
+    airplane:       str|None = None
+    flight_number:  str|None = None
+    notes:          str|None = None
 @router.patch("", status_code=200)
-async def update_flight(id: int, new_flight: FlightModel) -> int:
+async def update_flight(id: int, new_flight: FlightPatchModel) -> int:
     if new_flight.empty():
         return id
 
     query = "UPDATE flights SET "
  
-    for attr in FlightModel.get_attributes(ignore=["id", "user_id"]):
+    for attr in FlightPatchModel.get_attributes():
         value = getattr(new_flight, attr)
         if value:
             query += f"{attr}=?," if value else ""

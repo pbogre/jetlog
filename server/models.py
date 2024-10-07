@@ -43,7 +43,28 @@ class CustomModel(CamelableModel):
         for ignored_attr in ignore:
             attributes.remove(ignored_attr)
 
-        return attributes
+        return attributes 
+
+    def get_values(self, ignore: list = [], explicit: dict = {}) -> list:
+        values = []
+
+        for attr in self.get_attributes(ignore):
+            if attr in explicit:
+                values.append(explicit[attr])
+                continue
+
+            value = getattr(self, attr)
+
+            if type(value) == AirportModel:
+                value = value.icao
+            elif type(value) == datetime.date:
+                value = value.isoformat()
+            elif type(value) == SeatType or type(value) == ClassType:
+                value = value.value
+
+            values.append(value)
+
+        return values
 
     @classmethod
     def validate_single_field(cls, key, value):
@@ -112,16 +133,12 @@ class AirportModel(CustomModel):
 
         return v
 
-# note: for airports, the database type
-# is string (icao code), while the type
-# returned by the API is AirportModel
 class FlightModel(CustomModel):
-    # all optional to accomodate patch
     id:             int|None = None
     user_id:        int|None = None
-    date:           datetime.date|None = None
-    origin:         AirportModel|str|None = None
-    destination:    AirportModel|str|None = None
+    date:           datetime.date
+    origin:         AirportModel|str # API uses AirportModel/str, database uses str
+    destination:    AirportModel|str
     departure_time: str|None = None
     arrival_time:   str|None = None
     arrival_date:   datetime.date|None = None
@@ -157,23 +174,6 @@ class FlightModel(CustomModel):
             raise ValueError(f"must be in HH:MM format, got '{v}'")
 
         return v
-
-    def get_values(self) -> list:
-        values = []
-
-        for attr in FlightModel.get_attributes(ignore=["id"]):
-            value = getattr(self, attr)
-
-            if type(value) == AirportModel:
-                value = value.icao
-            elif type(value) == datetime.date:
-                value = value.isoformat()
-            elif type(value) == SeatType or type(value) == ClassType:
-                value = value.value
-
-            values.append(value)
-
-        return values
 
 class StatisticsModel(CustomModel):
     total_flights:          int
