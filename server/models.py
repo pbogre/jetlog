@@ -103,8 +103,9 @@ class AirportType(str, Enum):
     CLOSED = "closed"
     LARGE = "large_airport"
     MEDIUM = "medium_airport"
-    #SMALL = "small_airport"
-    #SEAPLANE = "seaplane_base"
+    SMALL = "small_airport"
+    SEAPLANE = "seaplane_base"
+    HELIPORT = "heliport"
 
 class AirportModel(CustomModel):
     icao:         str
