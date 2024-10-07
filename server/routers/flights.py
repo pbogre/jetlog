@@ -24,6 +24,13 @@ class Sort(str, Enum):
     DURATION = "duration"
     DISTANCE = "distance"
 
+async def check_flight_authorization(id: int, user: User) -> None:
+    res = database.execute_read_query(f"SELECT user_id FROM flights WHERE id = {str(id)};")
+    flight_user_id = res[0][0]
+
+    if flight_user_id != user.id:
+        raise HTTPException(status_code=403, detail="You are not authorized to access this flight")
+
 # https://en.wikipedia.org/wiki/Haversine_formula
 def spherical_distance(origin: AirportModel, destination: AirportModel) -> int:
     if not origin.latitude or not origin.longitude or not destination.latitude or not destination.longitude:
@@ -122,7 +129,11 @@ class FlightPatchModel(CustomModel):
     flight_number:  str|None = None
     notes:          str|None = None
 @router.patch("", status_code=200)
-async def update_flight(id: int, new_flight: FlightPatchModel) -> int:
+async def update_flight(id: int, 
+                        new_flight: FlightPatchModel,
+                        user: User = Depends(get_current_user)) -> int:
+    await check_flight_authorization(id, user)
+
     if new_flight.empty():
         return id
 
@@ -143,7 +154,9 @@ async def update_flight(id: int, new_flight: FlightPatchModel) -> int:
     return database.execute_query(query, values)
 
 @router.delete("", status_code=200)
-async def delete_flight(id: int) -> int:
+async def delete_flight(id: int, user: User = Depends(get_current_user)) -> int:
+    await check_flight_authorization(id, user)
+
     return database.execute_query(
         """
         DELETE FROM flights WHERE id = ? RETURNING id;
@@ -160,13 +173,13 @@ async def get_flights(id: int|None = None,
                       sort: Sort = Sort.DATE,
                       start: datetime.date|None = None,
                       end: datetime.date|None = None,
-                      ) -> list[FlightModel]|FlightModel:
+                      user: User = Depends(get_current_user)) -> list[FlightModel]|FlightModel:
 
-    id_filter = f"WHERE f.id = {str(id)}" if id else ""
+    user_filter = f"WHERE f.user_id = {str(user.id)}"
 
-    date_filter_start = "WHERE" if id and (start or end) else "AND" if start or end else ""
+    id_filter = f"AND f.id = {str(id)}" if id else ""
 
-    date_filter = ""
+    date_filter = "AND" if start or end else ""
     date_filter += f"JULIANDAY(date) > JULIANDAY('{start}')" if start else ""
     date_filter += " AND " if start and end else ""
     date_filter += f"JULIANDAY(date) < JULIANDAY('{end}')" if end else ""
@@ -176,11 +189,12 @@ async def get_flights(id: int|None = None,
             f.*,
             o.*, 
             d.*
-        FROM flights f 
-        JOIN airports o ON LOWER(f.origin) = LOWER(o.icao) 
-        JOIN airports d ON LOWER(f.destination) = LOWER(d.icao)
+        FROM flights f
+        JOIN airports o ON UPPER(f.origin) = o.icao
+        JOIN airports d ON UPPER(f.destination) = d.icao
+        {user_filter}
         {id_filter}
-        {date_filter_start} {date_filter}
+        {date_filter}
         ORDER BY f.{sort.value} {order.value}
         LIMIT {limit}
         OFFSET {offset};"""
