@@ -1,5 +1,6 @@
 export class Flight {
     id: number;
+    userId: number;
     date: string;
     origin: Airport;
     destination: Airport;

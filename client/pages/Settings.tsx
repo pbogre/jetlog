@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 import API from '../api';
 import {Heading, Label, Input, Checkbox, Subheading, Button} from '../components/Elements'
-import {SettingsInterface, SettingsManager} from '../settingsManager';
+import ConfigStorage, {ConfigInterface} from '../storage/configStorage';
 
 export default function Settings() {
-    const [options, setOptions] = useState<SettingsInterface>(SettingsManager.getAllSettings())
+    const [options, setOptions] = useState<ConfigInterface>(ConfigStorage.getAllSettings())
     const navigate = useNavigate();
 
     const handleImportSubmit = (event) => {
@@ -38,7 +38,7 @@ export default function Settings() {
         const value = event.target.checked.toString();
 
         setOptions({...options, [key]: value})
-        SettingsManager.setSetting(key, value);
+        ConfigStorage.setSetting(key, value);
     }
 
     return (
