@@ -1,13 +1,23 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import API from '../api';
-import {Heading, Label, Input, Checkbox, Subheading, Button} from '../components/Elements'
+import {Heading, Label, Input, Checkbox, Subheading, Button, Dialog} from '../components/Elements'
 import ConfigStorage, {ConfigInterface} from '../storage/configStorage';
+import {User} from '../models';
+import TokenStorage from '../storage/tokenStorage';
 
 export default function Settings() {
     const [options, setOptions] = useState<ConfigInterface>(ConfigStorage.getAllSettings())
+    const [user, setUser] = useState<User>();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        API.get("/auth/user")
+        .then((data) => {
+            setUser(data);
+        });
+    }, []);
 
     const handleImportSubmit = (event) => {
         event.preventDefault();
@@ -39,6 +49,18 @@ export default function Settings() {
 
         setOptions({...options, [key]: value})
         ConfigStorage.setSetting(key, value);
+    }
+
+    const editUser = (event) => {
+        let userPatchData = Object.fromEntries(new FormData(event.currentTarget));
+        userPatchData = Object.fromEntries(Object.entries(userPatchData).filter(([_, v]) => v != ""));
+
+        API.patch(`/auth/user?username=${user?.username}`, userPatchData);
+    }
+
+    const logout = () => {
+        TokenStorage.clearToken();
+        window.location.href = "/login";
     }
 
     return (
@@ -92,6 +114,34 @@ export default function Settings() {
                                 checked={options.metricUnits === "true"} 
                                 onChange={handleOptionChange} />
                 </div>
+            </div>
+
+            <div className="container">
+                <Subheading text="You"/>
+                { user === undefined ?
+                    <p>Loading...</p>
+                    :
+                    <>
+                    <p>Username: <span>{user.username}</span></p>
+                    <p>Admin: <span>{user.isAdmin.toString()}</span></p>
+                    <p>Last login: <span>{user.lastLogin}</span></p>
+                    <p>Created on: <span>{user.createdOn}</span></p>
+
+                    <Dialog title="Edit"
+                            formBody={(
+                            <>
+                                <Label text="New Username"/>
+                                <Input type="text" name="username" placeholder={user.username}/>
+                                <br />
+                                <Label text="New Password"/>
+                                <Input type="password" name="password"/>
+                            </>
+                            )}
+                            onSubmit={editUser}/>
+
+                    <Button text="Logout" level="danger" onClick={logout}/>
+                    </>
+                }
             </div>
         </div>
     </>

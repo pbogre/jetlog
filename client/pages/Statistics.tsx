@@ -11,7 +11,6 @@ export default function Statistics() {
     const [filters, setFilters] = useState<StatisticsFilters>();
 
     const handleSubmit = (event) => {
-        event.preventDefault();
         const formData = new FormData(event.currentTarget);
         var filters = {}
 

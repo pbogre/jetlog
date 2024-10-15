@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router-dom';
-
 import axios, {Axios} from 'axios';
 import TokenStorage from './storage/tokenStorage';
 
@@ -36,7 +34,9 @@ class APIClass {
     private handleError(err: any) {
         if (err.response) {
             if (err.response.status === 401) {
-                window.location.href = "/login";
+                if (window.location.pathname !== "/login") {
+                    window.location.href = "/login";
+                }
             }
             else {
                 alert("Bad response: " + err.response.data.detail);

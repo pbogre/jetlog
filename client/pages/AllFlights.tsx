@@ -22,7 +22,6 @@ export default function AllFlights() {
     const flightID = searchParams.get("id");
 
     const handleSubmit = (event) => {
-        event.preventDefault();
         const formData = new FormData(event.currentTarget);
         var filters = {}
 

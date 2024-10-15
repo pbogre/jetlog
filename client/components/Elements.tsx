@@ -71,7 +71,7 @@ export function Button({ text,
     };
 
     return (
-        <button type={submit ? "submit": undefined}
+        <button type={submit ? "submit": "button"}
                 className={`py-1 px-2 my-1 mr-1 rounded-md cursor-pointer ${colors}
                             disabled:opacity-60 disabled:cursor-not-allowed
                             ${right ? "float-right" : ""}`}
@@ -83,7 +83,7 @@ export function Button({ text,
 }
 
 interface InputProps {
-    type: "text"|"number"|"date"|"time"|"file";
+    type: "text"|"password"|"number"|"date"|"time"|"file";
     name?: string;
     value?: string;
     maxLength?: number;
@@ -99,7 +99,7 @@ export function Input({ type,
                         required = false, 
                         placeholder = undefined }: InputProps) {
     return (
-        <input  className={`${type == "text" ? "w-full" : ""} px-1 mb-4 bg-white rounded-none outline-none font-mono box-border 
+        <input  className={`${type == "text" || type == "password" ? "w-full" : ""} px-1 mb-4 bg-white rounded-none outline-none font-mono box-border 
                             placeholder:italic border-b-2 border-gray-200 focus:border-primary-400`}
                 type={type}
                 accept={type == "file" ? ".csv,.db" : undefined}
@@ -205,6 +205,7 @@ export function Dialog({ title, formBody, onSubmit }: DialogProps) {
 
     const handleSubmit = (event) => {
         closeModal();
+        event.preventDefault();
         onSubmit(event);
     }
 

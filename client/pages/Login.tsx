@@ -7,7 +7,8 @@ import {Heading, Checkbox, Input, Button} from '../components/Elements'
 
 export default function Login() {
     const navigate = useNavigate();
-    const [remember, setRemember] = useState<boolean>(false)
+    const [remember, setRemember] = useState<boolean>(false);
+    const [failedLogin, setFailedLogin] = useState<boolean>(false);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -19,6 +20,11 @@ export default function Login() {
             TokenStorage.storeToken(token, remember);
 
             navigate("/");
+        })
+        .catch((err) => {
+            if (err.response.status === 401) {
+                setFailedLogin(true);
+            }
         });
     }
 
@@ -27,15 +33,21 @@ export default function Login() {
         <div className="container mx-auto max-w-xs text-center">
             <Heading text="Jetlog" />
             <form onSubmit={handleSubmit}>
+                { failedLogin ?
+                    <p className="mb-3 text-red-600">Incorrect username or password</p>
+                    : <></>
+                }
                 <Input type="text" name="username" placeholder="username" required/>
-                <Input type="text" name="password" placeholder="password" required/>
+                <Input type="password" name="password" placeholder="password" required/>
 
                 <p className="inline mb-2">Remember me</p>
                 <Checkbox name="remember" onChange={(e) => setRemember(e.target.checked)}/>
 
                 <br />
 
-                <Button text="Login" level="success" submit/>
+                <button className="py-1 px-2 my-2 w-2/3 
+                cursor-pointer bg-primary-500 text-white text-lg
+                font-bold hover:bg-primary-400" type="submit">Login</button>
             </form>
         </div>
     </div>
