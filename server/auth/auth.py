@@ -103,18 +103,6 @@ async def get_all_usernames(user: User = Depends(get_current_user)) -> list[str]
     usernames = [username[0] for username in res]
     return usernames
 
-@router.post("/users", status_code=201)
-async def create_user(username: str, password: str, user: User = Depends(get_current_user)):
-    if not user.is_admin:
-        raise HTTPException(status_code=403, detail="Only admins change create new users")
-
-    if len(username) < 3:
-        raise HTTPException(status_code=400, detail="Username should be at least 3 characters long")
-
-    password_hash = hash_password(password)
-    database.execute_query(f"INSERT INTO users (username, password_hash) VALUES (?, ?)",
-                           [username, password_hash])
-
 class UserPatch(CustomModel):
     username: str|None = None
     password: str|None = None
@@ -135,7 +123,7 @@ async def update_user(username: str, new_user: UserPatch, user: User = Depends(g
     for attr in UserPatch.get_attributes():
         value = getattr(new_user, attr)
 
-        if not value:
+        if value == None:
             continue
 
         if attr == "password":
@@ -148,5 +136,21 @@ async def update_user(username: str, new_user: UserPatch, user: User = Depends(g
     if query[-1] == ',':
         query = query[:-1]
 
-    query += f" WHERE username = '{username}';"
+    query += f" WHERE username = ?;"
+    values.append(username)
     database.execute_query(query, values)
+
+@router.post("/users", status_code=201)
+async def create_user(new_user: UserPatch, user: User = Depends(get_current_user)):
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Only admins change create new users")
+    if not new_user.username or not new_user.password:
+        raise HTTPException(status_code=400, detail="Username and password are required fields")
+
+    if len(new_user.username) < 3:
+        raise HTTPException(status_code=400, detail="Username should be at least 3 characters long")
+
+    password_hash = hash_password(new_user.password)
+    is_admin = new_user.is_admin if new_user.is_admin != None else False
+    database.execute_query(f"INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
+                           [new_user.username, password_hash, is_admin])

@@ -1,4 +1,4 @@
-import React, {ChangeEvent} from 'react';
+import React, {ChangeEvent, useState} from 'react';
 
 interface HeadingProps {
     text: string;
@@ -189,17 +189,20 @@ export function Select({name = undefined,
 
 interface DialogProps {
     title: string;
+    buttonLevel?: "default"|"success"|"danger";
     formBody: any; // ?
     onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
-export function Dialog({ title, formBody, onSubmit }: DialogProps) {
+export function Dialog({ title, buttonLevel = "default", formBody, onSubmit }: DialogProps) {
+    const modalId = Math.random().toString(36).slice(2, 10); // to support multiple modals in one page
+
     const openModal = () => {
-        const modalElement = document.getElementById("modal") as HTMLDialogElement;
+        const modalElement = document.getElementById(modalId) as HTMLDialogElement;
         modalElement.showModal();
     }
 
     const closeModal = () => {
-        const modalElement = document.getElementById("modal") as HTMLDialogElement;
+        const modalElement = document.getElementById(modalId) as HTMLDialogElement;
         modalElement.close();
     }
 
@@ -211,9 +214,9 @@ export function Dialog({ title, formBody, onSubmit }: DialogProps) {
 
     return (
     <>
-            <Button text={title} onClick={openModal}/>
+            <Button text={title} onClick={openModal} level={buttonLevel}/>
 
-            <dialog id="modal" className="md:w-2/3 max-md:w-4/5 rounded-md">
+            <dialog id={modalId} className="md:w-2/3 max-md:w-4/5 rounded-md">
             <form className="flex flex-col" onSubmit={handleSubmit}>
                 
                 <div className="pl-5 pt-2 border-b border-b-gray-400">

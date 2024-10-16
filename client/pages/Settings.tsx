@@ -2,20 +2,123 @@ import React, {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import API from '../api';
-import {Heading, Label, Input, Checkbox, Subheading, Button, Dialog} from '../components/Elements'
+import {Heading, Label, Input, Checkbox, Subheading, Button, Dialog, Select} from '../components/Elements'
 import ConfigStorage, {ConfigInterface} from '../storage/configStorage';
 import {User} from '../models';
 import TokenStorage from '../storage/tokenStorage';
 
+interface UserInfoProps {
+    user: User;
+    isSelf?: boolean;
+}
+function UserInfo({user, isSelf = false} : UserInfoProps) {
+    const editUser = async (event) => {
+        let userPatchData = Object.fromEntries(new FormData(event.currentTarget));
+        userPatchData = Object.fromEntries(Object.entries(userPatchData).filter(([_, v]) => v != ""));
+
+        // if admin status not updated, dont include it in the patch data
+        if ("isAdmin" in userPatchData && userPatchData["isAdmin"] === user.isAdmin.toString()) {
+            delete userPatchData["isAdmin"];
+        }
+
+        if (Object.keys(userPatchData).length === 0) {
+            return;
+        }
+
+        await API.patch(`/auth/users/${user.username}`, userPatchData);
+
+        window.location.reload();
+    }
+
+    const logout = () => {
+        TokenStorage.clearToken();
+        window.location.href = "/login";
+    }
+
+    const deleteUser = async () => {
+        if (confirm("Are you sure? All flights associated with this user will also be removed.")) {
+            console.log("This function has not yet been implemented.")
+            //await API.delete(`/auth/users/${user.username}`);
+            //window.location.reload();
+        }
+    }
+
+    return (
+        <>
+            <p>Username: <span>{user.username}</span></p>
+            <p>Admin: <span>{user.isAdmin.toString()}</span></p>
+            <p>Last login: <span>{user.lastLogin}</span></p>
+            <p>Created on: <span>{user.createdOn}</span></p>
+
+            <Dialog title="Edit User"
+                    formBody={(
+                    <>
+                        <Label text="New Username"/>
+                        <Input type="text" name="username" placeholder={user.username}/>
+                        { isSelf ?
+                            <></>
+                            :
+                            <>
+                            <br />
+                            <Label text="New Admin Status"/>
+                            <Select name="isAdmin" options={[
+                                {
+                                    text: user.isAdmin.toString(),
+                                    value: user.isAdmin.toString()
+                                },
+                                {
+                                    text: (!user.isAdmin).toString(),
+                                    value: (!user.isAdmin).toString()
+                                }
+                            ]} />
+                            </>
+                        }
+                        <br />
+                        <Label text="New Password"/>
+                        <Input type="password" name="password"/>
+                    </>
+                    )}
+                    onSubmit={editUser}/>
+
+            { isSelf ?
+                <Button text="Logout" level="danger" onClick={logout}/>
+                :
+                <Button text="Delete" level="danger" onClick={deleteUser}/>
+            }
+        </>
+    )
+}
+
 export default function Settings() {
     const [options, setOptions] = useState<ConfigInterface>(ConfigStorage.getAllSettings())
     const [user, setUser] = useState<User>();
+    const [allUsers, setAllUsers] = useState<User[]>();
     const navigate = useNavigate();
 
     useEffect(() => {
         API.get("/auth/users/me")
         .then((data) => {
             setUser(data);
+
+            if (data["isAdmin"]) {
+                API.get("/auth/users")
+                .then((usernames) => {
+                    for (let username of usernames) {
+                        if (username === data["username"]) continue; // skip self
+
+                        API.get(`/auth/users/${username}`)
+                        .then((user) => {
+                            setAllUsers(prevAllUsers => {
+                                if (prevAllUsers === undefined) {
+                                    return [user];
+                                }
+
+                                return [...prevAllUsers, user];
+                            });
+                        })
+                    }
+                })
+            }
         });
     }, []);
 
@@ -51,16 +154,11 @@ export default function Settings() {
         ConfigStorage.setSetting(key, value);
     }
 
-    const editUser = (event) => {
-        let userPatchData = Object.fromEntries(new FormData(event.currentTarget));
-        userPatchData = Object.fromEntries(Object.entries(userPatchData).filter(([_, v]) => v != ""));
+    const createUser = async (event) => {
+        let userData = Object.fromEntries(new FormData(event.currentTarget));
+        await API.post("/auth/users", userData);
 
-        API.patch(`/auth/users/${user?.username}`, userPatchData);
-    }
-
-    const logout = () => {
-        TokenStorage.clearToken();
-        window.location.href = "/login";
+        window.location.reload();
     }
 
     return (
@@ -121,28 +219,47 @@ export default function Settings() {
                 { user === undefined ?
                     <p>Loading...</p>
                     :
-                    <>
-                    <p>Username: <span>{user.username}</span></p>
-                    <p>Admin: <span>{user.isAdmin.toString()}</span></p>
-                    <p>Last login: <span>{user.lastLogin}</span></p>
-                    <p>Created on: <span>{user.createdOn}</span></p>
-
-                    <Dialog title="Edit"
-                            formBody={(
-                            <>
-                                <Label text="New Username"/>
-                                <Input type="text" name="username" placeholder={user.username}/>
-                                <br />
-                                <Label text="New Password"/>
-                                <Input type="password" name="password"/>
-                            </>
-                            )}
-                            onSubmit={editUser}/>
-
-                    <Button text="Logout" level="danger" onClick={logout}/>
-                    </>
+                    <UserInfo user={user} isSelf/>
                 }
             </div>
+
+            { user === undefined || !user.isAdmin ?
+                <></>
+                :
+                allUsers === undefined ?
+                    <p>Loading...</p>
+                    :
+                    <>
+                        <div className="container w-full">
+                            <Subheading text="User Management"/>
+
+                            <div className="flex flex-wrap items-start gap-3">
+                            { allUsers.map((u) => (
+                                <div className="border-gray-500 border p-2">
+                                    <UserInfo user={u}/>
+                                </div> 
+                            ))
+                            }
+                            </div>
+
+                            <Dialog title="Create User" buttonLevel="success" onSubmit={createUser} formBody={(
+                                <>
+                                    <Label text="Username" required/>
+                                    <Input type="text" name="username" required/>
+                                    <br />
+                                    <Label text="New Admin Status" required/>
+                                    <Select name="isAdmin" options={[
+                                        { text: "false", value: "false" },
+                                        { text: "true", value: "true" }
+                                    ]} />
+                                    <br />
+                                    <Label text="Password" required/>
+                                    <Input type="text" name="password" required/>
+                                </>
+                            )}/>
+                        </div>
+                    </>
+            }
         </div>
     </>
     );
