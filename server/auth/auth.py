@@ -38,7 +38,7 @@ def create_access_token(data: dict):
     return encoded_jwt
 
 def get_user(username: str) -> User|None:
-    result = database.execute_read_query(f"SELECT * FROM users WHERE username = '{username}';")
+    result = database.execute_read_query(f"SELECT * FROM users WHERE username = ?;", [username])
  
     if not result:
         return None
@@ -49,7 +49,7 @@ def get_user(username: str) -> User|None:
 def update_last_login(username: str) -> None:
     database.execute_query(f"""UPDATE users
                                SET last_login = current_timestamp
-                               WHERE username = '{username}';""")
+                               WHERE username = ?;""", [username])
 
 @router.post("/token", status_code=200)
 async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
@@ -64,7 +64,7 @@ async def login(form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> T
     access_token = create_access_token({"sub": user.username})
     return Token(access_token=access_token, token_type="bearer")
 
-@router.get("/user")
+@router.get("/users/me")
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
             status_code=401,
@@ -86,10 +86,30 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
 
     return user
 
-@router.post("/user", status_code=201)
-async def create_user(user: Annotated[User, Depends(get_current_user)], username: str, password: str):
+@router.get("/users/{username}")
+async def get_specific_user(username: str, user: User = Depends(get_current_user)) -> User:
+    if user.username != username and not user.is_admin:
+        raise HTTPException(status_code=403, detail="Only admins can get other users' details")
+
+    found_user = get_user(username)
+    if found_user is None:
+        raise HTTPException(status_code=404, detail=f"User '{username}' not found")
+
+    return found_user
+    
+@router.get("/users")
+async def get_all_usernames(user: User = Depends(get_current_user)) -> list[str]:
+    res = database.execute_read_query("SELECT username FROM users;")
+    usernames = [username[0] for username in res]
+    return usernames
+
+@router.post("/users", status_code=201)
+async def create_user(username: str, password: str, user: User = Depends(get_current_user)):
     if not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins change create new users")
+
+    if len(username) < 3:
+        raise HTTPException(status_code=400, detail="Username should be at least 3 characters long")
 
     password_hash = hash_password(password)
     database.execute_query(f"INSERT INTO users (username, password_hash) VALUES (?, ?)",
@@ -100,12 +120,14 @@ class UserPatch(CustomModel):
     password: str|None = None
     is_admin: bool|None = None
 
-@router.patch("/user", status_code=200)
-async def update_user(user: Annotated[User, Depends(get_current_user)], username: str, new_user: UserPatch):
+@router.patch("/users/{username}", status_code=200)
+async def update_user(username: str, new_user: UserPatch, user: User = Depends(get_current_user)):
     if user.username != username and not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can edit other users")
-    if new_user.is_admin and (user.username == username or not user.is_admin):
-        raise HTTPException(status_code=403, detail="Only admins can change the admin status of other users")
+    if new_user.is_admin and not user.is_admin:
+        raise HTTPException(status_code=403, detail="Only admins can users admin")
+    if new_user.is_admin and username == user.username:
+        raise HTTPException(status_code=403, detail="You may only change the admin status of other users")
 
     query = "UPDATE users SET "
 
