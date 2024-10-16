@@ -13,7 +13,7 @@ export default function Settings() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        API.get("/auth/user")
+        API.get("/auth/users/me")
         .then((data) => {
             setUser(data);
         });
@@ -55,7 +55,7 @@ export default function Settings() {
         let userPatchData = Object.fromEntries(new FormData(event.currentTarget));
         userPatchData = Object.fromEntries(Object.entries(userPatchData).filter(([_, v]) => v != ""));
 
-        API.patch(`/auth/user?username=${user?.username}`, userPatchData);
+        API.patch(`/auth/users/${user?.username}`, userPatchData);
     }
 
     const logout = () => {
