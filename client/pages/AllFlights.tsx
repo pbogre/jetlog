@@ -5,7 +5,7 @@ import { Heading, Label, Input, Select, Dialog, Whisper } from '../components/El
 import SingleFlight from '../components/SingleFlight';
 import { Flight } from '../models'
 import API from '../api'
-import { SettingsManager } from '../settingsManager';
+import ConfigStorage from '../storage/configStorage';
 
 interface FlightsFilters {
     limit?: number;
@@ -22,7 +22,6 @@ export default function AllFlights() {
     const flightID = searchParams.get("id");
 
     const handleSubmit = (event) => {
-        event.preventDefault();
         const formData = new FormData(event.currentTarget);
         var filters = {}
 
@@ -90,7 +89,7 @@ export default function AllFlights() {
 
 function TableCell({ text }) {
     return (
-        <td className="px-2 py-1 border border-gray-300">
+        <td className="px-2 py-1 whitespace-nowrap border border-gray-300">
             {text}
         </td>
     );
@@ -98,7 +97,7 @@ function TableCell({ text }) {
 
 function TableHeading({ text }) {
     return (
-        <th className="px-2 border border-gray-300 bg-primary-300 font-semibold">
+        <th className="px-2 whitespace-nowrap border border-gray-300 bg-primary-300 font-semibold">
             {text}
         </th>
     );
@@ -107,7 +106,7 @@ function TableHeading({ text }) {
 function FlightsTable({ filters }: { filters: FlightsFilters }) {
     const [flights, setFlights] = useState<Flight[]>();
     const navigate = useNavigate();
-    const metricUnits = SettingsManager.getSetting("metricUnits");
+    const metricUnits = ConfigStorage.getSetting("metricUnits");
 
     useEffect(() => {
         API.get(`/flights?metric=${metricUnits}`, filters)

@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import { SettingsManager } from '../settingsManager';
+import ConfigStorage from '../storage/configStorage';
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
 import { Airport, Flight } from '../models';
 import API from '../api';
@@ -26,7 +26,7 @@ export default function SingleFlight({ flightID }) {
     const [flightPatch, setFlightPatch] = useState<FlightPatchOptions>({});
     const [editMode, setEditMode] = useState<Boolean>(false);
     const navigate = useNavigate();
-    const metricUnits = SettingsManager.getSetting("metricUnits");
+    const metricUnits = ConfigStorage.getSetting("metricUnits");
 
     useEffect(() => {
         API.get(`/flights?id=${flightID}&metric=${metricUnits}`)
