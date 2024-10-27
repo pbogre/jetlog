@@ -11,6 +11,8 @@ export class Flight {
     duration: number;
     distance: number;
     airplane: string;
+    tailNumber: string;
+    airline: string;
     flightNumber: string;
     notes: string;
 }

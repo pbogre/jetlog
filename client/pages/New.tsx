@@ -86,46 +86,78 @@ function FlightDetails() {
                 </div>
 
                 <div className="container">
-                    <Label text="Seat Type"/>
-                    <Select name="seat"
-                            value={flight.seat}
-                            onChange={handleChange}
-                            options={[
-                                { text: "Choose", value: "" },
-                                { text: "Aisle", value: "aisle" },
-                                { text: "Middle", value: "middle" },
-                                { text: "Window", value: "window" }
-                            ]} />
+                    <div className="flex space-x-4">
+                        <div className="flex flex-col">
+                            <Label text="Seat Type"/>
+                            <Select name="seat"
+                                    value={flight.seat}
+                                    onChange={handleChange}
+                                    options={[
+                                        { text: "Choose", value: "" },
+                                        { text: "Aisle", value: "aisle" },
+                                        { text: "Middle", value: "middle" },
+                                        { text: "Window", value: "window" }
+                                    ]} />
+                            <br />
+                        </div>
+                        <div className="flex flex-col">
+                            <Label text="Class"/>
+                            <Select name="ticketClass"
+                                    value={flight.ticketClass}
+                                    onChange={handleChange}
+                                    options={[
+                                        { text: "Choose", value: "" },
+                                        { text: "Private", value: "private" },
+                                        { text: "First", value: "first" },
+                                        { text: "Business", value: "business" },
+                                        { text: "Economy+", value: "economy+" },
+                                        { text: "Economy", value: "economy" }
+                                    ]} />
+                            <br />
+                        </div>
+                    </div>
+                    <div className="flex space-x-4">
+                        <div className="flex flex-col">
+                            <Label text="Airplane"/>
+                            <Input type="text"
+                                name="airplane"
+                                value={flight.airplane}
+                                placeholder="ICAO code (ex: B738)"
+                                maxLength={16}
+                                onChange={handleChange} />
+                        </div>
+                        <div className="flex flex-col">
+                            <Label text="Tail Number"/>
+                            <Input type="text"
+                                name="tailNumber"
+                                value={flight.tailNumber}
+                                placeholder="A6-EVS"
+                                maxLength={16}
+                                onChange={handleChange} />
+                        </div>
+                    </div>
                     <br />
-                    <Label text="Class"/>
-                    <Select name="ticketClass"
-                            value={flight.ticketClass}
-                            onChange={handleChange}
-                            options={[
-                                { text: "Choose", value: "" },
-                                { text: "Private", value: "private" },
-                                { text: "First", value: "first" },
-                                { text: "Business", value: "business" },
-                                { text: "Economy+", value: "economy+" },
-                                { text: "Economy", value: "economy" }
-                            ]} />
+                    <div className="flex space-x-4">
+                        <div className="flex flex-col">
+                            <Label text="Airline"/>
+                            <Input type="text"
+                                name="airline"
+                                value={flight.airline}
+                                placeholder="ICAO code (ex: BAW)"
+                                maxLength={7}
+                                onChange={handleChange} />
+                        </div>
+                        <div className="flex flex-col">
+                            <Label text="Flight Number"/>
+                            <Input type="text"
+                                name="flightNumber"
+                                value={flight.flightNumber}
+                                placeholder="1234"
+                                maxLength={7}
+                                onChange={handleChange} />
+                        </div>
                     <br />
-                    <Label text="Airplane"/>
-                    <Input type="text"
-                           name="airplane"
-                           value={flight.airplane}
-                           placeholder="B738"
-                           maxLength={16}
-                           onChange={handleChange} />
-                    <br />
-                    <Label text="Flight Number"/>
-                    <Input type="text"
-                           name="flightNumber"
-                           value={flight.flightNumber}
-                           placeholder="FR2460"
-                           maxLength={7}
-                           onChange={handleChange} />
-                    <br />
+                    </div>
                     <Label text="Notes"/>
                     <TextArea name="notes"
                               value={flight.notes}
