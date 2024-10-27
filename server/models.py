@@ -122,6 +122,8 @@ class FlightModel(CustomModel):
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
+    tail_number:    str|None = None
+    airline:        str|None = None
     flight_number:  str|None = None
     notes:          str|None = None
 
