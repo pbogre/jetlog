@@ -154,3 +154,13 @@ async def create_user(new_user: UserPatch, user: User = Depends(get_current_user
     is_admin = new_user.is_admin if new_user.is_admin != None else False
     database.execute_query(f"INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
                            [new_user.username, password_hash, is_admin])
+
+@router.delete("/users/{username}", status_code=200)
+async def delete_user(username: str, user: User = Depends(get_current_user)):
+    if not user.is_admin:
+        raise HTTPException(status_code=403, detail="Only admins can delete users")
+    if username == user.username:
+        raise HTTPException(status_code=400, detail="You cannot delete your own user")
+
+    user_id = database.execute_query("DELETE FROM users WHERE username = ? RETURNING id;", [username])
+    database.execute_query("DELETE FROM flights WHERE user_id = ?;", [user_id]);
