@@ -22,6 +22,8 @@ class Database():
             duration       INTEGER,
             distance       INTEGER,
             airplane       TEXT,
+            tail_number    TEXT,
+            airline        TEXT,
             flight_number  TEXT,
             notes          TEXT
         )"""
@@ -104,6 +106,7 @@ class Database():
         self.execute_query(f"INSERT INTO _flights ({', '.join(present)}) SELECT * FROM flights;")
         self.execute_query("DROP TABLE flights;")
         self.execute_query("ALTER TABLE _flights RENAME TO flights;")
+        print("Successfully patched flights table")
 
     def execute_query(self, query: str, parameters=[]) -> int:
         try:

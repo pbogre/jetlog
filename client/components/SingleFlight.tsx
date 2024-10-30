@@ -18,6 +18,8 @@ interface FlightPatchOptions {
     duration?: number;
     distance?: number;
     airplane?: string;
+    tailNumber?: string;
+    airline?: string;
     flight_number?: string;
     notes?: string;
 }
@@ -144,22 +146,30 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Other" />
                     { editMode ?
                     <>
-                        <p>Seat: <Select name="seat" onChange={handleInputChange} options={[
-                            { text: "Choose", value: "" },
-                            { text: "Aisle", value: "aisle" },
-                            { text: "Middle", value: "middle" },
-                            { text: "Window", value: "window" }
-                        ]} /></p>
-                        <p>Class: <Select name="ticketClass" onChange={handleInputChange} options={[
-                            { text: "Choose", value: "" },
-                            { text: "Private", value: "private" },
-                            { text: "First", value: "first" },
-                            { text: "Business", value: "business" },
-                            { text: "Economy+", value: "economy+" },
-                            { text: "Economy", value: "economy" }
-                        ]} /></p>
-                        <p>Airplane: <Input type="text" name="airplane" onChange={handleInputChange} /></p>
-                        <p>Flight Number: <Input type="text" name="flightNumber" onChange={handleInputChange} /></p>
+                        <div className="flex space-x-4">
+                            <p>Seat: <Select name="seat" onChange={handleInputChange} options={[
+                                { text: "Choose", value: "" },
+                                { text: "Aisle", value: "aisle" },
+                                { text: "Middle", value: "middle" },
+                                { text: "Window", value: "window" }
+                            ]} /></p>
+                            <p>Class: <Select name="ticketClass" onChange={handleInputChange} options={[
+                                { text: "Choose", value: "" },
+                                { text: "Private", value: "private" },
+                                { text: "First", value: "first" },
+                                { text: "Business", value: "business" },
+                                { text: "Economy+", value: "economy+" },
+                                { text: "Economy", value: "economy" }
+                            ]} /></p>
+                        </div>
+                        <div className="flex space-x-4">
+                            <p>Airplane: <Input type="text" name="airplane" onChange={handleInputChange} /></p>
+                            <p>Tail Number: <Input type="text" name="tailNumber" onChange={handleInputChange} /></p>
+                        </div>
+                        <div className="flex space-x-4">
+                            <p>Airline: <Input type="text" name="airline" onChange={handleInputChange} /></p>
+                            <p>Flight Number: <Input type="text" name="flightNumber" onChange={handleInputChange} /></p>
+                        </div>
                         <p>Notes</p>
                         <TextArea name="notes" onChange={handleInputChange}/>
                     </>
@@ -168,7 +178,8 @@ export default function SingleFlight({ flightID }) {
                         <p>Seat: <span>{flight.seat || "N/A"}</span></p>
                         <p>Class: <span>{flight.ticketClass || "N/A"}</span></p>
                         <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
-                        <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
+                        <p>Tail Number: <span>{flight.tailNumber || "N/A"}</span></p>
+                        <p>Flight Number: <span>{flight.airline || ""} {flight.flightNumber || "N/A"}</span></p>
                         <p>Notes: {flight.notes || "N/A"}</p>
                     </>}
                 </div>
