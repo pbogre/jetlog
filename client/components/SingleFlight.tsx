@@ -1,29 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
-import { SettingsManager } from '../settingsManager';
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
-import { Airport, Flight } from '../models';
-import API from '../api';
+import { Flight } from '../models';
 import AirportInput from './AirportInput';
 
-interface FlightPatchOptions {
-    date?: string;
-    origin?: Airport;
-    destination?: Airport;
-    departureTime?: string;
-    arrivalTime?: string;
-    seat?: string;
-    ticketClass?: string;
-    duration?: number;
-    distance?: number;
-    airplane?: string;
-    flight_number?: string;
-    notes?: string;
-}
+import { SettingsManager } from '../settingsManager';
+import API from '../api';
+import { objectFromForm } from '../utils';
+
 export default function SingleFlight({ flightID }) {
     const [flight, setFlight] = useState<Flight>();
-    const [flightPatch, setFlightPatch] = useState<FlightPatchOptions>({});
     const [editMode, setEditMode] = useState<Boolean>(false);
     const navigate = useNavigate();
     const metricUnits = SettingsManager.getSetting("metricUnits");
@@ -41,63 +28,47 @@ export default function SingleFlight({ flightID }) {
         );
     }
 
-    const updateFlightPatch = (key: string, value: any) => {
-        if(!value) {
-            setFlightPatch(current => {
-                const copy = {...current};
-                delete copy[key];
-                return copy;
-            })
-            return;
-        }
-
-        setFlightPatch({...flightPatch, [key]: value});
-    }
-
     const toggleEditMode = () => {
         setEditMode(!editMode);
     }
 
-    const handleInputChange = (event) => {
-        const key = event.target.name;
-        const value = event.target.value;
-
-        updateFlightPatch(key, value);
-    }
-
-    const handleSaveClick = () => {
-        if(!flightPatch) {
-            this.toggleEditMode();
-            return;
-        }
-
-        API.patch(`flights?id=${flight.id}`, flightPatch)
-        .then(() => window.location.reload());
-    }
-
-    const handleDeleteClick = () => {
+    const deleteFlight = () => {
         if(confirm("Are you sure?")) {
             API.delete(`/flights?id=${flight.id}`)
             .then(() => navigate("/"));
         }
     }
 
+    const updateFlight = (event) => {
+        event.preventDefault();
+
+        const flightPatchData = objectFromForm(event);
+
+        if (flightPatchData === null) {
+            this.toggleEditMode();
+            return;
+        }
+
+        API.patch(`flights?id=${flight.id}`, flightPatchData)
+        .then(() => window.location.reload());
+    }
+
     return (
         <>
-            <Heading text={`${flight.origin.iata || flight.origin.municipality } to ${flight.destination.iata || flight.destination.municipality}`} />
+            <Heading text={`${flight.origin.iata || flight.origin.icao } to ${flight.destination.iata || flight.destination.icao}`} />
             <h2 className="-mt-4 mb-4 text-xl">{flight.date}</h2>
            
-            <div>
+            <form onSubmit={updateFlight}>
             <div className="flex flex-wrap">
                 <div className="container">
                     <Subheading text="Timings" />
                     { editMode ? 
                     <>
-                        <p>Date: <Input type="date" name="date" onChange={handleInputChange} /></p>
-                        <p>Departure Time: <Input type="time" name="departureTime" onChange={handleInputChange} /></p>
-                        <p>Arrival Time: <Input type="time" name="arrivalTime" onChange={handleInputChange} /></p>
-                        <p>Arrival Date: <Input type="date" name="arrivalDate" onChange={handleInputChange} /></p>
-                        <p>Duration: <Input type="number" name="duration" onChange={handleInputChange} /></p>
+                        <p>Date: <Input type="date" name="date" /></p>
+                        <p>Departure Time: <Input type="time" name="departureTime" /></p>
+                        <p>Arrival Time: <Input type="time" name="arrivalTime" /></p>
+                        <p>Arrival Date: <Input type="date" name="arrivalDate" /></p>
+                        <p>Duration: <Input type="number" name="duration" /></p>
                     </>
                     :
                     <>
@@ -114,9 +85,9 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Airports" />
                     { editMode ?
                     <>
-                        <p>Origin: <AirportInput onSelected={(airport: Airport) => updateFlightPatch("origin", airport)} /></p>
-                        <p>Destination: <AirportInput onSelected={(airport: Airport) => updateFlightPatch("destination", airport)} /></p>
-                        <p>Distance (km): <Input type="number" name="distance" onChange={handleInputChange} /></p>
+                        <p>Origin: <AirportInput name="origin" /></p>
+                        <p>Destination: <AirportInput name="destination" /></p>
+                        <p>Distance (km): <Input type="number" name="distance" /></p>
                     </>
                     :
                     <>
@@ -144,13 +115,13 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Other" />
                     { editMode ?
                     <>
-                        <p>Seat: <Select name="seat" onChange={handleInputChange} options={[
+                        <p>Seat: <Select name="seat" options={[
                             { text: "Choose", value: "" },
                             { text: "Aisle", value: "aisle" },
                             { text: "Middle", value: "middle" },
                             { text: "Window", value: "window" }
                         ]} /></p>
-                        <p>Class: <Select name="ticketClass" onChange={handleInputChange} options={[
+                        <p>Class: <Select name="ticketClass" options={[
                             { text: "Choose", value: "" },
                             { text: "Private", value: "private" },
                             { text: "First", value: "first" },
@@ -158,10 +129,10 @@ export default function SingleFlight({ flightID }) {
                             { text: "Economy+", value: "economy+" },
                             { text: "Economy", value: "economy" }
                         ]} /></p>
-                        <p>Airplane: <Input type="text" name="airplane" onChange={handleInputChange} /></p>
-                        <p>Flight Number: <Input type="text" name="flightNumber" onChange={handleInputChange} /></p>
+                        <p>Airplane: <Input type="text" name="airplane" /></p>
+                        <p>Flight Number: <Input type="text" name="flightNumber" /></p>
                         <p>Notes</p>
-                        <TextArea name="notes" onChange={handleInputChange}/>
+                        <TextArea name="notes" />
                     </>
                     :
                     <>
@@ -177,12 +148,11 @@ export default function SingleFlight({ flightID }) {
             { editMode &&
                 <Button text="Save" 
                         level="success" 
-                        disabled={!flightPatch || Object.keys(flightPatch).length === 0} 
-                        onClick={handleSaveClick} />
+                        submit/>
             }
-            <Button text={editMode ? "Cancel" : "Edit" } level="default" onClick={toggleEditMode}/>
-            <Button text="Delete" level="danger" onClick={handleDeleteClick}/>
-            </div>
+            <Button text={editMode ? "Cancel" : "Edit" } level="default" onClick={toggleEditMode} submit={false}/>
+            <Button text="Delete" level="danger" onClick={deleteFlight} submit={false}/>
+            </form>
         </>
     );
 }

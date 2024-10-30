@@ -3,6 +3,8 @@ import React, {useState} from 'react';
 import {Heading, Label, Input, Dialog} from '../components/Elements'
 import {AllStats} from '../components/Stats';
 
+import { objectFromForm } from '../utils';
+
 interface StatisticsFilters {
     start?: string;
     end?: string;
@@ -10,18 +12,16 @@ interface StatisticsFilters {
 export default function Statistics() {
     const [filters, setFilters] = useState<StatisticsFilters>();
 
-    const handleSubmit = (event) => {
+    const saveFilters = (event) => {
         event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        var filters = {}
 
-        formData.forEach((value, key) => {
-            if(value) {
-                filters = {...filters, [key]: value};
-            }
-        })
+        const newFilters = objectFromForm(event);
 
-        setFilters(filters);
+        if (newFilters === null) {
+            return;
+        }
+
+        setFilters(newFilters);
         //event.target.reset();
     }
 
@@ -38,7 +38,7 @@ export default function Statistics() {
                     <Input type="date" name="end" />
                 </>
                 )}
-                onSubmit={handleSubmit} />
+                onSubmit={saveFilters} />
 
         <AllStats filters={filters} />
     </>

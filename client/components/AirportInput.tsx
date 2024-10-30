@@ -7,15 +7,14 @@ import { Airport } from '../models';
 import { stringifyAirport } from '../utils';
 
 interface AirportInputProps {
-    type?: "origin"|"destination";
-    onSelected: (airport: Airport) => any;
+    name: string;
 }
 
-export default function AirportInput({ onSelected }: AirportInputProps) {
+export default function AirportInput({ name }: AirportInputProps) {
     const [airportsData, setAirportsData] = useState<Airport[]>([]);
     const [selectedAirport, setSelectedAirport] = useState<Airport|null>(null);
 
-    const handleInputChange = (event) => {
+    const searchAirport = (event) => {
         const value = event.target.value;
 
         if (value.length > 1) {
@@ -25,15 +24,13 @@ export default function AirportInput({ onSelected }: AirportInputProps) {
         else setAirportsData([]);
     }
 
-    const handleOptionClick = (event) => {
+    const selectAirport = (event) => {
         const value = event.target.getAttribute("value");
 
         // find chosen airport based on icao
         for(const airport of airportsData) {
             if(airport.icao === value) {
                 setSelectedAirport(airport);
-                onSelected(airport);
-
                 break;
             }
         }
@@ -45,16 +42,18 @@ export default function AirportInput({ onSelected }: AirportInputProps) {
     <>
         <Input type="text"
                maxLength={16}
-               onChange={handleInputChange}
-               placeholder="Search"/>
+               onChange={searchAirport}
+               placeholder="Search" />
 
-        {  airportsData.length > 0 &&
+        <input type="hidden" name={name} value={selectedAirport?.icao}/>
+
+        { airportsData.length > 0 &&
         <ul className="-mt-4 mb-4 border-x-2 border-b-2 border-gray-200">
 
             { airportsData.map((airport: Airport) => (
             <li className="py-1 px-2 even:bg-gray-100 cursor-pointer hover:bg-gray-200"
                 value={airport.icao} 
-                onClick={handleOptionClick}>
+                onClick={selectAirport}>
                 {stringifyAirport(airport)}
             </li>
             ))}

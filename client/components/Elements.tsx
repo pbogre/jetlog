@@ -86,25 +86,28 @@ interface InputProps {
     type: "text"|"number"|"date"|"time"|"file";
     name?: string;
     value?: string;
+    defaultValue?: string;
     maxLength?: number;
     onChange?: ((event: ChangeEvent<HTMLInputElement>) => any)|null;
     required?: boolean;
     placeholder?: string;
 }
 export function Input({ type, 
-                        name = undefined, 
-                        value = undefined, 
-                        maxLength = undefined, 
+                        name, 
+                        value,
+                        defaultValue,
+                        maxLength, 
                         onChange = null, 
                         required = false, 
-                        placeholder = undefined }: InputProps) {
+                        placeholder}: InputProps) {
     return (
         <input  className={`${type == "text" ? "w-full" : ""} px-1 mb-4 bg-white rounded-none outline-none font-mono box-border 
                             placeholder:italic border-b-2 border-gray-200 focus:border-primary-400`}
                 type={type}
                 accept={type == "file" ? ".csv,.db" : undefined}
                 name={name} 
-                value={value} 
+                value={value}
+                defaultValue={defaultValue}
                 maxLength={maxLength}
                 min={type == "number" ? 0 : undefined}
                 onChange={onChange ? onChange : () => {}}
