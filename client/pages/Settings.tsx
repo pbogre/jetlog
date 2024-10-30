@@ -146,7 +146,7 @@ export default function Settings() {
         }
     }
 
-    const handleOptionChange = (event) => {
+    const changeOption = (event) => {
         const key = event.target.name;
         const value = event.target.checked.toString();
 
@@ -196,21 +196,21 @@ export default function Settings() {
                     <Label text="Frequency based marker size" />
                     <Checkbox name="frequencyBasedMarker" 
                                 checked={options.frequencyBasedMarker === "true"} 
-                                onChange={handleOptionChange} />
+                                onChange={changeOption} />
                 </div>
 
                 <div className="flex justify-between">
                     <Label text="Frequency based line size" />
                     <Checkbox name="frequencyBasedLine" 
                                 checked={options.frequencyBasedLine === "true"} 
-                                onChange={handleOptionChange} />
+                                onChange={changeOption} />
                 </div>
 
                 <div className="flex justify-between">
                     <Label text="Use metric units" />
                     <Checkbox name="metricUnits" 
                                 checked={options.metricUnits === "true"} 
-                                onChange={handleOptionChange} />
+                                onChange={changeOption} />
                 </div>
             </div>
 

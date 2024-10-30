@@ -4,7 +4,9 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Heading, Label, Input, Select, Dialog, Whisper } from '../components/Elements';
 import SingleFlight from '../components/SingleFlight';
 import { Flight } from '../models'
+
 import API from '../api'
+import { objectFromForm } from '../utils';
 import ConfigStorage from '../storage/configStorage';
 
 interface FlightsFilters {
@@ -21,15 +23,14 @@ export default function AllFlights() {
 
     const flightID = searchParams.get("id");
 
-    const handleSubmit = (event) => {
-        const formData = new FormData(event.currentTarget);
-        var filters = {}
+    const saveFilters = (event) => {
+        event.preventDefault();
+        
+        const filters = objectFromForm(event);
 
-        formData.forEach((value, key) => {
-            if(value) {
-                filters = {...filters, [key]: value};
-            }
-        })
+        if (filters === null) {
+            return;
+        }
 
         setFilters(filters);
         //event.target.reset();
@@ -45,7 +46,7 @@ export default function AllFlights() {
             <>
                 <Heading text="All Flights" />
                 <Dialog title="Filters"
-                        onSubmit={handleSubmit}
+                        onSubmit={saveFilters}
                         formBody={(
                         <>
                             <Label text="Limit" />
@@ -126,7 +127,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
         );
     }
 
-    const handleRowClick = (flightID: number) => {
+    const viewFlight = (flightID: number) => {
         navigate(`/flights?id=${flightID}`);
     }
 
@@ -149,7 +150,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
             </tr>
             { flights.map((flight: Flight) => (
             <tr className="cursor-pointer even:bg-gray-100 hover:bg-gray-200 duration-75" 
-                onClick={() => handleRowClick(flight.id)}>
+                onClick={() => viewFlight(flight.id)}>
                 <TableCell text={flight.date}/>
                 <TableCell text={flight.origin.municipality + ' (' + (flight.origin.iata || flight.origin.icao) + ')'}/>
                 <TableCell text={flight.destination.municipality + ' (' + (flight.destination.iata || flight.destination.icao) + ')'} />

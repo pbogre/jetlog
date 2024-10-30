@@ -83,7 +83,6 @@ export function AllStats({ filters }) {
         API.get(`/statistics?metric=${metricUnits}`, filters)
         .then((data) => {
             setStatistics(data);
-            console.log(data);
         });
     }, [filters]);
 
