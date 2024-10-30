@@ -8,9 +8,10 @@ import { stringifyAirport } from '../utils';
 
 interface AirportInputProps {
     name: string;
+    placeholder?: Airport;
 }
 
-export default function AirportInput({ name }: AirportInputProps) {
+export default function AirportInput({ name, placeholder }: AirportInputProps) {
     const [airportsData, setAirportsData] = useState<Airport[]>([]);
     const [selectedAirport, setSelectedAirport] = useState<Airport|null>(null);
 
@@ -61,9 +62,13 @@ export default function AirportInput({ name }: AirportInputProps) {
         </ul>
         }
 
-        { selectedAirport &&
-        <Whisper text={`selected: ${stringifyAirport(selectedAirport)}`} negativeTopMargin />
+        { (placeholder && !selectedAirport) ?
+            <Whisper text={`selected: ${stringifyAirport(placeholder)}`} negativeTopMargin />
+            :
+            selectedAirport &&
+            <Whisper text={`selected: ${stringifyAirport(selectedAirport)}`} negativeTopMargin />
         }
+
         </>
     );
 }

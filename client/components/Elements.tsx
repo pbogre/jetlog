@@ -85,7 +85,6 @@ export function Button({ text,
 interface InputProps {
     type: "text"|"number"|"date"|"time"|"file";
     name?: string;
-    value?: string;
     defaultValue?: string;
     maxLength?: number;
     onChange?: ((event: ChangeEvent<HTMLInputElement>) => any)|null;
@@ -94,7 +93,6 @@ interface InputProps {
 }
 export function Input({ type, 
                         name, 
-                        value,
                         defaultValue,
                         maxLength, 
                         onChange = null, 
@@ -106,7 +104,6 @@ export function Input({ type,
                 type={type}
                 accept={type == "file" ? ".csv,.db" : undefined}
                 name={name} 
-                value={value}
                 defaultValue={defaultValue}
                 maxLength={maxLength}
                 min={type == "number" ? 0 : undefined}
@@ -117,24 +114,23 @@ export function Input({ type,
 }
 
 interface TextAreaProps {
-    name?: string; 
-    value?: string;
+    name?: string;
+    defaultValue?: string;
+    placeholder?: string;
     maxLength?: number;
-    onChange?: ((event: ChangeEvent<HTMLTextAreaElement>) => any)|null;
 }
-export function TextArea ({ name = undefined,
-                            value = undefined,
-                            maxLength = undefined,
-                            onChange = null }: TextAreaProps) {
+export function TextArea ({ name,
+                            defaultValue,
+                            placeholder,
+                            maxLength }: TextAreaProps) {
     return (
         <textarea rows={5} 
                   className="w-full px-1 mb-4 bg-white rounded-none outline-none font-mono box-border
                              border-2 border-gray-200 focus:border-primary-400"
                   name={name}
-                  value={value}
-                  maxLength={maxLength}
-                  onChange={onChange ? onChange : () => {}}>
-            {value}
+                  defaultValue={defaultValue}
+                  placeholder={placeholder}
+                  maxLength={maxLength} >
         </textarea>
     );
 }
@@ -169,20 +165,14 @@ function Option({text, value}: OptionProps) {
 
 interface SelectProps {
     name?: string;
-    value?: string;
-    onChange?: React.ChangeEventHandler<HTMLSelectElement>|null;
     options: OptionProps[];
 }
-export function Select({name = undefined, 
-                        value = undefined, 
-                        onChange = null, 
+export function Select({name, 
                         options }: SelectProps) {
     return (
         <select className="px-1 py-0.5 mb-4 bg-white rounded-none outline-none font-mono bg-white box-border 
                 border-b-2 border-gray-200 focus:border-primary-400"
-                name={name}
-                value={value}
-                onChange={onChange ? onChange : () => {}}>
+                name={name}>
             { options.map((option) => (
                 <Option text={option.text} value={option.value}/>  
             ))} 

@@ -28,11 +28,13 @@ export default function SingleFlight({ flightID }) {
         );
     }
 
-    const toggleEditMode = () => {
+    const toggleEditMode = (event) => {
+        event.preventDefault();
         setEditMode(!editMode);
     }
 
-    const deleteFlight = () => {
+    const deleteFlight = (event) => {
+        event.preventDefault();
         if(confirm("Are you sure?")) {
             API.delete(`/flights?id=${flight.id}`)
             .then(() => navigate("/"));
@@ -64,11 +66,11 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Timings" />
                     { editMode ? 
                     <>
-                        <p>Date: <Input type="date" name="date" /></p>
-                        <p>Departure Time: <Input type="time" name="departureTime" /></p>
-                        <p>Arrival Time: <Input type="time" name="arrivalTime" /></p>
-                        <p>Arrival Date: <Input type="date" name="arrivalDate" /></p>
-                        <p>Duration: <Input type="number" name="duration" /></p>
+                        <p>Date: <Input type="date" name="date" defaultValue={flight.date} /></p>
+                        <p>Departure Time: <Input type="time" name="departureTime" defaultValue={flight.departureTime} /></p>
+                        <p>Arrival Time: <Input type="time" name="arrivalTime" defaultValue={flight.arrivalTime} /></p>
+                        <p>Arrival Date: <Input type="date" name="arrivalDate" defaultValue={flight.arrivalDate}/></p>
+                        <p>Duration: <Input type="number" name="duration" placeholder={flight.duration?.toString()}/></p>
                     </>
                     :
                     <>
@@ -85,9 +87,9 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Airports" />
                     { editMode ?
                     <>
-                        <p>Origin: <AirportInput name="origin" /></p>
-                        <p>Destination: <AirportInput name="destination" /></p>
-                        <p>Distance (km): <Input type="number" name="distance" /></p>
+                        <p>Origin: <AirportInput name="origin" placeholder={flight.origin}/></p>
+                        <p>Destination: <AirportInput name="destination" placeholder={flight.destination} /></p>
+                        <p>Distance (km): <Input type="number" name="distance" placeholder={flight.distance?.toString()}/></p>
                     </>
                     :
                     <>
@@ -116,23 +118,23 @@ export default function SingleFlight({ flightID }) {
                     { editMode ?
                     <>
                         <p>Seat: <Select name="seat" options={[
-                            { text: "Choose", value: "" },
+                            { text: flight.seat, value: "" },
                             { text: "Aisle", value: "aisle" },
                             { text: "Middle", value: "middle" },
                             { text: "Window", value: "window" }
                         ]} /></p>
                         <p>Class: <Select name="ticketClass" options={[
-                            { text: "Choose", value: "" },
+                            { text: flight.ticketClass, value: "" },
                             { text: "Private", value: "private" },
                             { text: "First", value: "first" },
                             { text: "Business", value: "business" },
                             { text: "Economy+", value: "economy+" },
                             { text: "Economy", value: "economy" }
                         ]} /></p>
-                        <p>Airplane: <Input type="text" name="airplane" /></p>
-                        <p>Flight Number: <Input type="text" name="flightNumber" /></p>
+                        <p>Airplane: <Input type="text" name="airplane" placeholder={flight.airplane} /></p>
+                        <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
                         <p>Notes</p>
-                        <TextArea name="notes" />
+                        <TextArea name="notes" defaultValue={flight.notes}/>
                     </>
                     :
                     <>
@@ -150,8 +152,8 @@ export default function SingleFlight({ flightID }) {
                         level="success" 
                         submit/>
             }
-            <Button text={editMode ? "Cancel" : "Edit" } level="default" onClick={toggleEditMode} submit={false}/>
-            <Button text="Delete" level="danger" onClick={deleteFlight} submit={false}/>
+            <Button text={editMode ? "Cancel" : "Edit" } level="default" onClick={toggleEditMode} />
+            <Button text="Delete" level="danger" onClick={deleteFlight} />
             </form>
         </>
     );
