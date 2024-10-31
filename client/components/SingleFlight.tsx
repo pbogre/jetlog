@@ -12,6 +12,7 @@ import { objectFromForm } from '../utils';
 export default function SingleFlight({ flightID }) {
     const [flight, setFlight] = useState<Flight>();
     const [editMode, setEditMode] = useState<Boolean>(false);
+
     const navigate = useNavigate();
     const metricUnits = ConfigStorage.getSetting("metricUnits");
 

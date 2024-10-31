@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { Heading, Label, Input, Select, Dialog, Whisper } from '../components/Elements';
+import UserSelect from '../components/UserSelect';
 import SingleFlight from '../components/SingleFlight';
 import { Flight } from '../models'
 
@@ -16,6 +17,7 @@ interface FlightsFilters {
     sort?: "date"|"seat"|"ticket_class"|"duration"|"distance";
     start?: string;
     end?: string;
+    userId?: number;
 }
 export default function AllFlights() {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -25,7 +27,7 @@ export default function AllFlights() {
 
     const saveFilters = (event) => {
         event.preventDefault();
-        
+
         const filters = objectFromForm(event);
 
         if (filters === null) {
@@ -58,7 +60,7 @@ export default function AllFlights() {
                             <Label text="Order" />
                             <Select name="order"
                                     options={[
-                                { text: "Choose", value: "" },
+                                { text: "Any", value: "" },
                                 { text: "Descending", value: "DESC" },
                                 { text: "Ascending", value: "ASC" }
                             ]}/>
@@ -66,7 +68,7 @@ export default function AllFlights() {
                             <Label text="Sort By" />
                             <Select name="sort"
                                     options={[
-                                { text: "Choose", value: "" },
+                                { text: "Any", value: "" },
                                 { text: "Date", value: "date" },
                                 { text: "Seat", value: "seat" },
                                 { text: "Ticket Class", value: "ticket_class" },
@@ -79,6 +81,9 @@ export default function AllFlights() {
                             <br />
                             <Label text="End Date" />
                             <Input type="date" name="end" />
+                            <br />
+                            <Label text="User"/>
+                            <UserSelect />
                         </>
                         )}/>
 

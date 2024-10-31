@@ -15,8 +15,8 @@ export default function Login() {
         const formData = new FormData(event.currentTarget);
 
         API.post("/auth/token", formData)
-        .then((res) => {
-            const token = res.access_token;
+        .then((data) => {
+            const token = data.access_token;
             TokenStorage.storeToken(token, remember);
 
             navigate("/");

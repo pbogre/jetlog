@@ -173,11 +173,14 @@ async def get_flights(id: int|None = None,
                       sort: Sort = Sort.DATE,
                       start: datetime.date|None = None,
                       end: datetime.date|None = None,
+                      userId: int|None = None,
                       user: User = Depends(get_current_user)) -> list[FlightModel]|FlightModel:
 
-    user_filter = f"WHERE f.user_id = {str(user.id)}"
+    user_filter = f"AND f.user_id = {str(user.id)}" if not id else ""
+    if userId:
+        user_filter = f"AND f.user_id = {userId}"
 
-    id_filter = f"AND f.id = {str(id)}" if id else ""
+    id_filter = f"AND f.id = {str(id)}" if id and user_filter else ""
 
     date_filter = "AND" if start or end else ""
     date_filter += f"JULIANDAY(date) > JULIANDAY('{start}')" if start else ""
@@ -192,6 +195,7 @@ async def get_flights(id: int|None = None,
         FROM flights f
         JOIN airports o ON UPPER(f.origin) = o.icao
         JOIN airports d ON UPPER(f.destination) = d.icao
+        WHERE 1=1
         {user_filter}
         {id_filter}
         {date_filter}

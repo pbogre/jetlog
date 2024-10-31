@@ -102,11 +102,11 @@ export default function Settings() {
 
             if (data["isAdmin"]) {
                 API.get("/auth/users")
-                .then((usernames) => {
-                    for (let username of usernames) {
-                        if (username === data["username"]) continue; // skip self
+                .then((users) => {
+                    for (let u of users) {
+                        if (u["username"] === data["username"]) continue; // skip self
 
-                        API.get(`/auth/users/${username}`)
+                        API.get(`/auth/users/details/${u["username"]}`)
                         .then((user) => {
                             setAllUsers(prevAllUsers => {
                                 if (prevAllUsers === undefined) {

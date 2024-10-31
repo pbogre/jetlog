@@ -16,9 +16,12 @@ router = APIRouter(
 async def get_statistics(metric: bool = True,
                          start: datetime.date|None = None,
                          end: datetime.date|None = None,
+                         userId: int|None = None,
                          user: User = Depends(get_current_user)):
 
     user_filter = f"WHERE user_id = {str(user.id)}"
+    if userId:
+        user_filter = f"WHERE f.user_id = {userId}"
 
     date_filter = "AND" if start or end else ""
     date_filter += f"JULIANDAY(f.date) > JULIANDAY('{start}')" if start else ""
