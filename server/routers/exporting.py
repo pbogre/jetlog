@@ -1,7 +1,8 @@
-from server.models import AirportModel, FlightModel
+from server.auth.auth import get_current_user
+from server.models import AirportModel, FlightModel, User
 from server.routers.flights import get_flights
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
 from starlette.background import BackgroundTask
 import os
@@ -21,17 +22,17 @@ def stringify_airport(airport: AirportModel) -> str:
     return f"{code} - {airport.municipality}/{airport.country}"
 
 @router.post("/csv", status_code=200)
-async def export_to_CSV() -> FileResponse:
-    flights = await get_flights(limit=-1)
+async def export_to_CSV(user: User = Depends(get_current_user)) -> FileResponse:
+    flights = await get_flights(limit=-1, user=user)
     assert type(flights) == list # make linter happy
 
     file = open("/tmp/jetlog.csv", "a")
-    columns = FlightModel.get_attributes(ignore=["id"])
+    columns = FlightModel.get_attributes(ignore=["id", "user_id"])
 
     file.write(','.join(columns) + '\n')
 
     for flight in flights:
-        values = [ str(val) if val != None else '' for val in flight.get_values(ignore=["id"]) ]
+        values = [ str(val) if val != None else '' for val in flight.get_values(ignore=["id", "user_id"]) ]
         row = ','.join(values)
         file.write(row + '\n')
 
@@ -41,8 +42,8 @@ async def export_to_CSV() -> FileResponse:
                         filename="jetlog.csv")
 
 @router.post("/ical", status_code=200)
-async def export_to_iCal() -> FileResponse:
-    flights = await get_flights(limit=-1)
+async def export_to_iCal(user: User = Depends(get_current_user)) -> FileResponse:
+    flights = await get_flights(limit=-1, user=user)
     assert type(flights) == list # make linter happy
 
     file = open("/tmp/jetlog.ics", "a")

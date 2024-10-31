@@ -110,7 +110,12 @@ async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)
     query = query[:-1]
     query += ") RETURNING id;"
 
-    values = flight.get_values(ignore=["id"], explicit={"user_id": user.id})
+    # only admins may add flights for other users
+    if flight.user_id and not user.is_admin:
+        raise HTTPException(status_code=403, detail="Only admins can add flights for other users")
+
+    explicit = {"user_id": user.id} if not flight.user_id else {}
+    values = flight.get_values(ignore=["id"], explicit=explicit)
 
     return database.execute_query(query, values)
 

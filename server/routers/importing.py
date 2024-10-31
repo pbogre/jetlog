@@ -1,9 +1,11 @@
 import datetime
 
-from server.models import FlightModel, SeatType, ClassType
-from server.routers.flights import add_flight
-from fastapi import APIRouter, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from enum import Enum
+
+from server.models import FlightModel, SeatType, ClassType, User
+from server.routers.flights import add_flight
+from server.auth.auth import get_current_user
 
 router = APIRouter(
     prefix="/importing",
@@ -16,7 +18,9 @@ class CSVType(str, Enum):
     CUSTOM = "custom"
 
 @router.post("", status_code=202)
-async def import_CSV(csv_type: CSVType, file: UploadFile):
+async def import_CSV(csv_type: CSVType,
+                     file: UploadFile,
+                     user: User = Depends(get_current_user)):
     imported_flights: list[FlightModel] = []
     fail_count = 0
 
@@ -60,7 +64,6 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
             values = line.split(',')
             values_dict = {}
             try:
-                flight = FlightModel()
                 values_dict['date'] = datetime.date.fromisoformat(values[0])
                 values_dict['origin'] = values[2][-6:-2]
                 values_dict['destination'] = values[3][-6:-2]
@@ -113,6 +116,9 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
                 count += 1
                 continue
 
+            if "user_id" in present_columns and not user.is_admin:
+                raise HTTPException(status_code=403, detail=f"Only admins can specify the 'user_id' column")
+
             values = line.split(',')
             values = [ val.rstrip('\r\n') if val != '' else None for val in values ] 
             values_dict = {}
@@ -139,7 +145,7 @@ async def import_CSV(csv_type: CSVType, file: UploadFile):
     for i in range(len(imported_flights)):
         progress = f"[{i+1}/{len(imported_flights)}]" 
         try:
-            res = await add_flight(imported_flights[i])
+            res = await add_flight(imported_flights[i], user=user)
             print(f"{progress} Successfully added flight (id: {res})")
         except HTTPException as e:
             print(f"{progress} Failed import: {e.detail}")

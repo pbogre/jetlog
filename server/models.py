@@ -176,6 +176,18 @@ class FlightModel(CustomModel):
 
         return v
 
+    @field_validator('user_id')
+    @classmethod
+    def user_must_exist(cls, v) -> int:
+        from server.database import database
+
+        res = database.execute_read_query(f"SELECT id FROM users WHERE id = ?;", [v]);
+
+        if len(res) < 1:
+            raise ValueError(f"must have valid user id, got '{v}'")
+
+        return v
+
 class StatisticsModel(CustomModel):
     total_flights:          int
     total_duration:         int
