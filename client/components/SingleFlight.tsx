@@ -11,6 +11,7 @@ import { objectFromForm } from '../utils';
 
 export default function SingleFlight({ flightID }) {
     const [flight, setFlight] = useState<Flight>();
+    const [username, setUsername] = useState<string>("N/A");
     const [editMode, setEditMode] = useState<Boolean>(false);
 
     const navigate = useNavigate();
@@ -20,7 +21,13 @@ export default function SingleFlight({ flightID }) {
         API.get(`/flights?id=${flightID}&metric=${metricUnits}`)
         .then((data) => {
             setFlight(data);
+
+            API.get(`/auth/users?id=${data["userId"]}`)
+            .then((data) => {
+                setUsername(data[0]["username"]);
+            });
         });
+
     }, []);
 
     if(flight === undefined) {
@@ -59,7 +66,7 @@ export default function SingleFlight({ flightID }) {
     return (
         <>
             <Heading text={`${flight.origin.iata || flight.origin.icao } to ${flight.destination.iata || flight.destination.icao}`} />
-            <h2 className="-mt-4 mb-4 text-xl">{flight.date}</h2>
+            <h2 className="-mt-4 mb-4 text-xl">{username} on {flight.date}</h2>
            
             <form onSubmit={updateFlight}>
             <div className="flex flex-wrap">
@@ -94,7 +101,7 @@ export default function SingleFlight({ flightID }) {
                     </>
                     :
                     <>
-                        <p>Distance: <span>{flight.distance ? flight.distance + (metricUnits === "false" ? " mi" : " km") : "N/A"}</span></p>
+                        <p className="mb-2">Distance: <span>{flight.distance ? flight.distance + (metricUnits === "false" ? " mi" : " km") : "N/A"}</span></p>
                         <p className="font-bold">Origin</p> 
                         <ul className="mb-2">
                             <li>ICAO/IATA: <span>{flight.origin.icao}/{flight.origin.iata}</span></li>

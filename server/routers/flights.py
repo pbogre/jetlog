@@ -180,7 +180,7 @@ async def get_flights(id: int|None = None,
     if userId:
         user_filter = f"AND f.user_id = {userId}"
 
-    id_filter = f"AND f.id = {str(id)}" if id and user_filter else ""
+    id_filter = f"AND f.id = {str(id)}" if id else ""
 
     date_filter = "AND" if start or end else ""
     date_filter += f"JULIANDAY(date) > JULIANDAY('{start}')" if start else ""
@@ -230,7 +230,7 @@ async def get_flights(id: int|None = None,
         flights.append(flight)
 
     if id and not flights:
-        raise HTTPException(status_code=404, detail=f"Flight with id '{str(id)}' not found.")
+        raise HTTPException(status_code=404, detail=f"Flight not found.")
 
     if id:
         return FlightModel.model_validate(flights[0])
