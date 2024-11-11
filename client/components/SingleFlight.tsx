@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
-import { Flight } from '../models';
+import { Flight, User } from '../models';
 import AirportInput from './AirportInput';
 
 import API from '../api';
@@ -11,6 +11,7 @@ import { objectFromForm } from '../utils';
 
 export default function SingleFlight({ flightID }) {
     const [flight, setFlight] = useState<Flight>();
+    const [selfUsername, setSelfUsername] = useState<string>();
     const [editMode, setEditMode] = useState<Boolean>(false);
 
     const navigate = useNavigate();
@@ -22,6 +23,10 @@ export default function SingleFlight({ flightID }) {
             setFlight(data);
         });
 
+        API.get("/auth/users/me")
+        .then((data: User) => {
+            setSelfUsername(data.username);
+        });
     }, []);
 
     if(flight === undefined) {
@@ -154,8 +159,12 @@ export default function SingleFlight({ flightID }) {
                         level="success" 
                         submit/>
             }
-            <Button text={editMode ? "Cancel" : "Edit" } level="default" onClick={toggleEditMode} />
-            <Button text="Delete" level="danger" onClick={deleteFlight} />
+            { selfUsername === flight.username &&
+                <>
+                <Button text={editMode ? "Cancel" : "Edit" } level="default" onClick={toggleEditMode} />
+                <Button text="Delete" level="danger" onClick={deleteFlight} />
+                </>
+            }
             </form>
         </>
     );
