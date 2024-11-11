@@ -92,32 +92,28 @@ function UserInfo({user, isSelf = false} : UserInfoProps) {
 export default function Settings() {
     const [options, setOptions] = useState<ConfigInterface>(ConfigStorage.getAllSettings())
     const [user, setUser] = useState<User>();
-    const [allUsers, setAllUsers] = useState<User[]>();
+    const [allUsers, setAllUsers] = useState<User[]>([]);
     const navigate = useNavigate();
 
     useEffect(() => {
         API.get("/auth/users/me")
-        .then((data) => {
+        .then((data: User) => {
             setUser(data);
 
-            if (data["isAdmin"]) {
+            if (data.isAdmin) {
                 API.get("/auth/users")
-                .then((users) => {
+                .then((users: string[]) => {
                     for (let u of users) {
-                        if (u["username"] === data["username"]) continue; // skip self
+                        if (u === data.username) continue; // skip self
 
-                        API.get(`/auth/users/details/${u["username"]}`)
+                        API.get(`/auth/users/${u}/details`)
                         .then((user) => {
                             setAllUsers(prevAllUsers => {
-                                if (prevAllUsers === undefined) {
-                                    return [user];
-                                }
-
                                 return [...prevAllUsers, user];
                             });
-                        })
+                        });
                     }
-                })
+                });
             }
         });
     }, []);

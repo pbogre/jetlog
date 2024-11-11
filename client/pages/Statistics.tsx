@@ -9,7 +9,7 @@ import { objectFromForm } from '../utils';
 interface StatisticsFilters {
     start?: string;
     end?: string;
-    userId?: number;
+    username?: string;
 }
 export default function Statistics() {
     const [filters, setFilters] = useState<StatisticsFilters>();

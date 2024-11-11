@@ -25,11 +25,11 @@ class Sort(str, Enum):
     DISTANCE = "distance"
 
 async def check_flight_authorization(id: int, user: User) -> None:
-    res = database.execute_read_query(f"SELECT user_id FROM flights WHERE id = {str(id)};")
-    flight_user_id = res[0][0]
+    res = database.execute_read_query(f"SELECT username FROM flights WHERE id = ?;", [id])
+    flight_username = res[0][0]
 
-    if flight_user_id != user.id:
-        raise HTTPException(status_code=403, detail="You are not authorized to access this flight")
+    if flight_username != user.username:
+        raise HTTPException(status_code=403, detail="You are not authorized to modify this flight")
 
 # https://en.wikipedia.org/wiki/Haversine_formula
 def spherical_distance(origin: AirportModel, destination: AirportModel) -> int:
@@ -111,10 +111,10 @@ async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)
     query += ") RETURNING id;"
 
     # only admins may add flights for other users
-    if flight.user_id and not user.is_admin:
+    if flight.username and not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can add flights for other users")
 
-    explicit = {"user_id": user.id} if not flight.user_id else {}
+    explicit = {"username": user.username} if not flight.username else {}
     values = flight.get_values(ignore=["id"], explicit=explicit)
 
     return database.execute_query(query, values)
@@ -178,12 +178,12 @@ async def get_flights(id: int|None = None,
                       sort: Sort = Sort.DATE,
                       start: datetime.date|None = None,
                       end: datetime.date|None = None,
-                      userId: int|None = None,
+                      username: str|None = None,
                       user: User = Depends(get_current_user)) -> list[FlightModel]|FlightModel:
 
-    user_filter = f"AND f.user_id = {str(user.id)}" if not id else ""
-    if userId:
-        user_filter = f"AND f.user_id = {userId}"
+    user_filter = f"AND f.username = '{user.username}'" if not id else ""
+    if username:
+        user_filter = f"AND f.username = '{username}'"
 
     id_filter = f"AND f.id = {str(id)}" if id else ""
 
@@ -208,11 +208,13 @@ async def get_flights(id: int|None = None,
         LIMIT {limit}
         OFFSET {offset};"""
 
+    print(query)
+
     res = database.execute_read_query(query);
 
     # get rid of origin, destination ICAOs for proper conversion
     # after this, each flight_db is in the format:
-    # [id, user_id, date, departure_time, ..., AirportModel, AirportModel]
+    # [id, username, date, departure_time, ..., AirportModel, AirportModel]
     res = [ flight_db[:3] + flight_db[5:] for flight_db in res ]
 
     flights = []

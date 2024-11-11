@@ -136,7 +136,7 @@ class AirportModel(CustomModel):
 
 class FlightModel(CustomModel):
     id:             int|None = None
-    user_id:        int|None = None
+    username:       str|None = None
     date:           datetime.date
     origin:         AirportModel|str # API uses AirportModel/str, database uses str
     destination:    AirportModel|str
@@ -176,15 +176,15 @@ class FlightModel(CustomModel):
 
         return v
 
-    @field_validator('user_id')
+    @field_validator('username')
     @classmethod
     def user_must_exist(cls, v) -> int:
         from server.database import database
 
-        res = database.execute_read_query(f"SELECT id FROM users WHERE id = ?;", [v]);
+        res = database.execute_read_query(f"SELECT id FROM users WHERE username = ?;", [v]);
 
         if len(res) < 1:
-            raise ValueError(f"must have valid user id, got '{v}'")
+            raise ValueError(f"must have valid username, got '{v}'")
 
         return v
 

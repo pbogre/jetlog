@@ -11,7 +11,6 @@ import { objectFromForm } from '../utils';
 
 export default function SingleFlight({ flightID }) {
     const [flight, setFlight] = useState<Flight>();
-    const [username, setUsername] = useState<string>("N/A");
     const [editMode, setEditMode] = useState<Boolean>(false);
 
     const navigate = useNavigate();
@@ -19,13 +18,8 @@ export default function SingleFlight({ flightID }) {
 
     useEffect(() => {
         API.get(`/flights?id=${flightID}&metric=${metricUnits}`)
-        .then((data) => {
+        .then((data: Flight) => {
             setFlight(data);
-
-            API.get(`/auth/users?id=${data["userId"]}`)
-            .then((data) => {
-                setUsername(data[0]["username"]);
-            });
         });
 
     }, []);
@@ -66,7 +60,7 @@ export default function SingleFlight({ flightID }) {
     return (
         <>
             <Heading text={`${flight.origin.iata || flight.origin.icao } to ${flight.destination.iata || flight.destination.icao}`} />
-            <h2 className="-mt-4 mb-4 text-xl">{username} on {flight.date}</h2>
+            <h2 className="-mt-4 mb-4 text-xl">{flight.username} on {flight.date}</h2>
            
             <form onSubmit={updateFlight}>
             <div className="flex flex-wrap">

@@ -27,12 +27,12 @@ async def export_to_CSV(user: User = Depends(get_current_user)) -> FileResponse:
     assert type(flights) == list # make linter happy
 
     file = open("/tmp/jetlog.csv", "a")
-    columns = FlightModel.get_attributes(ignore=["id", "user_id"])
+    columns = FlightModel.get_attributes(ignore=["id", "username"])
 
     file.write(','.join(columns) + '\n')
 
     for flight in flights:
-        values = [ str(val) if val != None else '' for val in flight.get_values(ignore=["id", "user_id"]) ]
+        values = [ str(val) if val != None else '' for val in flight.get_values(ignore=["id", "username"]) ]
         row = ','.join(values)
         file.write(row + '\n')
 

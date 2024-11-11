@@ -47,9 +47,9 @@ async def get_airport_markers(user: User = Depends(get_current_user)) -> list[Co
         FROM flights f
         JOIN airports o ON UPPER(f.origin) = o.icao
         JOIN airports d ON UPPER(f.destination) = d.icao
-        WHERE user_id = {str(user.id)};"""
+        WHERE username = ?;"""
 
-    res = database.execute_read_query(query);
+    res = database.execute_read_query(query, [user.username]);
 
     coordinates: list[Coord] = []
 
@@ -91,9 +91,9 @@ async def get_flight_trajectories(user: User = Depends(get_current_user)) -> lis
         FROM flights f
         JOIN airports o ON UPPER(f.origin) = o.icao 
         JOIN airports d ON UPPER(f.destination) = d.icao
-        WHERE user_id = {str(user.id)};"""
+        WHERE username = ?;"""
 
-    res = database.execute_read_query(query);
+    res = database.execute_read_query(query, [user.username]);
 
     lines: list[Trajectory] = []
 

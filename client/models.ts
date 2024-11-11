@@ -8,7 +8,7 @@ export class User {
 
 export class Flight {
     id: number;
-    userId: number;
+    username: string;
     date: string;
     origin: Airport;
     destination: Airport;

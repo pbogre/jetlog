@@ -116,8 +116,8 @@ async def import_CSV(csv_type: CSVType,
                 count += 1
                 continue
 
-            if "user_id" in present_columns and not user.is_admin:
-                raise HTTPException(status_code=403, detail=f"Only admins can specify the 'user_id' column")
+            if "username" in present_columns and not user.is_admin:
+                raise HTTPException(status_code=403, detail=f"Only admins can specify the 'username' column")
 
             values = line.split(',')
             values = [ val.rstrip('\r\n') if val != '' else None for val in values ] 

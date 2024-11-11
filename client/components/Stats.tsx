@@ -21,7 +21,7 @@ export function ShortStats() {
     // runs before render
     useMemo(() => {
         API.get(`/statistics?metric=${metricUnits}`)
-        .then((data) => {
+        .then((data: Statistics) => {
             setStatistics(data);
         });
     }, []);
@@ -81,7 +81,7 @@ export function AllStats({ filters }) {
 
     useEffect(() => {
         API.get(`/statistics?metric=${metricUnits}`, filters)
-        .then((data) => {
+        .then((data: Statistics) => {
             setStatistics(data);
         });
     }, [filters]);

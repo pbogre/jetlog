@@ -86,7 +86,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
 
     return user
 
-@router.get("/users/details/{username}")
+@router.get("/users/{username}/details")
 async def get_user_details(username: str, user: User = Depends(get_current_user)) -> User:
     if user.username != username and not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can get other users' details")
@@ -97,24 +97,12 @@ async def get_user_details(username: str, user: User = Depends(get_current_user)
 
     return found_user
 
-class UserSummary(CustomModel):
-    id: int
-    username: str
-
 @router.get("/users")
-async def get_users(id: int|None = None, _: User = Depends(get_current_user)) -> list[UserSummary]:
-    res = database.execute_read_query("SELECT id, username FROM users;")
+async def get_users(_: User = Depends(get_current_user)) -> list[str]:
+    res = database.execute_read_query("SELECT username FROM users;")
+    usernames = [ entry[0] for entry in res ]
 
-    users = []
-    for user_db in res:
-        user = UserSummary.from_database(user_db)
-        
-        if id and user.id != id:
-            continue
-
-        users.append(user)
-
-    return users
+    return usernames
 
 class UserPatch(CustomModel):
     username: str|None = None
@@ -175,5 +163,5 @@ async def delete_user(username: str, user: User = Depends(get_current_user)):
     if username == user.username:
         raise HTTPException(status_code=400, detail="You cannot delete your own user")
 
-    user_id = database.execute_query("DELETE FROM users WHERE username = ? RETURNING id;", [username])
-    database.execute_query("DELETE FROM flights WHERE user_id = ?;", [user_id]);
+    database.execute_query("DELETE FROM flights WHERE username = ?;", [username])
+    database.execute_query("DELETE FROM users WHERE username = ?;", [username])

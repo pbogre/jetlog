@@ -4,12 +4,8 @@ import { Select } from './Elements';
 
 import API from '../api';
 
-interface UserSummary {
-    id: number;
-    username: string;
-}
 export default function UserSelect() {
-    const [users, setUsers] = useState<UserSummary[]>([]);
+    const [users, setUsers] = useState<string[]>([]);
 
     useEffect(() => {
         API.get("/auth/users")
@@ -19,11 +15,11 @@ export default function UserSelect() {
     }, [])
 
     return (
-        <Select name="userId" options={[
+        <Select name="username" options={[
             { text: "You", value: "" },
-            ...users.map((user) => ({
-                text: user.username,
-                value: user.id.toString()
+            ...users.map((username) => ({
+                text: username,
+                value: username
             }))
         ]}/>
     )

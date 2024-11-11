@@ -15,10 +15,10 @@ export default function WorldMap() {
         .then((data) => setWorld(data));
 
         API.get("/geography/markers")
-        .then((data) => setMarkers(data));
+        .then((data: Coord[]) => setMarkers(data));
 
         API.get("/geography/lines")
-        .then((data) => setLines(data));
+        .then((data: Trajectory[]) => setLines(data));
     }, []);
 
     if (world === undefined) {

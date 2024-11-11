@@ -17,7 +17,7 @@ interface FlightsFilters {
     sort?: "date"|"seat"|"ticket_class"|"duration"|"distance";
     start?: string;
     end?: string;
-    userId?: number;
+    username?: string;
 }
 export default function AllFlights() {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -116,7 +116,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
 
     useEffect(() => {
         API.get(`/flights?metric=${metricUnits}`, filters)
-        .then((data) => {
+        .then((data: Flight[]) => {
             setFlights(data);
         });
     }, [filters]);
