@@ -1,11 +1,10 @@
-import datetime
+from server.models import FlightModel, SeatType, ClassType, User
+from server.routers.flights import add_flight
+from server.auth.users import get_current_user
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from enum import Enum
-
-from server.models import FlightModel, SeatType, ClassType, User
-from server.routers.flights import add_flight
-from server.auth.auth import get_current_user
+import datetime
 
 router = APIRouter(
     prefix="/importing",

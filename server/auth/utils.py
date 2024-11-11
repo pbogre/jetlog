@@ -1,7 +1,10 @@
+from server.models import User
+from server.database import database
+
 from fastapi.security import OAuth2PasswordBearer
 import bcrypt
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/token", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token", auto_error=False)
 
 def verify_password(password: str, password_hash: str) -> bool:
     password_bytes = password.encode('utf-8')
@@ -13,3 +16,12 @@ def hash_password(password: str) -> str:
     salt = bcrypt.gensalt()
     password_hash = bcrypt.hashpw(pwd_bytes, salt).decode('utf-8')
     return password_hash
+
+def get_user(username: str) -> User|None:
+    result = database.execute_read_query(f"SELECT * FROM users WHERE username = ?;", [username])
+ 
+    if not result:
+        return None
+
+    user = User.from_database(result[0])
+    return User.model_validate(user)

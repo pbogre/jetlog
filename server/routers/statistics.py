@@ -1,6 +1,6 @@
 from server.database import database
 from server.models import StatisticsModel, User
-from server.auth.auth import get_current_user
+from server.auth.users import get_current_user
 
 
 from fastapi import APIRouter, Depends

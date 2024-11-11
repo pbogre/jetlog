@@ -1,12 +1,11 @@
 from server.database import database
-from server.auth.auth import get_current_user
+from server.models import User
+from server.auth.users import get_current_user
 
 from models import CustomModel 
 from fastapi import APIRouter, Depends
 from pathlib import Path
 import json
-
-from server.models import User
 
 router = APIRouter(
     prefix="/geography",

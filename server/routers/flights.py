@@ -1,6 +1,6 @@
 from server.database import database
-from server.auth.auth import get_current_user
 from server.models import AirportModel, ClassType, CustomModel, FlightModel, SeatType, User
+from server.auth.users import get_current_user
 
 from fastapi import APIRouter, Depends, HTTPException
 from enum import Enum
