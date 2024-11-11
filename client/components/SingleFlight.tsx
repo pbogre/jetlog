@@ -23,7 +23,7 @@ export default function SingleFlight({ flightID }) {
             setFlight(data);
         });
 
-        API.get("/auth/users/me")
+        API.get("/users/me")
         .then((data: User) => {
             setSelfUsername(data.username);
         });

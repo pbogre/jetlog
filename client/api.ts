@@ -16,7 +16,7 @@ class APIClass {
         // use token for authorization header 
         this.client.interceptors.request.use(
             (config) => {
-                if (config.url !== "api/auth/token") {
+                if (config.url !== "/api/auth/token") {
                     const token = TokenStorage.getToken();
                     if (token) {
                         config.headers.Authorization = `Bearer ${token}`;

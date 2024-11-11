@@ -8,7 +8,7 @@ export default function UserSelect() {
     const [users, setUsers] = useState<string[]>([]);
 
     useEffect(() => {
-        API.get("/auth/users")
+        API.get("/users")
         .then((res) => {
             setUsers(res)
         });

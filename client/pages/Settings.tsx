@@ -25,7 +25,7 @@ function UserInfo({user, isSelf = false} : UserInfoProps) {
             return;
         }
 
-        await API.patch(`/auth/users/${user.username}`, userPatchData);
+        await API.patch(`/users/${user.username}`, userPatchData);
 
         window.location.reload();
     }
@@ -38,7 +38,7 @@ function UserInfo({user, isSelf = false} : UserInfoProps) {
     const deleteUser = async () => {
         if (confirm("Are you sure? All flights associated with this user will also be removed.")) {
             console.log("This function has not yet been implemented.")
-            await API.delete(`/auth/users/${user.username}`);
+            await API.delete(`/users/${user.username}`);
             window.location.reload();
         }
     }
@@ -96,17 +96,17 @@ export default function Settings() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        API.get("/auth/users/me")
+        API.get("/users/me")
         .then((data: User) => {
             setUser(data);
 
             if (data.isAdmin) {
-                API.get("/auth/users")
+                API.get("/users")
                 .then((users: string[]) => {
                     for (let u of users) {
                         if (u === data.username) continue; // skip self
 
-                        API.get(`/auth/users/${u}/details`)
+                        API.get(`/users/${u}/details`)
                         .then((user) => {
                             setAllUsers(prevAllUsers => {
                                 return [...prevAllUsers, user];
@@ -152,7 +152,7 @@ export default function Settings() {
 
     const createUser = async (event) => {
         let userData = Object.fromEntries(new FormData(event.currentTarget));
-        await API.post("/auth/users", userData);
+        await API.post("/users", userData);
 
         window.location.reload();
     }
