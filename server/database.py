@@ -34,7 +34,7 @@ class Database():
             "pragma": """
                 (
                     id            INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username      TEXT NOT NULL UNIQUE COLLATE NOCASE CHECK(LENGTH(username) > 2),
+                    username      TEXT NOT NULL UNIQUE COLLATE NOCASE,
                     password_hash TEXT NOT NULL,
                     is_admin      BIT NOT NULL DEFAULT 0,
                     last_login    DATETIME,
