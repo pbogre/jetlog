@@ -243,7 +243,7 @@ export default function Settings() {
                                     <Label text="Username" required/>
                                     <Input type="text" name="username" required/>
                                     <br />
-                                    <Label text="New Admin Status" required/>
+                                    <Label text="Admin Status" required/>
                                     <Select name="isAdmin" options={[
                                         { text: "false", value: "false" },
                                         { text: "true", value: "true" }
