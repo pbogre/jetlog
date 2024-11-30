@@ -37,13 +37,34 @@ class CustomModel(CamelableModel):
         return instance
 
     @classmethod
-    def get_attributes(cls, with_id: bool = True) -> list[str]:
+    def get_attributes(cls, ignore: list = []) -> list[str]:
         attributes = list(cls.__fields__.keys())
 
-        if with_id:
-            return attributes
+        for ignored_attr in ignore:
+            attributes.remove(ignored_attr)
 
-        return attributes[1:]
+        return attributes 
+
+    def get_values(self, ignore: list = [], explicit: dict = {}) -> list:
+        values = []
+
+        for attr in self.get_attributes(ignore):
+            if attr in explicit:
+                values.append(explicit[attr])
+                continue
+
+            value = getattr(self, attr)
+
+            if type(value) == AirportModel:
+                value = value.icao
+            elif type(value) == datetime.date:
+                value = value.isoformat()
+            elif type(value) == SeatType or type(value) == ClassType:
+                value = value.value
+
+            values.append(value)
+
+        return values
 
     @classmethod
     def validate_single_field(cls, key, value):
@@ -57,6 +78,14 @@ class CustomModel(CamelableModel):
                return False
 
         return True
+
+class User(CustomModel):
+    id:            int
+    username:      str
+    password_hash: str
+    is_admin:      bool
+    last_login:    datetime.datetime|None
+    created_on:    datetime.datetime
 
 class SeatType(str, Enum):
     WINDOW = "window"
@@ -105,15 +134,12 @@ class AirportModel(CustomModel):
 
         return v
 
-# note: for airports, the database type
-# is string (icao code), while the type
-# returned by the API is AirportModel
 class FlightModel(CustomModel):
-    # all optional to accomodate patch
     id:             int|None = None
-    date:           datetime.date|None = None
-    origin:         AirportModel|str|None = None
-    destination:    AirportModel|str|None = None
+    username:       str|None = None
+    date:           datetime.date
+    origin:         AirportModel|str # API uses AirportModel/str, database uses str
+    destination:    AirportModel|str
     departure_time: str|None = None
     arrival_time:   str|None = None
     arrival_date:   datetime.date|None = None
@@ -150,22 +176,17 @@ class FlightModel(CustomModel):
 
         return v
 
-    def get_values(self) -> list:
-        values = []
+    @field_validator('username')
+    @classmethod
+    def user_must_exist(cls, v) -> int:
+        from server.database import database
 
-        for attr in FlightModel.get_attributes(False):
-            value = getattr(self, attr)
+        res = database.execute_read_query(f"SELECT id FROM users WHERE username = ?;", [v]);
 
-            if type(value) == AirportModel:
-                value = value.icao
-            elif type(value) == datetime.date:
-                value = value.isoformat()
-            elif type(value) == SeatType or type(value) == ClassType:
-                value = value.value
+        if len(res) < 1:
+            raise ValueError(f"must have valid username, got '{v}'")
 
-            values.append(value)
-
-        return values
+        return v
 
 class StatisticsModel(CustomModel):
     total_flights:          int

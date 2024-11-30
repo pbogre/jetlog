@@ -1,6 +1,9 @@
 from server.database import database
+from server.models import User
+from server.auth.users import get_current_user
+
 from models import CustomModel 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pathlib import Path
 import json
 
@@ -37,14 +40,15 @@ async def get_world_geojson() -> object:
     return json.loads(geojson_content)
 
 @router.get("/markers", status_code=200)
-async def get_airport_markers() -> list[Coord]:
-    query = """
+async def get_airport_markers(user: User = Depends(get_current_user)) -> list[Coord]:
+    query = f"""
         SELECT o.latitude, o.longitude, d.latitude, d.longitude
         FROM flights f
-        JOIN airports o ON LOWER(f.origin) = LOWER(o.icao)
-        JOIN airports d ON LOWER(f.destination) = LOWER(d.icao)"""
+        JOIN airports o ON UPPER(f.origin) = o.icao
+        JOIN airports d ON UPPER(f.destination) = d.icao
+        WHERE username = ?;"""
 
-    res = database.execute_read_query(query);
+    res = database.execute_read_query(query, [user.username]);
 
     coordinates: list[Coord] = []
 
@@ -80,14 +84,15 @@ async def get_airport_markers() -> list[Coord]:
     return coordinates
 
 @router.get("/lines", status_code=200)
-async def get_flight_trajectories() -> list[Trajectory]:
-    query = """
+async def get_flight_trajectories(user: User = Depends(get_current_user)) -> list[Trajectory]:
+    query = f"""
         SELECT o.latitude, o.longitude, d.latitude, d.longitude
         FROM flights f
-        JOIN airports o ON LOWER(f.origin) = LOWER(o.icao) 
-        JOIN airports d ON LOWER(f.destination) = LOWER(d.icao)"""
+        JOIN airports o ON UPPER(f.origin) = o.icao 
+        JOIN airports d ON UPPER(f.destination) = d.icao
+        WHERE username = ?;"""
 
-    res = database.execute_read_query(query);
+    res = database.execute_read_query(query, [user.username]);
 
     lines: list[Trajectory] = []
 

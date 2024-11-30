@@ -1,5 +1,14 @@
+export class User {
+    id: number;
+    username: string;
+    isAdmin: boolean;
+    lastLogin: string;
+    createdOn: string;
+}
+
 export class Flight {
     id: number;
+    username: string;
     date: string;
     origin: Airport;
     destination: Airport;

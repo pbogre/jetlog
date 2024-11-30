@@ -1,4 +1,4 @@
-import React, {ChangeEvent} from 'react';
+import React, {ChangeEvent, useState} from 'react';
 
 interface HeadingProps {
     text: string;
@@ -71,7 +71,7 @@ export function Button({ text,
     };
 
     return (
-        <button type={submit ? "submit": undefined}
+        <button type={submit ? "submit": "button"}
                 className={`py-1 px-2 my-1 mr-1 rounded-md cursor-pointer ${colors}
                             disabled:opacity-60 disabled:cursor-not-allowed
                             ${right ? "float-right" : ""}`}
@@ -83,7 +83,7 @@ export function Button({ text,
 }
 
 interface InputProps {
-    type: "text"|"number"|"date"|"time"|"file";
+    type: "text"|"password"|"number"|"date"|"time"|"file";
     name?: string;
     defaultValue?: string;
     maxLength?: number;
@@ -99,7 +99,7 @@ export function Input({ type,
                         required = false, 
                         placeholder}: InputProps) {
     return (
-        <input  className={`${type == "text" ? "w-full" : ""} px-1 mb-4 bg-white rounded-none outline-none font-mono box-border 
+        <input  className={`${type == "text" || type == "password" ? "w-full" : ""} px-1 mb-4 bg-white rounded-none outline-none font-mono box-border 
                             placeholder:italic border-b-2 border-gray-200 focus:border-primary-400`}
                 type={type}
                 accept={type == "file" ? ".csv,.db" : undefined}
@@ -182,30 +182,34 @@ export function Select({name,
 
 interface DialogProps {
     title: string;
+    buttonLevel?: "default"|"success"|"danger";
     formBody: any; // ?
     onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
-export function Dialog({ title, formBody, onSubmit }: DialogProps) {
+export function Dialog({ title, buttonLevel = "default", formBody, onSubmit }: DialogProps) {
+    const modalId = Math.random().toString(36).slice(2, 10); // to support multiple modals in one page
+
     const openModal = () => {
-        const modalElement = document.getElementById("modal") as HTMLDialogElement;
+        const modalElement = document.getElementById(modalId) as HTMLDialogElement;
         modalElement.showModal();
     }
 
     const closeModal = () => {
-        const modalElement = document.getElementById("modal") as HTMLDialogElement;
+        const modalElement = document.getElementById(modalId) as HTMLDialogElement;
         modalElement.close();
     }
 
     const handleSubmit = (event) => {
         closeModal();
+        event.preventDefault();
         onSubmit(event);
     }
 
     return (
     <>
-            <Button text={title} onClick={openModal}/>
+            <Button text={title} onClick={openModal} level={buttonLevel}/>
 
-            <dialog id="modal" className="md:w-2/3 max-md:w-4/5 rounded-md">
+            <dialog id={modalId} className="md:w-2/3 max-md:w-4/5 rounded-md">
             <form className="flex flex-col" onSubmit={handleSubmit}>
                 
                 <div className="pl-5 pt-2 border-b border-b-gray-400">

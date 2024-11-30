@@ -1,6 +1,9 @@
 from server.database import database
-from server.models import StatisticsModel
-from fastapi import APIRouter
+from server.models import StatisticsModel, User
+from server.auth.users import get_current_user
+
+
+from fastapi import APIRouter, Depends
 import datetime
 
 router = APIRouter(
@@ -12,11 +15,20 @@ router = APIRouter(
 @router.get("", status_code=200)
 async def get_statistics(metric: bool = True,
                          start: datetime.date|None = None,
-                         end: datetime.date|None = None):
-    date_filter = "WHERE " if start or end else ""
+                         end: datetime.date|None = None,
+                         username: str|None = None,
+                         user: User = Depends(get_current_user)):
+
+    user_filter = f"WHERE f.username = '{user.username}'"
+    if username:
+        user_filter = f"WHERE f.username = '{username}'"
+
+    date_filter = "AND" if start or end else ""
     date_filter += f"JULIANDAY(f.date) > JULIANDAY('{start}')" if start else ""
     date_filter += " AND " if start and end else ""
     date_filter += f"JULIANDAY(f.date) < JULIANDAY('{end}')" if end else ""
+
+    filters = f"{user_filter} {date_filter}"
 
     # get simple numerical stats
     res = database.execute_read_query(f"""
@@ -25,23 +37,23 @@ async def get_statistics(metric: bool = True,
                COALESCE(SUM(distance), 0) AS total_distance,
 
                ( SELECT COUNT(DISTINCT ap) FROM (
-                    SELECT origin AS ap FROM flights f {date_filter}
+                    SELECT origin AS ap FROM flights f {filters}
                     UNION ALL
-                    SELECT destination as ap FROM flights f {date_filter}
+                    SELECT destination as ap FROM flights f {filters}
                     )
                ) 
                AS total_unique_airports,
 
                COALESCE(( SELECT JULIANDAY(date)
-                 FROM flights f {date_filter}
+                 FROM flights f {filters}
                  ORDER BY date DESC LIMIT 1 ) 
                - 
                ( SELECT JULIANDAY(date)
-                 FROM flights f {date_filter}
+                 FROM flights f {filters}
                  ORDER BY date ASC LIMIT 1 ), 0)
                AS days_range
 
-               FROM flights f {date_filter};
+               FROM flights f {filters};
     """)
 
     statistics_db = res[0]
@@ -55,8 +67,8 @@ async def get_statistics(metric: bool = True,
                a.country
         FROM airports a
         JOIN flights f
-        ON ( LOWER(a.icao) = LOWER(f.origin) OR LOWER(a.icao) = LOWER(f.destination) )
-        {date_filter}
+        ON ( a.icao = UPPER(f.origin) OR a.icao = UPPER(f.destination) )
+        {filters}
         GROUP BY a.icao
         ORDER BY visits DESC
         LIMIT 5;
@@ -71,7 +83,7 @@ async def get_statistics(metric: bool = True,
     res = database.execute_read_query(f"""
         SELECT seat, COUNT(*) AS freq
         FROM flights f
-        {date_filter}
+        {filters}
         GROUP BY seat
         ORDER BY freq DESC;
     """)
@@ -82,7 +94,7 @@ async def get_statistics(metric: bool = True,
     res = database.execute_read_query(f"""
         SELECT ticket_class, COUNT(*) AS freq
         FROM flights f
-        {date_filter}
+        {filters}
         GROUP BY ticket_class
         ORDER BY freq DESC;
     """)

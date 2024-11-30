@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 import { Heading, Label, Input, Select, Dialog, Whisper } from '../components/Elements';
+import UserSelect from '../components/UserSelect';
 import SingleFlight from '../components/SingleFlight';
 import { Flight } from '../models'
 
 import API from '../api'
-import { SettingsManager } from '../settingsManager';
 import { objectFromForm } from '../utils';
+import ConfigStorage from '../storage/configStorage';
 
 interface FlightsFilters {
     limit?: number;
@@ -16,6 +17,7 @@ interface FlightsFilters {
     sort?: "date"|"seat"|"ticket_class"|"duration"|"distance";
     start?: string;
     end?: string;
+    username?: string;
 }
 export default function AllFlights() {
     const [searchParams, setSearchParams] = useSearchParams()
@@ -25,7 +27,7 @@ export default function AllFlights() {
 
     const saveFilters = (event) => {
         event.preventDefault();
-        
+
         const filters = objectFromForm(event);
 
         if (filters === null) {
@@ -58,7 +60,7 @@ export default function AllFlights() {
                             <Label text="Order" />
                             <Select name="order"
                                     options={[
-                                { text: "Choose", value: "" },
+                                { text: "Any", value: "" },
                                 { text: "Descending", value: "DESC" },
                                 { text: "Ascending", value: "ASC" }
                             ]}/>
@@ -66,7 +68,7 @@ export default function AllFlights() {
                             <Label text="Sort By" />
                             <Select name="sort"
                                     options={[
-                                { text: "Choose", value: "" },
+                                { text: "Any", value: "" },
                                 { text: "Date", value: "date" },
                                 { text: "Seat", value: "seat" },
                                 { text: "Ticket Class", value: "ticket_class" },
@@ -79,6 +81,9 @@ export default function AllFlights() {
                             <br />
                             <Label text="End Date" />
                             <Input type="date" name="end" />
+                            <br />
+                            <Label text="User"/>
+                            <UserSelect />
                         </>
                         )}/>
 
@@ -90,7 +95,7 @@ export default function AllFlights() {
 
 function TableCell({ text }) {
     return (
-        <td className="px-2 py-1 border border-gray-300">
+        <td className="px-2 py-1 whitespace-nowrap border border-gray-300">
             {text}
         </td>
     );
@@ -98,7 +103,7 @@ function TableCell({ text }) {
 
 function TableHeading({ text }) {
     return (
-        <th className="px-2 border border-gray-300 bg-primary-300 font-semibold">
+        <th className="px-2 whitespace-nowrap border border-gray-300 bg-primary-300 font-semibold">
             {text}
         </th>
     );
@@ -107,11 +112,11 @@ function TableHeading({ text }) {
 function FlightsTable({ filters }: { filters: FlightsFilters }) {
     const [flights, setFlights] = useState<Flight[]>();
     const navigate = useNavigate();
-    const metricUnits = SettingsManager.getSetting("metricUnits");
+    const metricUnits = ConfigStorage.getSetting("metricUnits");
 
     useEffect(() => {
         API.get(`/flights?metric=${metricUnits}`, filters)
-        .then((data) => {
+        .then((data: Flight[]) => {
             setFlights(data);
         });
     }, [filters]);

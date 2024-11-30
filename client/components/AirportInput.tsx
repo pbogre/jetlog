@@ -20,7 +20,7 @@ export default function AirportInput({ name, placeholder }: AirportInputProps) {
 
         if (value.length > 1) {
             API.get(`/airports?q=${value}`)
-            .then((data) => setAirportsData(data))
+            .then((data: Airport[]) => setAirportsData(data))
         }
         else setAirportsData([]);
     }

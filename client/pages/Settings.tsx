@@ -1,13 +1,122 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import API from '../api';
-import {Heading, Label, Input, Checkbox, Subheading, Button} from '../components/Elements'
-import {SettingsInterface, SettingsManager} from '../settingsManager';
+import {Heading, Label, Input, Checkbox, Subheading, Button, Dialog, Select} from '../components/Elements'
+import ConfigStorage, {ConfigInterface} from '../storage/configStorage';
+import {User} from '../models';
+import TokenStorage from '../storage/tokenStorage';
+
+interface UserInfoProps {
+    user: User;
+    isSelf?: boolean;
+}
+function UserInfo({user, isSelf = false} : UserInfoProps) {
+    const editUser = async (event) => {
+        let userPatchData = Object.fromEntries(new FormData(event.currentTarget));
+        userPatchData = Object.fromEntries(Object.entries(userPatchData).filter(([_, v]) => v != ""));
+
+        // if admin status not updated, dont include it in the patch data
+        if ("isAdmin" in userPatchData && userPatchData["isAdmin"] === user.isAdmin.toString()) {
+            delete userPatchData["isAdmin"];
+        }
+
+        if (Object.keys(userPatchData).length === 0) {
+            return;
+        }
+
+        await API.patch(`/users/${user.username}`, userPatchData);
+
+        window.location.reload();
+    }
+
+    const logout = () => {
+        TokenStorage.clearToken();
+        window.location.href = "/login";
+    }
+
+    const deleteUser = async () => {
+        if (confirm("Are you sure? All flights associated with this user will also be removed.")) {
+            console.log("This function has not yet been implemented.")
+            await API.delete(`/users/${user.username}`);
+            window.location.reload();
+        }
+    }
+
+    return (
+        <>
+            <p>Username: <span>{user.username}</span></p>
+            <p>Admin: <span>{user.isAdmin.toString()}</span></p>
+            <p>Last login: <span>{user.lastLogin}</span></p>
+            <p>Created on: <span>{user.createdOn}</span></p>
+
+            <Dialog title="Edit User"
+                    formBody={(
+                    <>
+                        <Label text="New Username"/>
+                        <Input type="text" name="username" placeholder={user.username}/>
+                        { isSelf ?
+                            <></>
+                            :
+                            <>
+                            <br />
+                            <Label text="New Admin Status"/>
+                            <Select name="isAdmin" options={[
+                                {
+                                    text: user.isAdmin.toString(),
+                                    value: user.isAdmin.toString()
+                                },
+                                {
+                                    text: (!user.isAdmin).toString(),
+                                    value: (!user.isAdmin).toString()
+                                }
+                            ]} />
+                            </>
+                        }
+                        <br />
+                        <Label text="New Password"/>
+                        <Input type="password" name="password"/>
+                    </>
+                    )}
+                    onSubmit={editUser}/>
+
+            { isSelf ?
+                <Button text="Logout" level="danger" onClick={logout}/>
+                :
+                <Button text="Delete" level="danger" onClick={deleteUser}/>
+            }
+        </>
+    )
+}
 
 export default function Settings() {
-    const [options, setOptions] = useState<SettingsInterface>(SettingsManager.getAllSettings())
+    const [options, setOptions] = useState<ConfigInterface>(ConfigStorage.getAllSettings())
+    const [user, setUser] = useState<User>();
+    const [allUsers, setAllUsers] = useState<User[]>([]);
     const navigate = useNavigate();
+
+    useEffect(() => {
+        API.get("/users/me")
+        .then((data: User) => {
+            setUser(data);
+
+            if (data.isAdmin) {
+                API.get("/users")
+                .then((users: string[]) => {
+                    for (let u of users) {
+                        if (u === data.username) continue; // skip self
+
+                        API.get(`/users/${u}/details`)
+                        .then((user) => {
+                            setAllUsers(prevAllUsers => {
+                                return [...prevAllUsers, user];
+                            });
+                        });
+                    }
+                });
+            }
+        });
+    }, []);
 
     const handleImportSubmit = (event) => {
         event.preventDefault();
@@ -38,7 +147,14 @@ export default function Settings() {
         const value = event.target.checked.toString();
 
         setOptions({...options, [key]: value})
-        SettingsManager.setSetting(key, value);
+        ConfigStorage.setSetting(key, value);
+    }
+
+    const createUser = async (event) => {
+        let userData = Object.fromEntries(new FormData(event.currentTarget));
+        await API.post("/users", userData);
+
+        window.location.reload();
     }
 
     return (
@@ -93,6 +209,53 @@ export default function Settings() {
                                 onChange={changeOption} />
                 </div>
             </div>
+
+            <div className="container">
+                <Subheading text="You"/>
+                { user === undefined ?
+                    <p>Loading...</p>
+                    :
+                    <UserInfo user={user} isSelf/>
+                }
+            </div>
+
+            { user === undefined || !user.isAdmin ?
+                <></>
+                :
+                allUsers === undefined ?
+                    <p>Loading...</p>
+                    :
+                    <>
+                        <div className="container w-full">
+                            <Subheading text="User Management"/>
+
+                            <div className="flex flex-wrap items-start gap-3">
+                            { allUsers.map((u) => (
+                                <div className="border-gray-500 border p-2">
+                                    <UserInfo user={u}/>
+                                </div> 
+                            ))
+                            }
+                            </div>
+
+                            <Dialog title="Create User" buttonLevel="success" onSubmit={createUser} formBody={(
+                                <>
+                                    <Label text="Username" required/>
+                                    <Input type="text" name="username" required/>
+                                    <br />
+                                    <Label text="New Admin Status" required/>
+                                    <Select name="isAdmin" options={[
+                                        { text: "false", value: "false" },
+                                        { text: "true", value: "true" }
+                                    ]} />
+                                    <br />
+                                    <Label text="Password" required/>
+                                    <Input type="text" name="password" required/>
+                                </>
+                            )}/>
+                        </div>
+                    </>
+            }
         </div>
     </>
     );

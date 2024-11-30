@@ -1,7 +1,9 @@
 import axios, {Axios} from 'axios';
+import TokenStorage from './storage/tokenStorage';
 
 
 // TODO improve this because there's a lot of repetition (get, post, delete are pretty much exactly the same)
+// perhaps one method for each endpoint? i.e. API.getFlights(), ...
 class APIClass {
     private client: Axios;
 
@@ -10,11 +12,35 @@ class APIClass {
             baseURL: "/api/",
             timeout: 10000
         })
+
+        // use token for authorization header 
+        this.client.interceptors.request.use(
+            (config) => {
+                if (config.url !== "/api/auth/token") {
+                    const token = TokenStorage.getToken();
+                    if (token) {
+                        config.headers.Authorization = `Bearer ${token}`;
+                    }
+                }
+
+                return config;
+            },
+            (error) => {
+                return Promise.reject(error);
+            }
+        )
     }
 
     private handleError(err: any) {
-        if(err.response) {
-            alert("Bad response: " + err.response.data.detail);
+        if (err.response) {
+            if (err.response.status === 401) {
+                if (window.location.pathname !== "/login") {
+                    window.location.href = "/login";
+                }
+            }
+            else {
+                alert("Bad response: " + err.response.data.detail);
+            }
         }
         else if (err.request) {
             alert("Bad request: " + err.request);
@@ -23,10 +49,6 @@ class APIClass {
             alert("Unknown error: " + err);
         }
     }
-        
-    // TODO these functions are literally all the same
-    
-
 
     async get(endpoint: string, parameters: Object = {}) {
         endpoint = endpoint.trim();
