@@ -49,8 +49,8 @@ async def create_user(new_user: UserPatch, user: User = Depends(get_current_user
     if not new_user.username or not new_user.password:
         raise HTTPException(status_code=400, detail="Username and password are required fields")
 
-    if len(new_user.username) < 3:
-        raise HTTPException(status_code=400, detail="Username should be at least 3 characters long")
+    if len(new_user.username) < 1:
+        raise HTTPException(status_code=400, detail="Username should be at least 1 character long")
 
     password_hash = hash_password(new_user.password)
     is_admin = new_user.is_admin if new_user.is_admin != None else False
