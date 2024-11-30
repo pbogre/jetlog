@@ -38,24 +38,23 @@ services:
     image: pbogre/jetlog:latest
     volumes:
       - /your/data/path:/data
+    environment:
+        JETLOG_PORT: 3000 # optional, default is 3000
+        SECRET_KEY: yourLongAndRandomStringOfCharacters123!
     restart: unless-stopped
     ports:
       - 3000:3000
 ```
 
+Once up and running, the default admin account has username and password `admin`. 
+Make sure that you change the password after the first login!
+
 For details about troubleshooting, environment variables, and more installation options, have a look at the [installation wiki](https://github.com/pbogre/jetlog/wiki/Installation)
 
 ## Importing & Exporting
 
-You can currently import from the following formats
-
-- MyFlightRadar24
-- Custom CSV
-
-You can currently export to the following formats
-
-- CSV
-- iCal
+You can currently import from MyFlightRadar24, custom CSV;
+you can also export to CSV, iCal
 
 For details on how to import your data, have a look at the [importing wiki](https://github.com/pbogre/jetlog/wiki/Importing)
 
