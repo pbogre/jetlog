@@ -17,14 +17,16 @@ A self-hostable personal flight tracker and viewer
 - [Importing & Exporting](#importing--exporting)
 - [Contributing](#contributing)
 - [Stack](#stack)
-- [Other credits](#other-credits)
+- [Acknowledgements](#acknowledgements)
 
 ## Features
 
-- 🌍 World map view of all your flights
+- 🌍 World map view of your flights
 - 📊 Statistics for all your flights
 - 📱 Responsive design
 - ✅ Add, edit, and delete past flights
+- 🔐 Secure authentication
+- 👥 Support for multiple users
 - 💾 Ability to import and export your data
 
 Visit the [usage wiki](https://github.com/pbogre/jetlog/wiki/Usage) for details on all the features of Jetlog
