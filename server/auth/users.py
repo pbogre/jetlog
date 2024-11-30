@@ -1,6 +1,8 @@
 from server.models import CustomModel, User
 from server.database import database
 from server.auth.utils import hash_password, get_user,  oauth2_scheme
+from server.environment import SECRET_KEY
+
 
 import jwt
 from fastapi import APIRouter, Depends, HTTPException
@@ -16,11 +18,6 @@ class UserPatch(CustomModel):
     password: str|None = None
     is_admin: bool|None = None
 
-# CRITICAL SAFETY WARNING: 
-# this variable was set here for testin purposes ONLY,
-# in a production environment, this HAS to be changed
-# to be entered by the user as an argument!!!
-SECRET_KEY = "ad9df50bddc30ac206cd203a511285341b482d5e24f64c43579d4ade4d3b54fc"
 ALGORITHM = "HS256"
 
 @router.get("/me")

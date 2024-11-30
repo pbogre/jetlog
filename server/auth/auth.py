@@ -1,5 +1,6 @@
 from server.database import database
 from server.auth.utils import verify_password, get_user
+from server.environment import SECRET_KEY, TOKEN_DURATION
 
 import jwt
 from pydantic import BaseModel
@@ -14,13 +15,7 @@ router = APIRouter(
     redirect_slashes=True
 )
 
-# CRITICAL SAFETY WARNING: 
-# this variable was set here for testin purposes ONLY,
-# in a production environment, this HAS to be changed
-# to be entered by the user as an argument!!!
-SECRET_KEY = "ad9df50bddc30ac206cd203a511285341b482d5e24f64c43579d4ade4d3b54fc"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_DAYS = 7
 
 class Token(BaseModel):
     access_token: str
@@ -28,9 +23,9 @@ class Token(BaseModel):
 
 def create_access_token(data: dict):
     to_encode = data.copy()
-    
+
     # set expiration
-    expire = datetime.utcnow() + timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)
+    expire = datetime.utcnow() + timedelta(days=TOKEN_DURATION)
     to_encode.update({"exp": expire})
 
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
