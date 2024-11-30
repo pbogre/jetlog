@@ -13,7 +13,7 @@ class Database():
             "pragma": """
                 (
                     id             INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username       INTEGER NOT NULL DEFAULT 1,
+                    username       INTEGER NOT NULL DEFAULT admin,
                     date           TEXT NOT NULL,
                     origin         TEXT NOT NULL,
                     destination    TEXT NOT NULL,
@@ -67,12 +67,19 @@ class Database():
                 if not column_names:
                     print(f"Missing table '{table}'. Creating it...")
                     self.execute_query(f"CREATE TABLE {table} {table_pragma};")
+
+                    # if migrating to users update, also
+                    # create the default user and assign
+                    # all present flights to it
+                    if table == "users":
+                        self.create_first_user()
+
                     continue
 
                 needs_patch = False
                 for key in table_model.get_attributes():
                     if key not in column_names:
-                        print(f"Detected missing column in table '{table}': '{key}'. Scheduled a patch...")
+                        print(f"Detected missing column '{key}' in table '{table}. Scheduled a patch...")
                         needs_patch = True
 
                 if needs_patch:
@@ -101,21 +108,30 @@ class Database():
             table_pragma = self.tables[table]["pragma"]
             self.execute_query(f"CREATE TABLE {table} {table_pragma};")
 
-        # create default user
+        self.create_first_user()
+        self.update_airports_table(drop_old=False)
+
+    def create_first_user(self):
         from server.auth.utils import hash_password
+
+        print("Creating first user admin:admin...")
+        print("REMEMBER TO CHANGE THE DEFAULT PASSWORD FOR THIS USER!!!")
+
         default_username = "admin"
         default_password = hash_password("admin")
         self.execute_query("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1);",
                            [default_username, default_password])
-
-        self.update_airports_table(drop_old=False)
 
     def update_airports_table(self, drop_old: bool = True):
         print("Updating airports table...")
         airports_db_path = Path(__file__).parent.parent / 'data' / 'airports.db'
 
         if drop_old:
-            self.execute_query("DROP TABLE airports;")
+            try:
+                self.execute_query("DROP TABLE airports;")
+            except: 
+                # if airports database not found, simply skip deletion
+                pass
 
         self.execute_query("""
         CREATE TABLE airports (

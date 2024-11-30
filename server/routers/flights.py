@@ -208,8 +208,6 @@ async def get_flights(id: int|None = None,
         LIMIT {limit}
         OFFSET {offset};"""
 
-    print(query)
-
     res = database.execute_read_query(query);
 
     # get rid of origin, destination ICAOs for proper conversion
