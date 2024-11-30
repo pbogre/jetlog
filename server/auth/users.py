@@ -110,6 +110,11 @@ async def update_user(username: str, new_user: UserPatch, user: User = Depends(g
     values.append(username)
     database.execute_query(query, values)
 
+    # if username was edited, update all flights of that user
+    if new_user.username:
+        database.execute_query("UPDATE flights SET username = ? WHERE username = ?;",
+                               [new_user.username, username])
+
 @router.delete("/{username}", status_code=200)
 async def delete_user(username: str, user: User = Depends(get_current_user)):
     if not user.is_admin:
