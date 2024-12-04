@@ -1,4 +1,4 @@
-from server.models import FlightModel, SeatLocation, SeatType, ClassType, User
+from server.models import FlightModel, SeatType, ClassType, User
 from server.routers.flights import add_flight
 from server.auth.users import get_current_user
 
@@ -40,7 +40,7 @@ async def import_CSV(csv_type: CSVType,
                     expected = ["Date", "Flight number", "From", "To", "Dep time", "Arr time",
                                 "Duration", "Airline", "Aircraft", "Registration", "Seat number",
                                 "Seat type", "Flight class", "Flight reason", "Note", "Dep_id",
-                                "Arr_id", "Airline_id", "Aircraft_id", "Seat location"]
+                                "Arr_id", "Airline_id", "Aircraft_id"]
 
                     for i in range(len(columns)):
                         assert columns[i] == expected[i], f"Expected column '{expected[i]}', got '{columns[i]}'"
@@ -70,7 +70,6 @@ async def import_CSV(csv_type: CSVType,
                 values_dict['arrival_time'] = values[5][:5] if values[4][:5] != "00:00" else None
                 # from myflightradar24, 0=none, 1=window, 2=middle, 3=aisle
                 values_dict['seat'] = list(SeatType)[int(values[11]) - 1] if int(values[11]) > 0 else None
-                values_dict['seat_location'] = list(SeatLocation)[int(values[11]) - 1] if int(values[11]) > 0 else None
                 values_dict['ticket_class'] = ticket_class_conversion[values[12]] if int(values[12]) > 0 else None
                 # conversion from hh:mm:ss to minutes
                 values_dict['duration'] = int(values[6][:2]) * 60 + int(values[6][3:5]) 
