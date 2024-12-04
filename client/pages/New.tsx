@@ -67,8 +67,8 @@ export default function New() {
                                 { text: "Window", value: "window" }
                             ]} />
                     <br />
-                    <Label text="Seat Location"/>
-                    <Select name="seatLocation"
+                    <Label text="Aircraft Side"/>
+                    <Select name="aircraftSide"
                             options={[
                                 { text: "Choose", value: "" },
                                 { text: "Left", value: "left" },

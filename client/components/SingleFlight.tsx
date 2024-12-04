@@ -130,8 +130,8 @@ export default function SingleFlight({ flightID }) {
                             { text: "Middle", value: "middle" },
                             { text: "Window", value: "window" }
                         ]} /></p>
-                        <p>Seat Location: <Select name="seatLocation" options={[
-                            { text: flight.seatLocation, value: "" },
+                        <p>Aircraft Side: <Select name="aircraftSide" options={[
+                            { text: flight.aircraftSide, value: "" },
                             { text: "Left", value: "left" },
                             { text: "Right", value: "right" },
                             { text: "Center", value: "center" }

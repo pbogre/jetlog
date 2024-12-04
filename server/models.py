@@ -59,7 +59,7 @@ class CustomModel(CamelableModel):
                 value = value.icao
             elif type(value) == datetime.date:
                 value = value.isoformat()
-            elif type(value) == SeatType or type(value) == ClassType or type(value) == SeatLocation:
+            elif type(value) == SeatType or type(value) == ClassType or type(value) == AircraftSide:
                 value = value.value
 
             values.append(value)
@@ -92,7 +92,7 @@ class SeatType(str, Enum):
     MIDDLE = "middle"
     AISLE = "aisle"
 
-class SeatLocation (str, Enum):
+class AircraftSide (str, Enum):
     LEFT = "left"
     RIGHT = "right"
     CENTER = "center"
@@ -149,7 +149,7 @@ class FlightModel(CustomModel):
     arrival_time:   str|None = None
     arrival_date:   datetime.date|None = None
     seat:           SeatType|None = None
-    seat_location:  SeatLocation|None = None
+    aircraft_side:  AircraftSide|None = None
     ticket_class:   ClassType|None = None
     duration:       int|None = None
     distance:       int|None = None
