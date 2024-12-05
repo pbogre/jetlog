@@ -21,6 +21,7 @@ class Database():
                     arrival_time   TEXT,
                     arrival_date   TEXT,
                     seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
+                    aircraft_side  TEXT NULL CHECK(aircraft_side IN ('left', 'right', 'center')),
                     ticket_class   TEXT NULL CHECK(ticket_class IN ('private', 'first', 'business', 'economy+', 'economy')),
                     duration       INTEGER,
                     distance       INTEGER,

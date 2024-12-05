@@ -130,6 +130,12 @@ export default function SingleFlight({ flightID }) {
                             { text: "Middle", value: "middle" },
                             { text: "Window", value: "window" }
                         ]} /></p>
+                        <p>Aircraft Side: <Select name="aircraftSide" options={[
+                            { text: flight.aircraftSide, value: "" },
+                            { text: "Left", value: "left" },
+                            { text: "Right", value: "right" },
+                            { text: "Center", value: "center" }
+                        ]} /></p>
                         <p>Class: <Select name="ticketClass" options={[
                             { text: flight.ticketClass, value: "" },
                             { text: "Private", value: "private" },
@@ -146,6 +152,7 @@ export default function SingleFlight({ flightID }) {
                     :
                     <>
                         <p>Seat: <span>{flight.seat || "N/A"}</span></p>
+                        <p>Aircraft Side: <span>{flight.aircraftSide || "N/A"}</span></p>
                         <p>Class: <span>{flight.ticketClass || "N/A"}</span></p>
                         <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>

@@ -14,7 +14,7 @@ interface FlightsFilters {
     limit?: number;
     offset?: number;
     order?: "DESC"|"ASC";
-    sort?: "date"|"seat"|"ticket_class"|"duration"|"distance";
+    sort?: "date"|"seat"|"aircraft_side"|"ticket_class"|"duration"|"distance";
     start?: string;
     end?: string;
     username?: string;
@@ -71,6 +71,7 @@ export default function AllFlights() {
                                 { text: "Any", value: "" },
                                 { text: "Date", value: "date" },
                                 { text: "Seat", value: "seat" },
+                                { text: "Aircraft Side", value: "aircraft_side" },
                                 { text: "Ticket Class", value: "ticket_class" },
                                 { text: "Duration", value: "duration" },
                                 { text: "Distance", value: "distance" }
@@ -149,6 +150,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableHeading text="Duration"/>
                 <TableHeading text="Distance"/>
                 <TableHeading text="Seat"/>
+                <TableHeading text="Aircraft Side"/>
                 <TableHeading text="Class"/>
                 <TableHeading text="Airplane"/>
                 <TableHeading text="Flight Number"/>
@@ -164,6 +166,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableCell text={flight.duration ? flight.duration + " min" : ""}/>
                 <TableCell text={flight.distance ? flight.distance.toLocaleString() + (metricUnits === "false" ? " mi" : " km") : ""}/>
                 <TableCell text={flight.seat || ""}/>
+                <TableCell text={flight.aircraftSide || ""}/>
                 <TableCell text={flight.ticketClass || ""} />
                 <TableCell text={flight.airplane || ""}/>
                 <TableCell text={flight.flightNumber || ""}/>

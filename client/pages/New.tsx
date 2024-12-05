@@ -67,6 +67,15 @@ export default function New() {
                                 { text: "Window", value: "window" }
                             ]} />
                     <br />
+                    <Label text="Aircraft Side"/>
+                    <Select name="aircraftSide"
+                            options={[
+                                { text: "Choose", value: "" },
+                                { text: "Left", value: "left" },
+                                { text: "Right", value: "right" },
+                                { text: "Center", value: "center" }
+                            ]} />
+                    <br />
                     <Label text="Class"/>
                     <Select name="ticketClass"
                             options={[

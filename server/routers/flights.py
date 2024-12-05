@@ -1,5 +1,5 @@
 from server.database import database
-from server.models import AirportModel, ClassType, CustomModel, FlightModel, SeatType, User
+from server.models import AirportModel, ClassType, CustomModel, FlightModel, AircraftSide, SeatType, User
 from server.auth.users import get_current_user
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -20,6 +20,7 @@ class Order(str, Enum):
 class Sort(str, Enum):
     DATE = "date"
     SEAT = "seat"
+    AIRCRAFT_SIDE = "aircraft_side"
     TICKET_CLASS = "ticket_class"
     DURATION = "duration"
     DISTANCE = "distance"
@@ -127,6 +128,7 @@ class FlightPatchModel(CustomModel):
     arrival_time:   str|None = None
     arrival_date:   datetime.date|None = None
     seat:           SeatType|None = None
+    aircraft_side:  AircraftSide|None = None
     ticket_class:   ClassType|None = None
     duration:       int|None = None
     distance:       int|None = None
