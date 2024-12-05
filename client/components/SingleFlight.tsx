@@ -152,6 +152,7 @@ export default function SingleFlight({ flightID }) {
                     :
                     <>
                         <p>Seat: <span>{flight.seat || "N/A"}</span></p>
+                        <p>Aircraft Side: <span>{flight.aircraftSide || "N/A"}</span></p>
                         <p>Class: <span>{flight.ticketClass || "N/A"}</span></p>
                         <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
