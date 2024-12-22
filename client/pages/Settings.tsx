@@ -189,6 +189,13 @@ export default function Settings() {
                 <Subheading text="Customization" />
 
                 <div className="flex justify-between">
+                    <Label text="Dark Mode" />
+                    <Checkbox name="darkMode" 
+                                checked={options.darkMode === "true"} 
+                                onChange={changeOption} />
+                </div>
+
+                <div className="flex justify-between">
                     <Label text="Frequency based marker size" />
                     <Checkbox name="frequencyBasedMarker" 
                                 checked={options.frequencyBasedMarker === "true"} 

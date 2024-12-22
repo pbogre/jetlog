@@ -19,7 +19,7 @@ export function App() {
                 <Route element={
                     <>
                         <Navbar />
-                        <div className="h-full p-4 overflow-x-auto">
+                        <div className="h-full p-4 overflow-x-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
                             <Outlet />
                         </div>
                     </>}>

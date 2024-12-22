@@ -96,7 +96,7 @@ export default function AllFlights() {
 
 function TableCell({ text }) {
     return (
-        <td className="px-2 py-1 whitespace-nowrap border border-gray-300">
+        <td className="px-2 py-1 whitespace-nowrap border border-gray-300 dark:border-gray-600">
             {text}
         </td>
     );
@@ -104,13 +104,13 @@ function TableCell({ text }) {
 
 function TableHeading({ text }) {
     return (
-        <th className="px-2 whitespace-nowrap border border-gray-300 bg-primary-300 font-semibold">
+        <th className="px-2 whitespace-nowrap border border-gray-300 dark:border-gray-600 bg-primary-300 dark:bg-primary-700 font-semibold">
             {text}
         </th>
     );
 }
 
-function FlightsTable({ filters }: { filters: FlightsFilters }) {
+function FlightsTable({ filters }: { filters: FlightsFilters }) {
     const [flights, setFlights] = useState<Flight[]>();
     const navigate = useNavigate();
     const metricUnits = ConfigStorage.getSetting("metricUnits");
@@ -156,7 +156,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableHeading text="Flight Number"/>
             </tr>
             { flights.map((flight: Flight) => (
-            <tr className="cursor-pointer even:bg-gray-100 hover:bg-gray-200 duration-75" 
+            <tr className="cursor-pointer even:bg-gray-100 dark:even:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 duration-75" 
                 onClick={() => viewFlight(flight.id)}>
                 <TableCell text={flight.date}/>
                 <TableCell text={flight.origin.municipality + ' (' + (flight.origin.iata || flight.origin.icao) + ')'}/>
