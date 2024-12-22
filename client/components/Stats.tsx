@@ -7,9 +7,9 @@ import API from '../api';
 
 function StatBox({stat, description}) {
     return (
-        <div className="container bg-gray-100 text-center rounded-full">
-            <span className="text-3xl block">{stat}</span>
-            {description}
+        <div className="container bg-gray-100 dark:bg-dark-800 text-center rounded-full">
+            <span className="text-3xl block text-yellow-500">{stat}</span>
+            <div className="text-gray-700 dark:text-gray-300">{description}</div>
         </div>
     );
 }

@@ -5,7 +5,7 @@ interface HeadingProps {
 }
 export function Heading({ text }: HeadingProps) {
     return (
-        <h1 className="mb-3 text-3xl font-bold">{text}</h1>
+        <h1 className="mb-3 text-3xl font-bold text-gray-900 dark:text-dark-50 transition-colors duration-default">{text}</h1>
     );
 }
 
@@ -14,7 +14,7 @@ interface SubheadingProps {
 }
 export function Subheading({ text }: SubheadingProps) {
     return (
-        <h3 className="mb-2 font-bold text-lg">{text}</h3>
+        <h3 className="mb-2 font-bold text-lg text-gray-800 dark:text-dark-100 transition-colors duration-default">{text}</h3>
     );
 }
 
@@ -24,7 +24,7 @@ interface WhisperProps {
 }
 export function Whisper({ text, negativeTopMargin = false}: WhisperProps) {
     return (
-        <p className={`${negativeTopMargin ? "-mt-4" : ""} text-sm font-mono text-gray-700/60`}>
+        <p className={`${negativeTopMargin ? "-mt-4" : ""} text-sm font-mono text-gray-600 dark:text-dark-400 transition-colors duration-default`}>
             {text}
         </p>
     )
@@ -37,7 +37,7 @@ interface LabelProps {
 export function Label({ text, required }: LabelProps) {
     return (
         <label className={`${required ? "after:content-['*'] after:ml-0.5 after:text-red-500" : ""}
-                          mb-1 font-semibold block`}>
+                          mb-1 font-semibold block text-gray-900 dark:text-dark-100 transition-colors duration-default`}>
             {text}
         </label> 
     );
@@ -45,42 +45,45 @@ export function Label({ text, required }: LabelProps) {
 
 interface ButtonProps {
     text: string;
-    level?: "default"|"success"|"danger";
+    level?: "default" | "success" | "danger";
     right?: boolean;
     submit?: boolean;
     disabled?: boolean;
-    onClick?: React.MouseEventHandler<HTMLButtonElement>|null;
+    onClick?: (() => void) | null;
+    className?: string; // Add optional className prop
+    inline?: boolean; // Add an optional inline flag
 }
-export function Button({ text, 
-                         level = "default",
-                         right = false,
-                         submit = false, 
-                         disabled = false,
-                         onClick = null }: ButtonProps) {
-    var colors = "";
-    switch(level) {
-        case "success":
-            colors = "bg-green-500 text-white enabled:hover:bg-green-400";
-            break;
-        case "danger":
-            colors = "bg-red-500 text-white enabled:hover:bg-red-400";
-            break;
-        case "default":
-        default:
-            colors = "bg-white text-black border border-gray-300 enabled:hover:bg-gray-100";
+
+export function Button({
+    text,
+    level = "default",
+    right = false,
+    submit = false,
+    disabled = false,
+    onClick = null,
+    className = "", // Default to an empty string
+    inline = false, // Default to false
+}: ButtonProps) {
+    const levelClasses = {
+        default: "bg-gray-200 hover:bg-gray-300 dark:bg-dark-700 dark:hover:bg-dark-600 text-gray-900 dark:text-dark-100",
+        success: "bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white",
+        danger: "bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600 text-white",
     };
 
     return (
-        <button type={submit ? "submit": "button"}
-                className={`py-1 px-2 my-1 mr-1 rounded-md cursor-pointer ${colors}
-                            disabled:opacity-60 disabled:cursor-not-allowed
-                            ${right ? "float-right" : ""}`}
-                disabled={disabled}
-                onClick={onClick ? onClick : () => {}}>
+        <button
+            className={`px-4 py-2 rounded-lg font-semibold ${levelClasses[level]} 
+                        ${right ? "float-right" : ""} ${disabled ? "opacity-50 cursor-not-allowed" : ""}
+                        transition-all duration-default ease-default ${inline ? "" : "block w-full"} ${className}`}
+            type={submit ? "submit" : "button"}
+            disabled={disabled}
+            onClick={onClick ? () => onClick() : undefined}
+        >
             {text}
         </button>
     );
 }
+
 
 interface InputProps {
     type: "text"|"password"|"number"|"date"|"time"|"file";
@@ -99,39 +102,47 @@ export function Input({ type,
                         required = false, 
                         placeholder}: InputProps) {
     return (
-        <input  className={`${type == "text" || type == "password" ? "w-full" : ""} px-1 mb-4 bg-white rounded-none outline-none font-mono box-border 
-                            placeholder:italic border-b-2 border-gray-200 focus:border-primary-400`}
-                type={type}
-                accept={type == "file" ? ".csv,.db" : undefined}
-                name={name} 
-                defaultValue={defaultValue}
-                maxLength={maxLength}
-                min={type == "number" ? 0 : undefined}
-                onChange={onChange ? onChange : () => {}}
-                required={required}
-                placeholder={placeholder}/>
+        <input className="w-full px-3 py-2 mb-3 
+                         bg-gray-50 dark:bg-dark-800 
+                         border border-gray-300 dark:border-dark-600 
+                         rounded-lg 
+                         text-gray-900 dark:text-gray-100
+                         placeholder:text-gray-500 dark:placeholder:text-gray-400
+                         focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400
+                         transition-all duration-default ease-default"
+               type={type}
+               name={name}
+               defaultValue={defaultValue}
+               maxLength={maxLength}
+               onChange={onChange ? (e: React.ChangeEvent<HTMLInputElement>) => onChange(e) : undefined}
+               required={required}
+               placeholder={placeholder}/>
     );
 }
 
-interface TextAreaProps {
+interface TextAreaProps {
     name?: string;
     defaultValue?: string;
     placeholder?: string;
     maxLength?: number;
 }
-export function TextArea ({ name,
+export function TextArea({ name,
                             defaultValue,
                             placeholder,
                             maxLength }: TextAreaProps) {
     return (
-        <textarea rows={5} 
-                  className="w-full px-1 mb-4 bg-white rounded-none outline-none font-mono box-border
-                             border-2 border-gray-200 focus:border-primary-400"
+        <textarea className="w-full px-3 py-2 mb-3 
+                            bg-gray-50 dark:bg-dark-800 
+                            border border-gray-300 dark:border-dark-600 
+                            rounded-lg 
+                            text-gray-900 dark:text-gray-100
+                            placeholder:text-gray-500 dark:placeholder:text-gray-400
+                            focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400
+                            transition-all duration-default ease-default"
                   name={name}
                   defaultValue={defaultValue}
                   placeholder={placeholder}
-                  maxLength={maxLength} >
-        </textarea>
+                  maxLength={maxLength}/>
     );
 }
 
@@ -142,22 +153,25 @@ interface CheckboxProps {
 }
 export function Checkbox({ checked, name, onChange }: CheckboxProps) {
     return (
-        <input  className="ml-5 bg-white rounded-none outline-none box-border border-2 border-gray-200 hover:border-primary-400"
-                type="checkbox"
-                name={name} 
-                onChange={onChange ? onChange : () => {}}
-                checked={checked} />
-    )
+        <input className="w-5 h-5 rounded border-gray-300 dark:border-dark-600 
+                         text-primary-600 dark:text-primary-400
+                         focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400
+                         bg-white dark:bg-dark-800
+                         transition-all duration-default ease-default"
+               type="checkbox"
+               name={name}
+               checked={checked}
+               onChange={onChange ? (e: React.ChangeEvent<HTMLInputElement>) => onChange(e) : undefined}/>
+    );
 }
 
 interface OptionProps {
     text: string;
     value?: string;
 }
-function Option({text, value}: OptionProps) {
+export function Option({text, value}: OptionProps) {
     return (
-        <option className=""
-                value={value}>
+        <option value={value === undefined ? text : value}>
             {text}
         </option>
     );
@@ -170,12 +184,15 @@ interface SelectProps {
 export function Select({name, 
                         options }: SelectProps) {
     return (
-        <select className="px-1 py-0.5 mb-4 bg-white rounded-none outline-none font-mono bg-white box-border 
-                border-b-2 border-gray-200 focus:border-primary-400"
+        <select className="w-full px-3 py-2 mb-3 
+                          bg-gray-50 dark:bg-dark-800 
+                          border border-gray-300 dark:border-dark-600 
+                          rounded-lg 
+                          text-gray-900 dark:text-gray-100
+                          focus:outline-none focus:ring-2 focus:ring-primary-500 dark:focus:ring-primary-400
+                          transition-all duration-default ease-default"
                 name={name}>
-            { options.map((option) => (
-                <Option text={option.text} value={option.value}/>  
-            ))} 
+            {options.map((option) => <Option {...option}/>)}
         </select>
     );
 }
@@ -183,54 +200,48 @@ export function Select({name,
 interface DialogProps {
     title: string;
     buttonLevel?: "default"|"success"|"danger";
-    formBody: any; // ?
+    formBody: any;
     onSubmit: React.FormEventHandler<HTMLFormElement>;
 }
 export function Dialog({ title, buttonLevel = "default", formBody, onSubmit }: DialogProps) {
-    const modalId = Math.random().toString(36).slice(2, 10); // to support multiple modals in one page
+    const [open, setOpen] = useState<boolean>(false);
 
-    const openModal = () => {
-        const modalElement = document.getElementById(modalId) as HTMLDialogElement;
-        modalElement.showModal();
-    }
-
-    const closeModal = () => {
-        const modalElement = document.getElementById(modalId) as HTMLDialogElement;
-        modalElement.close();
-    }
-
-    const handleSubmit = (event) => {
-        closeModal();
-        event.preventDefault();
-        onSubmit(event);
+    const toggleOpen = () => {
+        setOpen(!open);
     }
 
     return (
-    <>
-            <Button text={title} onClick={openModal} level={buttonLevel}/>
+        <>
+            <div className="mb-4">
+                <Button text={title} level={buttonLevel} onClick={toggleOpen}/>
+            </div>
+            { open &&
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                    <div className="bg-white dark:bg-dark-paper p-6 rounded-lg shadow-xl w-96
+                                  border border-gray-200 dark:border-dark-700
+                                  transition-all duration-default ease-default">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-dark-100">{title}</h2>
+                            <button onClick={toggleOpen}
+                                    className="text-gray-500 dark:text-dark-400 hover:text-gray-700 dark:hover:text-dark-200
+                                             transition-colors duration-default">
+                                ✕
+                            </button>
+                        </div>
 
-            <dialog id={modalId} className="md:w-2/3 max-md:w-4/5 rounded-md">
-            <form className="flex flex-col" onSubmit={handleSubmit}>
-                
-                <div className="pl-5 pt-2 border-b border-b-gray-400">
-                    <Subheading text={title} />
+                        <form onSubmit={(event) => {
+                            onSubmit(event);
+                            toggleOpen();
+                        }}>
+                            {formBody}
+                            <div className="flex justify-end gap-2 mt-4">
+                                <Button text="Cancel" onClick={toggleOpen}/>
+                                <Button text="Submit" level={buttonLevel} submit/>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-
-                <div className="p-5">
-                    {formBody}
-                </div>
-
-                <div className="px-5 py-2 border-t border-t-gray-400">
-                    <Button text="Cancel"
-                            onClick={closeModal} />
-                    <Button text="Done" 
-                            level="success"
-                            right
-                            submit/>
-                </div>
-
-            </form>
-            </dialog>
+            }
         </>
     );
 }

@@ -11,7 +11,7 @@ function NavItem({ to, text, right = false }: NavItemProps) {
     return (
         <NavLink to={to}>
             { ({ isActive }) => 
-                <li className={`p-4 border-b-4 border-gray-700 dark:border-gray-600 hover:border-primary-400
+                <li className={`p-4 border-b-4 border-transparent hover:border-primary-400
                                 ${ isActive ? "text-primary-400" : "text-gray-900 dark:text-gray-100" } 
                                 ${ right ? "justify-self-end" : "" }`}>
                 {text}
@@ -50,21 +50,21 @@ export default function Navbar() {
     };
 
     return(
-        <nav className="bg-gray-100 dark:bg-gray-800 shadow-lg">
+        <nav className="bg-gray-200 dark:bg-gray-900 shadow-lg">
             <div className="flex justify-between max-md:hidden">
-                <div className="flex">
+                <ul className="flex list-none">
                 {[items.home, items.new, items.flights, items.statistics]}
-                </div>
+                </ul>
 
-                <div className="flex">
+                <ul className="flex list-none">
                 {[items.settings]}
-                </div>
+                </ul>
             </div>
 
             <div className="flex justify-between md:hidden">
-                <div className="flex">
+                <ul className="flex list-none">
                 {[items.home, items.new]}
-                </div>
+                </ul>
 
                 <NavMenu items={items} />
             </div>

@@ -46,47 +46,51 @@ export default function AllFlights() {
     else {
         return (
             <>
-                <Heading text="All Flights" />
-                <Dialog title="Filters"
-                        onSubmit={saveFilters}
-                        formBody={(
-                        <>
-                            <Label text="Limit" />
-                            <Input type="number" name="limit" />
-                            <br />
-                            <Label text="Offset" />
-                            <Input type="number" name="offset" />
-                            <br />
-                            <Label text="Order" />
-                            <Select name="order"
-                                    options={[
-                                { text: "Any", value: "" },
-                                { text: "Descending", value: "DESC" },
-                                { text: "Ascending", value: "ASC" }
-                            ]}/>
-                            <br />
-                            <Label text="Sort By" />
-                            <Select name="sort"
-                                    options={[
-                                { text: "Any", value: "" },
-                                { text: "Date", value: "date" },
-                                { text: "Seat", value: "seat" },
-                                { text: "Aircraft Side", value: "aircraft_side" },
-                                { text: "Ticket Class", value: "ticket_class" },
-                                { text: "Duration", value: "duration" },
-                                { text: "Distance", value: "distance" }
-                            ]}/>
-                            <br />
-                            <Label text="Start Date" />
-                            <Input type="date" name="start" />
-                            <br />
-                            <Label text="End Date" />
-                            <Input type="date" name="end" />
-                            <br />
-                            <Label text="User"/>
-                            <UserSelect />
-                        </>
-                        )}/>
+                <div className="mb-6">
+                    <Heading text="All Flights" />
+                </div>
+                <div className="mb-4">
+                    <Dialog title="Filters"
+                            onSubmit={saveFilters}
+                            formBody={(
+                    <>
+                        <Label text="Limit" />
+                        <Input type="number" name="limit" />
+                        <br />
+                        <Label text="Offset" />
+                        <Input type="number" name="offset" />
+                        <br />
+                        <Label text="Order" />
+                        <Select name="order"
+                                options={[
+                            { text: "Any", value: "" },
+                            { text: "Descending", value: "DESC" },
+                            { text: "Ascending", value: "ASC" }
+                        ]}/>
+                        <br />
+                        <Label text="Sort By" />
+                        <Select name="sort"
+                                options={[
+                            { text: "Any", value: "" },
+                            { text: "Date", value: "date" },
+                            { text: "Seat", value: "seat" },
+                            { text: "Aircraft Side", value: "aircraft_side" },
+                            { text: "Ticket Class", value: "ticket_class" },
+                            { text: "Duration", value: "duration" },
+                            { text: "Distance", value: "distance" }
+                        ]}/>
+                        <br />
+                        <Label text="Start Date" />
+                        <Input type="date" name="start" />
+                        <br />
+                        <Label text="End Date" />
+                        <Input type="date" name="end" />
+                        <br />
+                        <Label text="User"/>
+                        <UserSelect />
+                    </>
+                    )}/>
+                </div>
 
                 <FlightsTable filters={filters} />
             </>
@@ -96,7 +100,7 @@ export default function AllFlights() {
 
 function TableCell({ text }) {
     return (
-        <td className="px-2 py-1 whitespace-nowrap border border-gray-300 dark:border-gray-600">
+        <td className="px-2 py-1 whitespace-nowrap border border-gray-300 dark:border-dark-600 text-gray-900 dark:text-gray-100">
             {text}
         </td>
     );
@@ -104,7 +108,7 @@ function TableCell({ text }) {
 
 function TableHeading({ text }) {
     return (
-        <th className="px-2 whitespace-nowrap border border-gray-300 dark:border-gray-600 bg-primary-300 dark:bg-primary-700 font-semibold">
+        <th className="px-2 whitespace-nowrap border border-gray-300 dark:border-dark-600 bg-primary-300 dark:bg-primary-700 font-semibold text-gray-900 dark:text-white">
             {text}
         </th>
     );
@@ -156,7 +160,7 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableHeading text="Flight Number"/>
             </tr>
             { flights.map((flight: Flight) => (
-            <tr className="cursor-pointer even:bg-gray-100 dark:even:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 duration-75" 
+            <tr className="cursor-pointer even:bg-gray-100 dark:even:bg-dark-800 hover:bg-gray-200 dark:hover:bg-dark-700 transition-colors duration-150" 
                 onClick={() => viewFlight(flight.id)}>
                 <TableCell text={flight.date}/>
                 <TableCell text={flight.origin.municipality + ' (' + (flight.origin.iata || flight.origin.icao) + ')'}/>

@@ -35,26 +35,13 @@ export default function SingleFlight({ flightID }) {
         );
     }
 
-    const toggleEditMode = (event) => {
-        event.preventDefault();
-        setEditMode(!editMode);
-    }
-
-    const deleteFlight = (event) => {
-        event.preventDefault();
-        if(confirm("Are you sure?")) {
-            API.delete(`/flights?id=${flight.id}`)
-            .then(() => navigate("/"));
-        }
-    }
-
     const updateFlight = (event) => {
         event.preventDefault();
 
         const flightPatchData = objectFromForm(event);
 
         if (flightPatchData === null) {
-            this.toggleEditMode();
+            setEditMode(false);
             return;
         }
 
@@ -168,8 +155,13 @@ export default function SingleFlight({ flightID }) {
             }
             { selfUsername === flight.username &&
                 <>
-                <Button text={editMode ? "Cancel" : "Edit" } level="default" onClick={toggleEditMode} />
-                <Button text="Delete" level="danger" onClick={deleteFlight} />
+                <Button text={editMode ? "Cancel" : "Edit" } level="default" onClick={() => setEditMode(!editMode)} />
+                <Button text="Delete" level="danger" onClick={() => {
+                    if(confirm("Are you sure?")) {
+                        API.delete(`/flights?id=${flight.id}`)
+                        .then(() => navigate("/"));
+                    }
+                }} />
                 </>
             }
             </form>

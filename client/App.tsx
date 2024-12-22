@@ -19,8 +19,11 @@ export function App() {
                 <Route element={
                     <>
                         <Navbar />
-                        <div className="h-full p-4 overflow-x-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-                            <Outlet />
+                        <div className="min-h-screen transition-colors duration-default ease-default
+                                      bg-white dark:bg-dark-default text-gray-900 dark:text-gray-100">
+                            <div className="h-full p-4 overflow-x-auto">
+                                <Outlet />
+                            </div>
                         </div>
                     </>}>
                     <Route path="/" element={<Home />} />

@@ -1,17 +1,17 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import API from '../api';
-import {Heading, Label, Input, Checkbox, Subheading, Button, Dialog, Select} from '../components/Elements'
-import ConfigStorage, {ConfigInterface} from '../storage/configStorage';
-import {User} from '../models';
+import { Heading, Label, Input, Checkbox, Subheading, Button, Dialog, Select } from '../components/Elements'
+import ConfigStorage, { ConfigInterface } from '../storage/configStorage';
+import { User } from '../models';
 import TokenStorage from '../storage/tokenStorage';
 
-interface UserInfoProps {
+interface UserInfoProps {
     user: User;
     isSelf?: boolean;
 }
-function UserInfo({user, isSelf = false} : UserInfoProps) {
+function UserInfo({ user, isSelf = false }: UserInfoProps) {
     const editUser = async (event) => {
         let userPatchData = Object.fromEntries(new FormData(event.currentTarget));
         userPatchData = Object.fromEntries(Object.entries(userPatchData).filter(([_, v]) => v != ""));
@@ -51,39 +51,39 @@ function UserInfo({user, isSelf = false} : UserInfoProps) {
             <p>Created on: <span>{user.createdOn}</span></p>
 
             <Dialog title="Edit User"
-                    formBody={(
+                formBody={(
                     <>
-                        <Label text="New Username"/>
-                        <Input type="text" name="username" placeholder={user.username}/>
-                        { isSelf ?
+                        <Label text="New Username" />
+                        <Input type="text" name="username" placeholder={user.username} />
+                        {isSelf ?
                             <></>
                             :
                             <>
-                            <br />
-                            <Label text="New Admin Status"/>
-                            <Select name="isAdmin" options={[
-                                {
-                                    text: user.isAdmin.toString(),
-                                    value: user.isAdmin.toString()
-                                },
-                                {
-                                    text: (!user.isAdmin).toString(),
-                                    value: (!user.isAdmin).toString()
-                                }
-                            ]} />
+                                <br />
+                                <Label text="New Admin Status" />
+                                <Select name="isAdmin" options={[
+                                    {
+                                        text: user.isAdmin.toString(),
+                                        value: user.isAdmin.toString()
+                                    },
+                                    {
+                                        text: (!user.isAdmin).toString(),
+                                        value: (!user.isAdmin).toString()
+                                    }
+                                ]} />
                             </>
                         }
                         <br />
-                        <Label text="New Password"/>
-                        <Input type="password" name="password"/>
+                        <Label text="New Password" />
+                        <Input type="password" name="password" />
                     </>
-                    )}
-                    onSubmit={editUser}/>
+                )}
+                onSubmit={editUser} />
 
-            { isSelf ?
-                <Button text="Logout" level="danger" onClick={logout}/>
+            {isSelf ?
+                <Button text="Logout" level="danger" onClick={logout} />
                 :
-                <Button text="Delete" level="danger" onClick={deleteUser}/>
+                <Button text="Delete" level="danger" onClick={deleteUser} />
             }
         </>
     )
@@ -97,47 +97,47 @@ export default function Settings() {
 
     useEffect(() => {
         API.get("/users/me")
-        .then((data: User) => {
-            setUser(data);
+            .then((data: User) => {
+                setUser(data);
 
-            if (data.isAdmin) {
-                API.get("/users")
-                .then((users: string[]) => {
-                    for (let u of users) {
-                        if (u === data.username) continue; // skip self
+                if (data.isAdmin) {
+                    API.get("/users")
+                        .then((users: string[]) => {
+                            for (let u of users) {
+                                if (u === data.username) continue; // skip self
 
-                        API.get(`/users/${u}/details`)
-                        .then((user) => {
-                            setAllUsers(prevAllUsers => {
-                                return [...prevAllUsers, user];
-                            });
+                                API.get(`/users/${u}/details`)
+                                    .then((user) => {
+                                        setAllUsers(prevAllUsers => {
+                                            return [...prevAllUsers, user];
+                                        });
+                                    });
+                            }
                         });
-                    }
-                });
-            }
-        });
+                }
+            });
     }, []);
 
     const handleImportSubmit = (event) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
 
-        for(const pair of formData.entries()) {
+        for (const pair of formData.entries()) {
             const file = pair[1];
 
-            if(file instanceof Blob && file.size > 0) {
+            if (file instanceof Blob && file.size > 0) {
                 var sendFormData = new FormData();
                 sendFormData.append('file', file);
-                API.post(`/importing?csv_type=${pair[0]}`,sendFormData)
-                .then(() => navigate("/"));
+                API.post(`/importing?csv_type=${pair[0]}`, sendFormData)
+                    .then(() => navigate("/"));
             }
         }
     }
 
     const handleExportClick = (exportType: string) => {
-        if(exportType === "csv") {
+        if (exportType === "csv") {
             API.post("/exporting/csv", {}, true);
-        } else if(exportType === "ical") {
+        } else if (exportType === "ical") {
             API.post("/exporting/ical", {}, true);
         }
     }
@@ -146,7 +146,7 @@ export default function Settings() {
         const key = event.target.name;
         const value = event.target.checked.toString();
 
-        setOptions({...options, [key]: value})
+        setOptions({ ...options, [key]: value })
         ConfigStorage.setSetting(key, value);
     }
 
@@ -158,112 +158,120 @@ export default function Settings() {
     }
 
     return (
-    <>
-        <Heading text="Settings" />
+        <>
+            <Heading text="Settings" />
 
-        <div className="flex flex-wrap items-start">
-            <div className="container">
-                <Subheading text="Import"/>
+            <div className="flex flex-wrap items-start">
+                <div className="container mb-6">
+                    <Subheading text="Import" />
 
-                <form onSubmit={handleImportSubmit}>
-                    <Label text="MyFlightRadar24" />
-                    <Input type="file" name="myflightradar24" />
+                    <form onSubmit={handleImportSubmit} className="space-y-4">
+                        <div>
+                            <Label text="MyFlightRadar24" />
+                            <Input type="file" name="myflightradar24" />
+                        </div>
 
-                    <Label text="Custom CSV" />
-                    <Input type="file" name="custom" />
+                        <div>
+                            <Label text="Custom CSV" />
+                            <Input type="file" name="custom" />
+                        </div>
 
-                    <br />
-                    <Button text="Import" level="success" submit/>
-                </form>
-            </div>
-            
-            <div className="container">
-                <Subheading text="Export"/>
-
-                <Button text="Export to CSV" onClick={() => handleExportClick("csv")}/>
-                <br />
-                <Button text="Export to iCal" onClick={() => handleExportClick("ical")}/>
-            </div>
-
-            <div className="container">
-                <Subheading text="Customization" />
-
-                <div className="flex justify-between">
-                    <Label text="Dark Mode" />
-                    <Checkbox name="darkMode" 
-                                checked={options.darkMode === "true"} 
-                                onChange={changeOption} />
+                        <Button text="Import" level="success" submit />
+                    </form>
                 </div>
 
-                <div className="flex justify-between">
-                    <Label text="Frequency based marker size" />
-                    <Checkbox name="frequencyBasedMarker" 
-                                checked={options.frequencyBasedMarker === "true"} 
-                                onChange={changeOption} />
+                <div className="flex flex-col gap-2 mt-4">
+                    <Button
+                        text="Export to CSV"
+                        onClick={() => handleExportClick("csv")}
+                        inline // Ensures buttons don't stretch
+                    />
+                    <Button
+                        text="Export to iCal"
+                        onClick={() => handleExportClick("ical")}
+                        inline
+                    />
                 </div>
 
-                <div className="flex justify-between">
-                    <Label text="Frequency based line size" />
-                    <Checkbox name="frequencyBasedLine" 
-                                checked={options.frequencyBasedLine === "true"} 
-                                onChange={changeOption} />
+                <div className="container mb-6">
+                    <Subheading text="Customization" />
+
+                    <div className="flex justify-between">
+                        <Label text="Dark Mode" />
+                        <Checkbox name="darkMode"
+                            checked={options.darkMode === "true"}
+                            onChange={changeOption} />
+                    </div>
+
+                    <div className="flex justify-between">
+                        <Label text="Frequency based marker size" />
+                        <Checkbox name="frequencyBasedMarker"
+                            checked={options.frequencyBasedMarker === "true"}
+                            onChange={changeOption} />
+                    </div>
+
+                    <div className="flex justify-between">
+                        <Label text="Frequency based line size" />
+                        <Checkbox name="frequencyBasedLine"
+                            checked={options.frequencyBasedLine === "true"}
+                            onChange={changeOption} />
+                    </div>
+
+                    <div className="flex justify-between">
+                        <Label text="Use metric units" />
+                        <Checkbox name="metricUnits"
+                            checked={options.metricUnits === "true"}
+                            onChange={changeOption} />
+                    </div>
                 </div>
 
-                <div className="flex justify-between">
-                    <Label text="Use metric units" />
-                    <Checkbox name="metricUnits" 
-                                checked={options.metricUnits === "true"} 
-                                onChange={changeOption} />
+                <div className="container mb-6">
+                    <Subheading text="You" />
+                    {user === undefined ?
+                        <p>Loading...</p>
+                        :
+                        <UserInfo user={user} isSelf />
+                    }
                 </div>
-            </div>
 
-            <div className="container">
-                <Subheading text="You"/>
-                { user === undefined ?
-                    <p>Loading...</p>
+                {user === undefined || !user.isAdmin ?
+                    <></>
                     :
-                    <UserInfo user={user} isSelf/>
+                    allUsers === undefined ?
+                        <p>Loading...</p>
+                        :
+                        <>
+                            <div className="container w-full mb-6">
+                                <Subheading text="User Management" />
+
+                                <div className="flex flex-wrap items-start gap-3">
+                                    {allUsers.map((u) => (
+                                        <div className="border-gray-500 border p-2">
+                                            <UserInfo user={u} />
+                                        </div>
+                                    ))
+                                    }
+                                </div>
+
+                                <Dialog title="Create User" buttonLevel="success" onSubmit={createUser} formBody={(
+                                    <>
+                                        <Label text="Username" required />
+                                        <Input type="text" name="username" required />
+                                        <br />
+                                        <Label text="Admin Status" required />
+                                        <Select name="isAdmin" options={[
+                                            { text: "false", value: "false" },
+                                            { text: "true", value: "true" }
+                                        ]} />
+                                        <br />
+                                        <Label text="Password" required />
+                                        <Input type="text" name="password" required />
+                                    </>
+                                )} />
+                            </div>
+                        </>
                 }
             </div>
-
-            { user === undefined || !user.isAdmin ?
-                <></>
-                :
-                allUsers === undefined ?
-                    <p>Loading...</p>
-                    :
-                    <>
-                        <div className="container w-full">
-                            <Subheading text="User Management"/>
-
-                            <div className="flex flex-wrap items-start gap-3">
-                            { allUsers.map((u) => (
-                                <div className="border-gray-500 border p-2">
-                                    <UserInfo user={u}/>
-                                </div> 
-                            ))
-                            }
-                            </div>
-
-                            <Dialog title="Create User" buttonLevel="success" onSubmit={createUser} formBody={(
-                                <>
-                                    <Label text="Username" required/>
-                                    <Input type="text" name="username" required/>
-                                    <br />
-                                    <Label text="Admin Status" required/>
-                                    <Select name="isAdmin" options={[
-                                        { text: "false", value: "false" },
-                                        { text: "true", value: "true" }
-                                    ]} />
-                                    <br />
-                                    <Label text="Password" required/>
-                                    <Input type="text" name="password" required/>
-                                </>
-                            )}/>
-                        </div>
-                    </>
-            }
-        </div>
-    </>
+        </>
     );
 }
