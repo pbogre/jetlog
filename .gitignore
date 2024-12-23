@@ -6,3 +6,4 @@ package-lock.json
 .parcel-cache
 *.old
 jetlog.db
+run_jetlog.sh
