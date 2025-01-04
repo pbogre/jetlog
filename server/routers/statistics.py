@@ -23,7 +23,7 @@ async def get_statistics(metric: bool = True,
     if username:
         user_filter = f"WHERE f.username = '{username}'"
 
-    date_filter = "AND" if start or end else ""
+    date_filter = " AND " if start or end else ""
     date_filter += f"JULIANDAY(f.date) > JULIANDAY('{start}')" if start else ""
     date_filter += " AND " if start and end else ""
     date_filter += f"JULIANDAY(f.date) < JULIANDAY('{end}')" if end else ""
