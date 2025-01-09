@@ -1,13 +1,16 @@
 import os
 import sys
 
-def _get_environment_variable(key: str, cast_int: bool = False) -> str|int:
+def _get_environment_variable(key: str, default: str|int|None = None, cast_int: bool = False) -> str|int:
     value = os.environ.get(key)
 
     if not value:
-        # env variable is necessary
-        print(f"Environment variable '{key}' is not set. Aborting...")
-        sys.exit(1)
+        if default == None:
+            # env variable is necessary
+            print(f"Environment variable '{key}' is not set. Aborting...")
+            sys.exit(1)
+
+        value = default
 
     if cast_int:
         try:
@@ -18,6 +21,6 @@ def _get_environment_variable(key: str, cast_int: bool = False) -> str|int:
     return value
 
 DATA_PATH = _get_environment_variable("DATA_PATH")
-PATH_PREFIX = _get_environment_variable("PATH_PREFIX")
+PATH_PREFIX = _get_environment_variable("PATH_PREFIX", default="")
 SECRET_KEY = _get_environment_variable("SECRET_KEY")
-TOKEN_DURATION = int(_get_environment_variable("TOKEN_DURATION", cast_int=True)) # double cast to make linter happy
+TOKEN_DURATION = _get_environment_variable("TOKEN_DURATION", default=7, cast_int=True)

@@ -1,9 +1,11 @@
+from server.environment import PATH_PREFIX
+assert type(PATH_PREFIX) == str # for linter
 from server.models import User
 
 from fastapi.security import OAuth2PasswordBearer
 from argon2 import PasswordHasher
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token", auto_error=False)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=PATH_PREFIX + "/api/auth/token", auto_error=False)
 _ph = PasswordHasher()
 
 def verify_password(password: str, password_hash: str) -> bool:
