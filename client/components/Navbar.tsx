@@ -42,11 +42,11 @@ function NavMenu({ items }) {
 
 export default function Navbar() {
     const items = {
-        'home': <NavItem to="/" text="Home" />,
-        'new': <NavItem to="/new" text="New" />,
-        'flights': <NavItem to="/flights" text="All Flights" />,
-        'statistics': <NavItem to="/statistics" text="Statistics" />,
-        'settings': <NavItem to="/settings" text="Settings" right={true} />
+        'home': <NavItem key="home" to="/" text="Home" />,
+        'new': <NavItem key="new" to="/new" text="New" />,
+        'flights': <NavItem key="all flights" to="/flights" text="All Flights" />,
+        'statistics': <NavItem key="statistics" to="/statistics" text="Statistics" />,
+        'settings': <NavItem key="settings" to="/settings" text="Settings" right />
     };
 
     return(
