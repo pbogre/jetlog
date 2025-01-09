@@ -25,6 +25,7 @@ def create_access_token(data: dict):
     to_encode = data.copy()
 
     # set expiration
+    assert type(TOKEN_DURATION) == int
     expire = datetime.utcnow() + timedelta(days=TOKEN_DURATION)
     to_encode.update({"exp": expire})
 
