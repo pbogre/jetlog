@@ -6,7 +6,8 @@ start_command="python -m \
                main:app \
                --app-dir server \
                --host 0.0.0.0 \
-               --port ${JETLOG_PORT}"
+               --port ${JETLOG_PORT} \
+               --root-path ${JETLOG_BASE_URL:-/}"
 
 function run_as_root()
 {
