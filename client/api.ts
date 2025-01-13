@@ -1,6 +1,10 @@
 import axios, {Axios} from 'axios';
 import TokenStorage from './storage/tokenStorage';
 
+const config = await fetch('./config').then((response) => response.json())
+                                      .catch(() => ({ BASE_URL: '/' }));
+
+export const BASE_URL = config.BASE_URL == '/' ? '' : config.BASE_URL;
 
 // TODO improve this because there's a lot of repetition (get, post, delete are pretty much exactly the same)
 // perhaps one method for each endpoint? i.e. API.getFlights(), ...
@@ -9,14 +13,14 @@ class APIClass {
 
     constructor() {
         this.client = axios.create({
-            baseURL: "/api/",
+            baseURL: BASE_URL + "/api/",
             timeout: 10000
         })
 
         // use token for authorization header 
         this.client.interceptors.request.use(
             (config) => {
-                if (config.url !== "/api/auth/token") {
+                if (config.url !== BASE_URL + "/api/auth/token") {
                     const token = TokenStorage.getToken();
                     if (token) {
                         config.headers.Authorization = `Bearer ${token}`;
@@ -34,8 +38,8 @@ class APIClass {
     private handleError(err: any) {
         if (err.response) {
             if (err.response.status === 401) {
-                if (window.location.pathname !== "/login") {
-                    window.location.href = "/login";
+                if (window.location.pathname !== BASE_URL + "/login") {
+                    window.location.href = BASE_URL + "/login";
                 }
             }
             else {
