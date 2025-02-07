@@ -5,6 +5,8 @@ from server.auth.users import get_current_user
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from enum import Enum
 import datetime
+import csv
+import io
 
 router = APIRouter(
     prefix="/importing",
@@ -23,19 +25,23 @@ async def import_CSV(csv_type: CSVType,
     imported_flights: list[FlightModel] = []
     fail_count = 0
 
+    csv_data = io.TextIOWrapper(file.file, encoding='utf-8', newline='')
+
+    reader = csv.reader(csv_data, quotechar='"', delimiter=',')
+
+
     print(f"Parsing CSV into flights...")
     if csv_type == CSVType.MYFLIGHTRADAR24:
         count = 0
-        for line in file.file:
-            line = line.decode()
 
-            if line == '\n':
+        for row in reader:
+            # check for empty rows
+            if not row or all(col.strip() == "" for col in row):
                 continue
 
             # check that columns are valid
             if count == 0:
-                columns = line.split(',')
-                columns = [ col.replace('"', '').rstrip('\r\n') for col in columns ]
+                columns = [ col.replace('"', '').rstrip('\r\n') for col in row ]
                 try:
                     expected = ["Date", "Flight number", "From", "To", "Dep time", "Arr time",
                                 "Duration", "Airline", "Aircraft", "Registration", "Seat number",
@@ -60,7 +66,7 @@ async def import_CSV(csv_type: CSVType,
                 "5": ClassType.PRIVATE
             }
 
-            values = line.split(',')
+            values = row
             values_dict = {}
             try:
                 values_dict['date'] = datetime.date.fromisoformat(values[0])
@@ -88,15 +94,12 @@ async def import_CSV(csv_type: CSVType,
         present_columns: dict[str, int] = {}
 
         count = 0
-        for line in file.file:
-            line = line.decode()
-
-            if line == '\n':
+        for row in reader:
+            if not row or all(col.strip() == "" for col in row):
                 continue
 
             if count == 0:
-                columns = line.split(',')
-                columns = [ col.rstrip('\r\n') for col in columns ]
+                columns = [ col.strip() for col in row]
 
                 for i in range(len(columns)):
                     col = columns[i]
@@ -118,7 +121,7 @@ async def import_CSV(csv_type: CSVType,
             if "username" in present_columns and not user.is_admin:
                 raise HTTPException(status_code=403, detail=f"Only admins can specify the 'username' column")
 
-            values = line.split(',')
+            values = row
             values = [ val.rstrip('\r\n') if val != '' else None for val in values ] 
             values_dict = {}
             try:
