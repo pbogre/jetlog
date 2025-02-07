@@ -29,7 +29,6 @@ async def import_CSV(csv_type: CSVType,
 
     reader = csv.reader(csv_data, quotechar='"', delimiter=',')
 
-
     print(f"Parsing CSV into flights...")
     if csv_type == CSVType.MYFLIGHTRADAR24:
         count = 0
