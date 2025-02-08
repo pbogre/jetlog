@@ -119,7 +119,7 @@ async def import_CSV(csv_type: CSVType,
                 raise HTTPException(status_code=403, detail=f"Only admins can specify the 'username' column")
 
             values = line.split(',')
-            values = [ val.rstrip('\r\n') if val != '' else None for val in values ] 
+            values = [ val.rstrip('\r\n').replace("\\n", "\n") if val != '' else None for val in values ] 
             values_dict = {}
             try:
                 assert len(values) == len(present_columns), f"Expected {len(present_columns)} entries, got {len(values)}"
