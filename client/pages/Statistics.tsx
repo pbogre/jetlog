@@ -29,21 +29,25 @@ export default function Statistics() {
 
     return (
     <>
-        <Heading text="Statistics" />
-        <Dialog title="Filters"
-                formBody={(
-                <>
-                    <Label text="Start Date" />
-                    <Input type="date" name="start" />
-                    <br />
-                    <Label text="End Date" />
-                    <Input type="date" name="end" />
-                    <br />
-                    <Label text="User" />
-                    <UserSelect />
-                </>
-                )}
-                onSubmit={saveFilters} />
+        <div className="mb-6">
+            <Heading text="Statistics" />
+        </div>
+        <div className="mb-4">
+            <Dialog title="Filters"
+                    formBody={(
+                    <>
+                        <Label text="Start Date" />
+                        <Input type="date" name="start" />
+                        <br />
+                        <Label text="End Date" />
+                        <Input type="date" name="end" />
+                        <br />
+                        <Label text="User" />
+                        <UserSelect />
+                    </>
+                    )}
+                    onSubmit={saveFilters} />
+        </div>
 
         <AllStats filters={filters} />
     </>
