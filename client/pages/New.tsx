@@ -87,6 +87,16 @@ export default function New() {
                                 { text: "Economy", value: "economy" }
                             ]} />
                     <br />
+                    <Label text="Purpose"/>
+                    <Select name="purpose"
+                            options={[
+                                { text: "Choose", value: "" },
+                                { text: "Leisure", value: "leisure" },
+                                { text: "Business", value: "business" },
+                                { text: "Crew", value: "crew" },
+                                { text: "Other", value: "other" }
+                            ]} />
+                    <br />
                     <Label text="Airplane"/>
                     <Input type="text"
                            name="airplane"

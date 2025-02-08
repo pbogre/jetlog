@@ -92,10 +92,16 @@ class SeatType(str, Enum):
     MIDDLE = "middle"
     AISLE = "aisle"
 
-class AircraftSide (str, Enum):
+class AircraftSide(str, Enum):
     LEFT = "left"
     RIGHT = "right"
     CENTER = "center"
+
+class FlightPurpose(str, Enum):
+    LEISURE = "leisure"
+    BUSINESS = "business"
+    CREW = "crew"
+    OTHER = "other"
 
 class ClassType(str, Enum):
     PRIVATE = "private"
@@ -151,6 +157,7 @@ class FlightModel(CustomModel):
     seat:           SeatType|None = None
     aircraft_side:  AircraftSide|None = None
     ticket_class:   ClassType|None = None
+    purpose:        FlightPurpose|None = None
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None

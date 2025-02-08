@@ -1,5 +1,5 @@
 from server.database import database
-from server.models import AirportModel, ClassType, CustomModel, FlightModel, AircraftSide, SeatType, User
+from server.models import AirportModel, ClassType, CustomModel, FlightModel, AircraftSide, FlightPurpose, SeatType, User
 from server.auth.users import get_current_user
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -130,6 +130,7 @@ class FlightPatchModel(CustomModel):
     seat:           SeatType|None = None
     aircraft_side:  AircraftSide|None = None
     ticket_class:   ClassType|None = None
+    purpose:        FlightPurpose|None = None
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
