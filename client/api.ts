@@ -50,6 +50,18 @@ class APIClass {
         }
     }
 
+    async getRemote(endpoint: string) {
+        endpoint = endpoint.trim();
+
+        try {
+            const res = await axios.get(endpoint);
+            return res.data;
+        } catch(err) {
+            this.handleError(err);
+            throw err;
+        }
+    }
+
     async get(endpoint: string, parameters: Object = {}) {
         endpoint = endpoint.trim();
 

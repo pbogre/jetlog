@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Heading, Label, Button, Input, Select, TextArea } from '../components/Elements';
@@ -6,9 +6,14 @@ import AirportInput from '../components/AirportInput';
 
 import API from '../api';
 import { objectFromForm } from '../utils';
+import {Airport} from '../models';
 
 export default function New() {
     const navigate = useNavigate();
+
+    const [flightNumber, setFlightNumber] = useState('');
+    const [fetchedOrigin, setFetchedOrigin] = useState<Airport>()
+    const [fetchedDestination, setFetchedDestination] = useState<Airport>()
 
     const postFlight = (event) => {
         event.preventDefault();
@@ -23,6 +28,20 @@ export default function New() {
             .then(() => navigate("/"));
     };
 
+    const attemptFetchFlight = async () => {
+        API.getRemote(`https://api.adsbdb.com/v0/callsign/${flightNumber}`)
+        .then(async (data: Object) => {
+            const originICAO = data["response"]["flightroute"]["origin"]["icao_code"];
+            const destinationICAO = data["response"]["flightroute"]["destination"]["icao_code"];
+
+            const origin = await API.get(`/airports/${originICAO}`);
+            const destination= await API.get(`/airports/${destinationICAO}`);
+
+            setFetchedOrigin({...origin});
+            setFetchedDestination({...destination});
+        });
+    };
+
     return (
         <>
             <Heading text="New Flight" />
@@ -31,10 +50,10 @@ export default function New() {
                 <div className="flex flex-wrap">
                     <div className="container">
                         <Label text="Origin" required />
-                        <AirportInput name="origin" />
+                        <AirportInput name="origin" airport={fetchedOrigin} />
                         <br />
                         <Label text="Destination" required />
-                        <AirportInput name="destination" />
+                        <AirportInput name="destination" airport={fetchedDestination} />
                         <br />
                         <Label text="Date" required />
                         <Input
@@ -121,24 +140,26 @@ export default function New() {
                         </div>
 
                         <br />
-                        <div className="flex flex-wrap gap-4">
+                        <div className="flex flex-wrap gap-4 items-center">
+
                             <div className="flex flex-col">
                                 <Label text="Airplane" />
-                                <Input
-                                    type="text"
-                                    name="airplane"
-                                    placeholder="B738"
-                                    maxLength={16}
-                                />
+                                <Input type="text" name="airplane" placeholder="B738" maxLength={16} />
                             </div>
+
                             <div className="flex flex-col">
                                 <Label text="Flight Number" />
-                                <Input
-                                    type="text"
-                                    name="flightNumber"
-                                    placeholder="FR2460"
-                                    maxLength={7}
-                                />
+                                    <Input
+                                        type="text"
+                                        name="flightNumber"
+                                        placeholder="FR2460"
+                                        maxLength={7}
+                                        onChange={(e) => setFlightNumber(e.target.value)}
+                                    />
+                            </div>
+
+                            <div className="flex flex-col">
+                                <Button text="Fetch" onClick={attemptFetchFlight} disabled={!flightNumber} />
                             </div>
                         </div>
                         <br />
@@ -152,7 +173,6 @@ export default function New() {
 
                 <Button
                     text="Done"
-                    level="success"
                     submit
                 />
             </form>
