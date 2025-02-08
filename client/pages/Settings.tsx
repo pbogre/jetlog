@@ -37,7 +37,6 @@ function UserInfo({user, isSelf = false} : UserInfoProps) {
 
     const deleteUser = async () => {
         if (confirm("Are you sure? All flights associated with this user will also be removed.")) {
-            console.log("This function has not yet been implemented.")
             await API.delete(`/users/${user.username}`);
             window.location.reload();
         }
