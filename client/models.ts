@@ -18,6 +18,7 @@ export class Flight {
     seat: string;
     aircraftSide: string;
     ticketClass: string;
+    purpose: string;
     duration: number;
     distance: number;
     airplane: string;

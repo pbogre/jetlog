@@ -1,6 +1,6 @@
 from server.database import database
 from server.models import AirportModel
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter(
     prefix="/airports",
@@ -26,3 +26,13 @@ async def get_airports(q: str) -> list[AirportModel]:
 
     airports = [ AirportModel.from_database(db_airport) for db_airport in results ]
     return [ AirportModel.model_validate(airport) for airport in airports ]
+
+@router.get("/{icao}", status_code=200)
+async def get_airport_from_icao(icao: str) -> AirportModel:
+    result = database.execute_read_query("SELECT * FROM airports WHERE LOWER(icao) = LOWER(?);", [icao])
+
+    if not result:
+        raise HTTPException(status_code=404, detail=f"No airport with ICAO '{icao}' found")
+
+    airport = AirportModel.from_database(result[0])
+    return AirportModel.model_validate(airport)

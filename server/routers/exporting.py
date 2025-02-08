@@ -32,7 +32,7 @@ async def export_to_CSV(user: User = Depends(get_current_user)) -> FileResponse:
     file.write(','.join(columns) + '\n')
 
     for flight in flights:
-        values = [ str(val) if val != None else '' for val in flight.get_values(ignore=["id", "username"]) ]
+        values = [ str(val).replace("\n", "\\n") if val != None else '' for val in flight.get_values(ignore=["id", "username"]) ]
         row = ','.join(values)
         file.write(row + '\n')
 
