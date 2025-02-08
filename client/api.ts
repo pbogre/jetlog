@@ -39,14 +39,14 @@ class APIClass {
                 }
             }
             else {
-                alert("Bad response: " + err.response.data.detail);
+                alert("Bad response: " + JSON.stringify(err.response.data));
             }
         }
         else if (err.request) {
-            alert("Bad request: " + err.request);
+            alert("Bad request: " + JSON.stringify(err.request));
         }
         else {
-            alert("Unknown error: " + err);
+            alert("Unknown error: " + JSON.stringify(err));
         }
     }
 
