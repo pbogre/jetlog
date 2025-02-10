@@ -55,11 +55,13 @@ class CustomModel(CamelableModel):
 
             value = getattr(self, attr)
 
+            enum_classes = [SeatType, ClassType, AircraftSide, FlightPurpose]
+
             if type(value) == AirportModel:
                 value = value.icao
             elif type(value) == datetime.date:
                 value = value.isoformat()
-            elif type(value) == SeatType or type(value) == ClassType or type(value) == AircraftSide:
+            elif type(value) in enum_classes:
                 value = value.value
 
             values.append(value)

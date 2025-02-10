@@ -47,7 +47,7 @@ export default function AirportInput({ name, placeholder, airport }: AirportInpu
             { airportsData.map((airport: Airport) => (
             <li className="py-1 px-2 even:bg-gray-100 cursor-pointer hover:bg-gray-200"
                 value={airport.icao} 
-                onClick={() => setSelectedAirport(airport)}>
+                onClick={() => { setSelectedAirport(airport); setAirportsData([]); }}>
                 {stringifyAirport(airport)}
             </li>
             ))}
