@@ -1,4 +1,4 @@
-from server.routers import flights, airports, statistics, geography, importing, exporting
+from server.routers import flights, airports, airlines, statistics, geography, importing, exporting
 from server.auth import users, auth
 from fastapi import FastAPI, Depends
 from fastapi.responses import HTMLResponse
@@ -8,6 +8,7 @@ from pathlib import Path
 tags_metadata=[
     { "name": "flights" },
     { "name": "airports" },
+    { "name": "airlines"},
     { "name": "statistics" },
     { "name": "geography" },
     { "name": "importing/exporting" },
@@ -22,6 +23,7 @@ auth_dependency = [Depends(users.get_current_user)]
 
 app.include_router(flights.router, prefix="/api", dependencies=auth_dependency)
 app.include_router(airports.router, prefix="/api", dependencies=auth_dependency)
+app.include_router(airlines.router, prefix="/api", dependencies=auth_dependency)
 app.include_router(statistics.router, prefix="/api", dependencies=auth_dependency)
 app.include_router(geography.router, prefix="/api", dependencies=auth_dependency)
 app.include_router(importing.router, prefix="/api", dependencies=auth_dependency)

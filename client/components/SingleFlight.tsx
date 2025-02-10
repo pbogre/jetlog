@@ -4,7 +4,7 @@ import {useNavigate} from 'react-router-dom';
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
 import { Flight, User } from '../models';
 import AirportInput from './AirportInput';
-
+import AirlineInput from './AirlineInput';
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
 import { objectFromForm } from '../utils';
@@ -152,6 +152,8 @@ export default function SingleFlight({ flightID }) {
                             { text: "Other", value: "other" }
                         ]} /></p>
                         <p>Airplane: <Input type="text" name="airplane" placeholder={flight.airplane} /></p>
+                        <p>Airline: <AirlineInput name="airline" placeholder={flight.airline} /></p>
+                        <p>Tail Number: <Input type="text" name="tail_Number" placeholder={flight.tailNumber} /></p>
                         <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
                         <p>Notes</p>
                         <TextArea name="notes" defaultValue={flight.notes}/>

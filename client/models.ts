@@ -22,6 +22,8 @@ export class Flight {
     duration: number;
     distance: number;
     airplane: string;
+    airline: string;
+    tail_Number: string;
     flightNumber: string;
     notes: string;
 }
@@ -37,6 +39,13 @@ export class Airport {
     continent: string;
     latitude: number;
     longitude: number;
+}
+
+export class Airline {
+  id: number;
+  name: string;
+  icao: string;
+  iata: string;
 }
 
 export class Statistics {

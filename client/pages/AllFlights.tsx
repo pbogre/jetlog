@@ -153,6 +153,8 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableHeading text="Aircraft Side"/>
                 <TableHeading text="Class"/>
                 <TableHeading text="Airplane"/>
+                <TableHeading text="Airline"/>
+                <TableHeading text="Tail Number"/>
                 <TableHeading text="Flight Number"/>
             </tr>
             { flights.map((flight: Flight) => (
@@ -169,6 +171,8 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableCell text={flight.aircraftSide || ""}/>
                 <TableCell text={flight.ticketClass || ""} />
                 <TableCell text={flight.airplane || ""}/>
+                <TableCell text={flight.airline || ""}/>
+                <TableCell text={flight.tail_Number || ""}/>
                 <TableCell text={flight.flightNumber || ""}/>
             </tr>
             ))}

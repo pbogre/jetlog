@@ -1,4 +1,4 @@
-import {Airport} from './models';
+import {Airport, Airline} from './models';
 
 export function stringifyAirport(airport: Airport|null) {
     if(airport === null) {
@@ -6,6 +6,14 @@ export function stringifyAirport(airport: Airport|null) {
     }
 
     return (airport.iata || airport.icao) + " - " + airport.municipality + "/" + airport.country;
+}
+
+export function stringifyAirline(airline: Airline|null) {
+    if(airline === null) {
+        return "N/A";
+    }
+
+    return (airline.name + " - " + airline.icao);
 }
 
 export function objectFromForm(event) {

@@ -145,6 +145,13 @@ class AirportModel(CustomModel):
 
         return v
 
+class AirlineModel(CustomModel):
+    id:   int
+    name: str
+    iata: str|None = None
+    icao: str
+
+
 class FlightModel(CustomModel):
     id:             int|None = None
     username:       str|None = None
@@ -161,6 +168,8 @@ class FlightModel(CustomModel):
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
+    airline:        str|None = None
+    tail_number:    str|None = None
     flight_number:  str|None = None
     notes:          str|None = None
 

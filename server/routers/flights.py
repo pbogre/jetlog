@@ -134,6 +134,8 @@ class FlightPatchModel(CustomModel):
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
+    airline:        str|None = None
+    tail_number:    str|None = None
     flight_number:  str|None = None
     notes:          str|None = None
 @router.patch("", status_code=200)

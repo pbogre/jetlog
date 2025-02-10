@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 
 import { Heading, Label, Button, Input, Select, TextArea } from '../components/Elements';
 import AirportInput from '../components/AirportInput';
-
+import AirlineInput from '../components/AirlineInput';
 import API from '../api';
 import { objectFromForm } from '../utils';
-import {Airport} from '../models';
+import {Airline, Airport} from '../models';
 
 export default function New() {
     const navigate = useNavigate();
@@ -14,6 +14,7 @@ export default function New() {
     const [flightNumber, setFlightNumber] = useState('');
     const [fetchedOrigin, setFetchedOrigin] = useState<Airport>()
     const [fetchedDestination, setFetchedDestination] = useState<Airport>()
+    const [fetchedAirline, setFetchedAirline] = useState<Airline>()
 
     const postFlight = (event) => {
         event.preventDefault();
@@ -33,12 +34,15 @@ export default function New() {
         .then(async (data: Object) => {
             const originICAO = data["response"]["flightroute"]["origin"]["icao_code"];
             const destinationICAO = data["response"]["flightroute"]["destination"]["icao_code"];
-
+            const airlineICAO = data["response"]["airline"]["icao"];
+            
             const origin = await API.get(`/airports/${originICAO}`);
             const destination= await API.get(`/airports/${destinationICAO}`);
+            const airline= await API.get(`/airlines/${airlineICAO}`)
 
             setFetchedOrigin({...origin});
             setFetchedDestination({...destination});
+            setFetchedAirline({ ...airline });
         });
     };
 
@@ -146,7 +150,14 @@ export default function New() {
                                 <Label text="Airplane" />
                                 <Input type="text" name="airplane" placeholder="B738" maxLength={16} />
                             </div>
-
+                            <div className='flex flex-col'>
+                              <Label text="Airline" />
+                               <AirlineInput name="airline" airline={fetchedAirline} />
+                            </div>
+                            <div className="flex flex-col">
+                                <Label text="Tail Number" />
+                                <Input type="text" name="tail_Number" placeholder="EI-DCL" maxLength={16} />
+                            </div>
                             <div className="flex flex-col">
                                 <Label text="Flight Number" />
                                     <Input

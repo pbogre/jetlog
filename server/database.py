@@ -27,6 +27,8 @@ class Database():
                     duration       INTEGER,
                     distance       INTEGER,
                     airplane       TEXT,
+                    airline        TEXT,
+                    tail_number    TEXT,
                     flight_number  TEXT,
                     notes          TEXT
                 )""",
@@ -112,6 +114,7 @@ class Database():
 
         self.create_first_user()
         self.update_airports_table(drop_old=False)
+        self.update_airlines_table(drop_old=False)
 
     def create_first_user(self):
         from server.auth.utils import hash_password
@@ -151,7 +154,30 @@ class Database():
 
         self.execute_query(f"ATTACH '{airports_db_path}' AS a;")
         self.execute_query("INSERT INTO main.airports SELECT * FROM a.airports;")
-        self.execute_query("DETACH a;") 
+        self.execute_query("DETACH a;")
+
+    def update_airlines_table(self, drop_old: bool = True):
+        print("Updating airlines table...")
+        airlines_db_path = Path(__file__).parent.parent / 'data' / 'airlines.db'
+
+        if drop_old:
+            try:
+                self.execute_query("DROP TABLE airlines;")
+            except:
+                # if airlines database not found, simply skip deletion
+                pass
+
+        self.execute_query("""
+        CREATE TABLE airlines (
+        id   INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        iata TEXT,
+        icao TEXT
+        );""")
+
+        self.execute_query(f"ATTACH '{airlines_db_path}' AS a;")
+        self.execute_query("INSERT INTO main.airlines SELECT * FROM a.airlines;")
+        self.execute_query("DETACH a;")
 
     def patch_table(self, table: str, present: list[str]):
         print(f"Patching table '{table}'...")
