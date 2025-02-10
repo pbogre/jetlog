@@ -23,18 +23,20 @@ def stringify_airport(airport: AirportModel) -> str:
 
 @router.post("/csv", status_code=200)
 async def export_to_CSV(user: User = Depends(get_current_user)) -> FileResponse:
+    import csv
+
     flights = await get_flights(limit=-1, user=user)
     assert type(flights) == list # make linter happy
 
-    file = open("/tmp/jetlog.csv", "a")
+    file = open("/tmp/jetlog.csv", 'w', newline='')
+    csv_writer = csv.writer(file, quotechar='"', delimiter=',')
     columns = FlightModel.get_attributes(ignore=["id", "username"])
 
-    file.write(','.join(columns) + '\n')
+    csv_writer.writerow(columns)
 
     for flight in flights:
         values = [ str(val).replace("\n", "\\n") if val != None else '' for val in flight.get_values(ignore=["id", "username"]) ]
-        row = ','.join(values)
-        file.write(row + '\n')
+        csv_writer.writerow(values)
 
     file.close()
     return FileResponse("/tmp/jetlog.csv", 
