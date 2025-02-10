@@ -26,7 +26,6 @@ async def import_CSV(csv_type: CSVType,
     fail_count = 0
 
     csv_data = io.TextIOWrapper(file.file, encoding='utf-8', newline='')
-
     reader = csv.reader(csv_data, quotechar='"', delimiter=',')
 
     print(f"Parsing CSV into flights...")
