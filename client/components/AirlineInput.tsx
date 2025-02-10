@@ -12,7 +12,7 @@ interface AirlineInputProps {
 
 export default function AirlineInput({ name, placeholder, airline }: AirlineInputProps) {
     const [airlinesData, setAirlinesData] = useState<Airline[]>([]);
-    const [selectedAirline, setSelectedAirline] = useState<Airline|null>(null);
+    const [selectedAirline, setSelectedAirline] = useState<Airline>();
 
     useEffect(() => {
         if (airline) {
@@ -33,10 +33,12 @@ export default function AirlineInput({ name, placeholder, airline }: AirlineInpu
 
     return  (
       <>
-        <Input type="text"
+        <Input
+               type="text"
                maxLength={16}
                onChange={searchAirline}
-               placeholder="Search"/>
+               placeholder="Search"
+        />
         
                
         <input type="hidden" name={name} value={selectedAirline?.icao}/>
@@ -45,7 +47,7 @@ export default function AirlineInput({ name, placeholder, airline }: AirlineInpu
             { airlinesData.map((airline: Airline) => (
             <li className="py-1 px-2 even:bg-gray-100 cursor-pointer hover:bg-gray-200"
                 value={airline.icao} 
-                onClick={() => setSelectedAirline(airline)}>
+                onClick={() => {setSelectedAirline(airline); setAirlinesData([]); }}>
                 {stringifyAirline(airline)}
             </li>
             ))}

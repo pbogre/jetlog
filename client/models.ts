@@ -42,7 +42,6 @@ export class Airport {
 }
 
 export class Airline {
-  id: number;
   name: string;
   icao: string;
   iata: string;

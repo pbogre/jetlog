@@ -13,7 +13,7 @@ export function stringifyAirline(airline: Airline|null) {
         return "N/A";
     }
 
-    return (airline.name + " - " + airline.icao);
+    return (airline.icao + " - " + airline.name);
 }
 
 export function objectFromForm(event) {

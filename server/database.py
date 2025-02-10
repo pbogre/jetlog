@@ -169,10 +169,9 @@ class Database():
 
         self.execute_query("""
         CREATE TABLE airlines (
-        id   INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
-        iata TEXT,
-        icao TEXT
+        icao TEXT PRIMARY KEY UNIQUE,
+        iata TEXT
         );""")
 
         self.execute_query(f"ATTACH '{airlines_db_path}' AS a;")

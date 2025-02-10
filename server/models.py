@@ -148,10 +148,24 @@ class AirportModel(CustomModel):
         return v
 
 class AirlineModel(CustomModel):
-    id:   int
     name: str
-    iata: str|None = None
     icao: str
+    iata: str | None = None
+
+    @field_validator('icao')
+    @classmethod
+    def icao_must_exist(cls, v) -> str|None:
+        from server.database import database
+
+        if not v:
+            return None
+
+        res = database.execute_read_query(f"SELECT icao FROM airlines WHERE LOWER(icao) = LOWER(?);", [v])
+
+        if len(res) < 1:
+            raise ValueError(f"must have valid ICAO code, got '{v}'")
+
+        return v
 
 
 class FlightModel(CustomModel):
