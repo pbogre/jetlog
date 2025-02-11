@@ -30,6 +30,7 @@ async def import_CSV(csv_type: CSVType,
 
     print(f"Parsing CSV into flights...")
     if csv_type == CSVType.MYFLIGHTRADAR24:
+        import re
         count = 0
 
         for row in reader:
@@ -68,8 +69,8 @@ async def import_CSV(csv_type: CSVType,
             values_dict = {}
             try:
                 values_dict['date'] = datetime.date.fromisoformat(values[0])
-                values_dict['origin'] = values[2][-6:-2]
-                values_dict['destination'] = values[3][-6:-2]
+                values_dict['origin'] = values[2][-5:-1] if values[2] else None
+                values_dict['destination'] = values[3][-5:-1] if values[3] else None
                 values_dict['departure_time'] = values[4][:5] if values[4][:5] != "00:00" else None
                 values_dict['arrival_time'] = values[5][:5] if values[4][:5] != "00:00" else None
                 # from myflightradar24, 0=none, 1=window, 2=middle, 3=aisle
@@ -79,7 +80,8 @@ async def import_CSV(csv_type: CSVType,
                 values_dict['purpose'] = list(FlightPurpose)[int(values[13]) - 1] if int(values[13]) > 0 else None
                 # conversion from hh:mm:ss to minutes
                 values_dict['duration'] = int(values[6][:2]) * 60 + int(values[6][3:5]) 
-                values_dict['airplane'] = values[8].replace('"', '') if values[8] != '" ()"' else None
+                values_dict['airline'] = values[7][-4:-1] if values[7] != " (/)" else None
+                values_dict['airplane'] = values[8] if values[8] != " ()" else None
 
                 flight = FlightModel(**values_dict)
                 imported_flights.append(flight)
