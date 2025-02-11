@@ -12,17 +12,17 @@ router = APIRouter(
 async def get_airports(q: str) -> list[AirportModel]:
     results = database.execute_read_query(f"""
     SELECT * FROM airports WHERE 
-    LOWER(iata) LIKE LOWER('%{q}%') OR 
-    LOWER(name) LIKE LOWER('%{q}%') OR 
-    LOWER(municipality) LIKE LOWER('%{q}%') OR 
-    LOWER(region) LIKE LOWER('%{q}%') OR 
-    LOWER(icao) LIKE LOWER('%{q}%') 
-    ORDER BY LOWER(iata) = LOWER('{q}') DESC,
-             LOWER(name) = LOWER('{q}') DESC,
-             LOWER(municipality) = LOWER('{q}') DESC,
-             LOWER(region) LIKE LOWER('%{q}%') DESC,
-             LOWER(icao) = LOWER('{q}') 
-    LIMIT 5;""")
+    LOWER(iata) LIKE LOWER(?) OR 
+    LOWER(name) LIKE LOWER(?) OR 
+    LOWER(municipality) LIKE LOWER(?) OR 
+    LOWER(region) LIKE LOWER(?) OR 
+    LOWER(icao) LIKE LOWER(?) 
+    ORDER BY LOWER(iata) = LOWER(?) DESC,
+             LOWER(name) = LOWER(?) DESC,
+             LOWER(municipality) = LOWER(?) DESC,
+             LOWER(region) LIKE LOWER(?) DESC,
+             LOWER(icao) = LOWER(?) 
+    LIMIT 5;""", [f"%{q}%"] * 5 + [q] * 3 + [f"%{q}%"] + [q])
 
     airports = [ AirportModel.from_database(db_airport) for db_airport in results ]
     return [ AirportModel.model_validate(airport) for airport in airports ]
