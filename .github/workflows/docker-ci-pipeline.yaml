@@ -26,4 +26,4 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: pbogre/jetlog:${{github.run_id}}
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/jetlog:${{github.run_id}}
