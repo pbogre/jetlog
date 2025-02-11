@@ -1,4 +1,4 @@
-name: ci-pipeline
+name: docker-ci-pipeline
 on:
   push:
     branches:
