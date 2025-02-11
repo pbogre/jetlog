@@ -11,8 +11,8 @@ function NavItem({ to, text, right = false }: NavItemProps) {
     return (
         <NavLink to={to}>
             { ({ isActive }) => 
-                <li className={`p-4 border-b-4 border-gray-700 hover:border-primary-400
-                                ${ isActive ? "text-primary-400" : "text-white" } 
+                <li className={`p-4 border-b-4 border-transparent hover:border-primary-400
+                                ${ isActive ? "text-primary-400" : "text-gray-900 dark:text-gray-100" } 
                                 ${ right ? "justify-self-end" : "" }`}>
                 {text}
                 </li>
@@ -30,9 +30,9 @@ function NavMenu({ items }) {
 
     return (
         <div>
-            <p className="p-4 text-white cursor-pointer float-right" onClick={toggleOpen}>{open ? "x" : "Menu"}</p>
+            <p className="p-4 text-gray-900 dark:text-gray-100 cursor-pointer float-right" onClick={toggleOpen}>{open ? "x" : "Menu"}</p>
             { open &&
-            <div className="bg-gray-700 absolute top-[3.5em] right-0" onClick={toggleOpen}>
+            <div className="bg-gray-100 dark:bg-gray-800 absolute top-[3.5em] right-0" onClick={toggleOpen}>
                 {[items.home, items.new, items.flights, items.statistics, items.settings]}
             </div>
             }
@@ -50,21 +50,21 @@ export default function Navbar() {
     };
 
     return(
-        <nav className="bg-gray-700 list-none">
+        <nav className="bg-gray-200 dark:bg-gray-900 shadow-lg">
             <div className="flex justify-between max-md:hidden">
-                <div className="flex">
+                <ul className="flex list-none">
                 {[items.home, items.new, items.flights, items.statistics]}
-                </div>
+                </ul>
 
-                <div className="flex">
+                <ul className="flex list-none">
                 {[items.settings]}
-                </div>
+                </ul>
             </div>
 
             <div className="flex justify-between md:hidden">
-                <div className="flex">
+                <ul className="flex list-none">
                 {[items.home, items.new]}
-                </div>
+                </ul>
 
                 <NavMenu items={items} />
             </div>

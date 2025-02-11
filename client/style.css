@@ -2,17 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    * {
+        @apply transition-colors duration-default ease-default;
+    }
+
+    body {
+        @apply bg-white text-gray-900 dark:bg-dark-default dark:text-gray-100;
+    }
+}
+
 @layer components {
     .container {
-        @apply p-4 mr-5 mb-4 grow border border-gray-400 rounded shadow-md;
+        @apply p-4 mr-5 mb-4 grow 
+               bg-white dark:bg-dark-paper
+               border border-gray-300 dark:border-dark-600 
+               rounded shadow-md dark:shadow-lg shadow-gray-200 dark:shadow-black/20
+               transition-all duration-default ease-default;
         width: max-content;
     }
 
     hr {
-        @apply w-full mb-4
+        @apply w-full mb-4 border-gray-300 dark:border-dark-600
     }
 
     span {
-        @apply font-mono text-primary-500
+        @apply font-mono text-primary-600 dark:text-primary-400
     }
 }
