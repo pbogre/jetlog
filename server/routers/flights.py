@@ -1,5 +1,5 @@
 from server.database import database
-from server.models import AirportModel, ClassType, CustomModel, FlightModel, AircraftSide, FlightPurpose, SeatType, User
+from server.models import AirlineModel, AirportModel, ClassType, CustomModel, FlightModel, AircraftSide, FlightPurpose, SeatType, User
 from server.auth.users import get_current_user
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -134,8 +134,11 @@ class FlightPatchModel(CustomModel):
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
+    airline:        AirlineModel|str|None = None
+    tail_number:    str|None = None
     flight_number:  str|None = None
     notes:          str|None = None
+
 @router.patch("", status_code=200)
 async def update_flight(id: int, 
                         new_flight: FlightPatchModel,
@@ -199,10 +202,12 @@ async def get_flights(id: int|None = None,
         SELECT 
             f.*,
             o.*, 
-            d.*
+            d.*,
+            a.*
         FROM flights f
         JOIN airports o ON UPPER(f.origin) = o.icao
         JOIN airports d ON UPPER(f.destination) = d.icao
+        LEFT JOIN airlines a ON UPPER(f.airline) = a.icao
         WHERE 1=1
         {user_filter}
         {id_filter}
@@ -213,24 +218,29 @@ async def get_flights(id: int|None = None,
 
     res = database.execute_read_query(query);
 
-    # get rid of origin, destination ICAOs for proper conversion
+    # get rid of origin, destination, and airline ICAOs for proper conversion
     # after this, each flight_db is in the format:
-    # [id, username, date, departure_time, ..., AirportModel, AirportModel]
-    res = [ flight_db[:3] + flight_db[5:] for flight_db in res ]
+    # [id, username, date, departure_time, ..., AirportModel, AirportModel, AirlineModel]
+    res = [ db_flight[:3] + db_flight[5:15] + db_flight[16:] for db_flight in res ]
 
     flights = []
 
     for db_flight in res:
-        begin = len(FlightModel.get_attributes()) - 2
-        length = len(AirportModel.get_attributes())
+        begin = len(FlightModel.get_attributes()) - 3
+        airport_length = len(AirportModel.get_attributes())
+        airline_length = len(AirlineModel.get_attributes())
 
-        db_origin = db_flight[begin:begin + length]
-        db_destination = db_flight[begin + length: begin + 2*length]
+        db_origin = db_flight[begin:begin + airport_length]
+        db_destination = db_flight[begin + airport_length:begin + 2*airport_length]
+        db_airline = db_flight[begin + 2*airport_length:begin + 2*airport_length + airline_length]
 
         origin = AirportModel.from_database(db_origin)
         destination = AirportModel.from_database(db_destination)
+        airline = AirlineModel.from_database(db_airline) if db_airline[0] != None else None
 
-        flight = FlightModel.from_database(db_flight, { "origin": origin, "destination": destination } )
+        flight = FlightModel.from_database(db_flight, { "origin": origin, 
+                                                        "destination": destination,
+                                                        "airline": airline } )
 
         if not metric and flight.distance:
             flight.distance = round(flight.distance * 0.6213711922)

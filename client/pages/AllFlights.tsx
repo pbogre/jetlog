@@ -150,10 +150,9 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableHeading text="Duration"/>
                 <TableHeading text="Distance"/>
                 <TableHeading text="Seat"/>
-                <TableHeading text="Aircraft Side"/>
                 <TableHeading text="Class"/>
                 <TableHeading text="Airplane"/>
-                <TableHeading text="Flight Number"/>
+                <TableHeading text="Airline"/>
             </tr>
             { flights.map((flight: Flight) => (
             <tr className="cursor-pointer even:bg-gray-100 hover:bg-gray-200 duration-75" 
@@ -166,10 +165,9 @@ function FlightsTable({ filters }: { filters: FlightsFilters }) {
                 <TableCell text={flight.duration ? flight.duration + " min" : ""}/>
                 <TableCell text={flight.distance ? flight.distance.toLocaleString() + (metricUnits === "false" ? " mi" : " km") : ""}/>
                 <TableCell text={flight.seat || ""}/>
-                <TableCell text={flight.aircraftSide || ""}/>
                 <TableCell text={flight.ticketClass || ""} />
                 <TableCell text={flight.airplane || ""}/>
-                <TableCell text={flight.flightNumber || ""}/>
+                <TableCell text={flight.airline?.name || ""}/>
             </tr>
             ))}
         </table>

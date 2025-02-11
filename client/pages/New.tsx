@@ -2,11 +2,10 @@ import React, {useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Heading, Label, Button, Input, Select, TextArea } from '../components/Elements';
-import AirportInput from '../components/AirportInput';
-
+import SearchInput from '../components/SearchInput'
 import API from '../api';
 import { objectFromForm } from '../utils';
-import {Airport} from '../models';
+import {Airline, Airport} from '../models';
 
 export default function New() {
     const navigate = useNavigate();
@@ -14,6 +13,7 @@ export default function New() {
     const [flightNumber, setFlightNumber] = useState('');
     const [fetchedOrigin, setFetchedOrigin] = useState<Airport>()
     const [fetchedDestination, setFetchedDestination] = useState<Airport>()
+    const [fetchedAirline, setFetchedAirline] = useState<Airline>()
 
     const postFlight = (event) => {
         event.preventDefault();
@@ -33,12 +33,15 @@ export default function New() {
         .then(async (data: Object) => {
             const originICAO = data["response"]["flightroute"]["origin"]["icao_code"];
             const destinationICAO = data["response"]["flightroute"]["destination"]["icao_code"];
-
+            const airlineICAO = data["response"]["flightroute"]["airline"]["icao"];
+            
             const origin = await API.get(`/airports/${originICAO}`);
             const destination= await API.get(`/airports/${destinationICAO}`);
+            const airline = await API.get(`/airlines/${airlineICAO}`)
 
             setFetchedOrigin({...origin});
             setFetchedDestination({...destination});
+            setFetchedAirline({ ...airline });
         });
     };
 
@@ -50,10 +53,10 @@ export default function New() {
                 <div className="flex flex-wrap">
                     <div className="container">
                         <Label text="Origin" required />
-                        <AirportInput name="origin" airport={fetchedOrigin} />
+                        <SearchInput name="origin" type="airports" subject={fetchedOrigin} />
                         <br />
                         <Label text="Destination" required />
-                        <AirportInput name="destination" airport={fetchedDestination} />
+                        <SearchInput name="destination" type="airports" subject={fetchedDestination} />
                         <br />
                         <Label text="Date" required />
                         <Input
@@ -140,13 +143,25 @@ export default function New() {
                         </div>
 
                         <br />
-                        <div className="flex flex-wrap gap-4 items-center">
+                        <div className="flex flex-wrap gap-4">
 
                             <div className="flex flex-col">
                                 <Label text="Airplane" />
                                 <Input type="text" name="airplane" placeholder="B738" maxLength={16} />
                             </div>
+                            <div className="flex flex-col">
+                                <Label text="Tail Number" />
+                                <Input type="text" name="tailNumber" placeholder="EI-DCL" maxLength={16} />
+                            </div>
 
+                        </div>
+
+                        <div className="flex flex-wrap gap-4 items-center">
+
+                            <div className='flex flex-col'>
+                                <Label text="Airline" />
+                                <SearchInput name="airline" type="airlines" subject={fetchedAirline} />
+                            </div>
                             <div className="flex flex-col">
                                 <Label text="Flight Number" />
                                     <Input
