@@ -33,7 +33,17 @@ async def check_flight_authorization(id: int, user: User) -> None:
         raise HTTPException(status_code=403, detail="You are not authorized to modify this flight")
 
 # https://en.wikipedia.org/wiki/Haversine_formula
-def spherical_distance(origin: AirportModel, destination: AirportModel) -> int:
+async def spherical_distance(origin: AirportModel|str, destination: AirportModel|str) -> int:
+    from server.routers.airports import get_airport_from_icao
+
+    # make sure we have object types
+    if type(origin) == str:
+        origin = await get_airport_from_icao(origin)
+    if type(destination) == str:
+        destination = await get_airport_from_icao(destination)
+
+    assert type(origin) == AirportModel and type(destination) == AirportModel
+
     if not origin.latitude or not origin.longitude or not destination.latitude or not destination.longitude:
         return 0
 
@@ -66,22 +76,7 @@ async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)
 
     # if distance not given, calculate it
     if not flight.distance:
-        # if only icao given, retrieve AirportModel
-        if type(flight.origin) == str:
-            res = database.execute_read_query(f"SELECT * FROM airports WHERE LOWER(icao) = LOWER(?);", [flight.origin])
-            origin = AirportModel.from_database(res[0])
-
-            flight.origin = origin
-
-        if type(flight.destination) == str:
-            res = database.execute_read_query(f"SELECT * FROM airports WHERE LOWER(icao) = LOWER(?);", [flight.destination])
-            destination = AirportModel.from_database(res[0])
-
-            flight.destination = destination
-
-        # finally, calculate and set distance
-        if type(flight.origin) == AirportModel and type(flight.destination) == AirportModel:
-            flight.distance = spherical_distance(flight.origin, flight.destination)
+        flight.distance = await spherical_distance(flight.origin, flight.destination)
 
     # if duration not given, calculate it
     if not flight.duration and flight.departure_time and flight.arrival_time:
@@ -147,6 +142,17 @@ async def update_flight(id: int,
 
     if new_flight.empty():
         return id
+
+    # if airports changed, update distance (unless specified)
+    if new_flight.origin or new_flight.destination and not new_flight.distance:
+        # first must have both airports 
+        original_flight = await get_flights(id=id)
+        assert type(original_flight) == FlightModel
+
+        new_origin = new_flight.origin if new_flight.origin else original_flight.origin
+        new_destination = new_flight.destination if new_flight.destination else original_flight.destination
+
+        new_flight.distance = await spherical_distance(new_origin, new_destination)
 
     query = "UPDATE flights SET "
  
