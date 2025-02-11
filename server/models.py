@@ -57,7 +57,7 @@ class CustomModel(CamelableModel):
 
             enum_classes = [SeatType, ClassType, AircraftSide, FlightPurpose]
 
-            if type(value) == AirportModel:
+            if type(value) == AirportModel or type(value) == AirlineModel:
                 value = value.icao
             elif type(value) == datetime.date:
                 value = value.isoformat()
@@ -148,9 +148,9 @@ class AirportModel(CustomModel):
         return v
 
 class AirlineModel(CustomModel):
-    name: str
     icao: str
     iata: str | None = None
+    name: str
 
     @field_validator('icao')
     @classmethod
@@ -184,7 +184,7 @@ class FlightModel(CustomModel):
     duration:       int|None = None
     distance:       int|None = None
     airplane:       str|None = None
-    airline:        str|None = None
+    airline:        AirlineModel|str|None = None
     tail_number:    str|None = None
     flight_number:  str|None = None
     notes:          str|None = None
@@ -197,6 +197,17 @@ class FlightModel(CustomModel):
 
         icao = v.icao if type(v) == AirportModel else v
         AirportModel.validate_single_field('icao', icao) 
+
+        return v
+
+    @field_validator('airline')
+    @classmethod
+    def airline_must_exist(cls, v) -> str|AirlineModel|None:
+        if not v:
+            return None
+
+        icao = v.icao if type(v) == AirlineModel else v
+        AirlineModel.validate_single_field('icao', icao)
 
         return v
 

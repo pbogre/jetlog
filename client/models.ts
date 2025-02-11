@@ -22,8 +22,8 @@ export class Flight {
     duration: number;
     distance: number;
     airplane: string;
-    airline: string;
-    tail_Number: string;
+    airline: Airline;
+    tailNumber: string;
     flightNumber: string;
     notes: string;
 }
@@ -39,12 +39,24 @@ export class Airport {
     continent: string;
     latitude: number;
     longitude: number;
+
+    toString(): string {
+        if (this === null) return "N/A";
+
+        return (this.iata || this.icao) + " - " + this.municipality + "/" + this.country;
+    }
 }
 
 export class Airline {
-  name: string;
-  icao: string;
-  iata: string;
+    icao: string;
+    iata: string;
+    name: string;
+
+    toString(): string {
+        if (this === null) return "N/A";
+
+        return (this.iata || this.icao) + " - " + this.name;
+    }
 }
 
 export class Statistics {

@@ -2,9 +2,8 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
-import { Flight, User } from '../models';
-import AirportInput from './AirportInput';
-import AirlineInput from './AirlineInput';
+import { Airline, Flight, User } from '../models';
+import SearchInput from './SearchInput';
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
 import { objectFromForm } from '../utils';
@@ -94,8 +93,8 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Airports" />
                     { editMode ?
                     <>
-                        <p>Origin: <AirportInput name="origin" placeholder={flight.origin}/></p>
-                        <p>Destination: <AirportInput name="destination" placeholder={flight.destination} /></p>
+                        <p>Origin: <SearchInput name="origin" type="airports" placeholder={flight.origin}/></p>
+                        <p>Destination: <SearchInput name="destination" type="airports" placeholder={flight.destination} /></p>
                         <p>Distance (km): <Input type="number" name="distance" placeholder={flight.distance?.toString()}/></p>
                     </>
                     :
@@ -152,7 +151,7 @@ export default function SingleFlight({ flightID }) {
                             { text: "Other", value: "other" }
                         ]} /></p>
                         <p>Airplane: <Input type="text" name="airplane" placeholder={flight.airplane} /></p>
-                        <p>Airline: <AirlineInput name="airline" placeholder={flight.airline} /></p>
+                        <p>Airline: <SearchInput name="airline" type="airlines" placeholder={flight.airline} /></p>
                         <p>Tail Number: <Input type="text" name="tail_Number" placeholder={flight.tailNumber} /></p>
                         <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
                         <p>Notes</p>
@@ -165,6 +164,7 @@ export default function SingleFlight({ flightID }) {
                         <p>Class: <span>{flight.ticketClass || "N/A"}</span></p>
                         <p>Purpose: <span>{flight.purpose || "N/A"}</span></p>
                         <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
+                        <p>Airline: <span>{flight.airline ? flight.airline.icao + " - " + flight.airline.name : "N/A"}</span></p>
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
                         <p>Notes: {flight.notes ?  <p className="whitespace-pre-line inline">{flight.notes}</p> : "N/A"}</p>
                     </>}

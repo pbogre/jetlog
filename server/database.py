@@ -56,8 +56,8 @@ class Database():
         if os.path.isfile(db_path):
             self.connection = sqlite3.connect(db_path)
 
-            # update airports table
-            self.update_airports_table()
+            # update airports and airlines tables
+            self.update_tables()
 
             # verify that all tables are up-to-date
             # (backward compatibility)
@@ -113,8 +113,7 @@ class Database():
             self.execute_query(f"CREATE TABLE {table} {table_pragma};")
 
         self.create_first_user()
-        self.update_airports_table(drop_old=False)
-        self.update_airlines_table(drop_old=False)
+        self.update_tables(drop_old=False)
 
     def create_first_user(self):
         from server.auth.utils import hash_password
@@ -127,20 +126,22 @@ class Database():
         self.execute_query("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, 1);",
                            [default_username, default_password])
 
-    def update_airports_table(self, drop_old: bool = True):
-        print("Updating airports table...")
+    def update_tables(self, drop_old: bool = True):
+        print("Updating airports and airlines tables...")
         airports_db_path = Path(__file__).parent.parent / 'data' / 'airports.db'
+        airlines_db_path = Path(__file__).parent.parent / 'data' / 'airlines.db'
 
         if drop_old:
             try:
                 self.execute_query("DROP TABLE airports;")
+                self.execute_query("DROP TABLE airlines;")
             except: 
                 # if airports database not found, simply skip deletion
                 pass
 
         self.execute_query("""
         CREATE TABLE airports (
-            icao         TEXT,
+            icao         TEXT PRIMARY KEY,
             iata         TEXT,
             type         TEXT,
             name         TEXT,
@@ -152,31 +153,21 @@ class Database():
             longitude    FLOAT
         );""")
 
-        self.execute_query(f"ATTACH '{airports_db_path}' AS a;")
-        self.execute_query("INSERT INTO main.airports SELECT * FROM a.airports;")
-        self.execute_query("DETACH a;")
-
-    def update_airlines_table(self, drop_old: bool = True):
-        print("Updating airlines table...")
-        airlines_db_path = Path(__file__).parent.parent / 'data' / 'airlines.db'
-
-        if drop_old:
-            try:
-                self.execute_query("DROP TABLE airlines;")
-            except:
-                # if airlines database not found, simply skip deletion
-                pass
-
         self.execute_query("""
         CREATE TABLE airlines (
-        name TEXT,
-        icao TEXT PRIMARY KEY UNIQUE,
-        iata TEXT
+            icao TEXT PRIMARY KEY,
+            name TEXT,
+            iata TEXT
         );""")
 
-        self.execute_query(f"ATTACH '{airlines_db_path}' AS a;")
-        self.execute_query("INSERT INTO main.airlines SELECT * FROM a.airlines;")
-        self.execute_query("DETACH a;")
+        self.execute_query(f"ATTACH '{airports_db_path}' AS ap;")
+        self.execute_query(f"ATTACH '{airlines_db_path}' AS ar;")
+
+        self.execute_query("INSERT INTO main.airports SELECT * FROM ap.airports;")
+        self.execute_query("INSERT INTO main.airlines SELECT * FROM ar.airlines;")
+
+        self.execute_query("DETACH ap;")
+        self.execute_query("DETACH ar;")
 
     def patch_table(self, table: str, present: list[str]):
         print(f"Patching table '{table}'...")
