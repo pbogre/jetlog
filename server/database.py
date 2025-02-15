@@ -156,8 +156,8 @@ class Database():
         self.execute_query("""
         CREATE TABLE airlines (
             icao TEXT PRIMARY KEY,
-            name TEXT,
-            iata TEXT
+            iata TEXT,
+            name TEXT
         );""")
 
         self.execute_query(f"ATTACH '{airports_db_path}' AS ap;")
