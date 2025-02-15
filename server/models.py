@@ -149,7 +149,7 @@ class AirportModel(CustomModel):
 
 class AirlineModel(CustomModel):
     icao: str
-    iata: str | None = None
+    iata: str|None=None
     name: str
 
     @field_validator('icao')
@@ -246,3 +246,4 @@ class StatisticsModel(CustomModel):
     most_visited_airports:  dict
     seat_frequency:         dict
     ticket_class_frequency: dict
+    most_common_airlines: dict
