@@ -68,6 +68,7 @@ export class Statistics {
     mostVisitedAirports: object;
     seatFrequency: object;
     ticketClassFrequency: object;
+    mostCommonAirlines: object;
 }
 
 export class Coord {

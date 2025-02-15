@@ -91,30 +91,35 @@ export function AllStats({ filters }) {
     }
 
     return (
-        <div className="flex flex-wrap">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             <div className="container">
-                <Subheading text="Generic" />
+                <h3 className="text-lg font-semibold mb-4">Generic</h3>
                 
-                <p>Number of flights: <span>{statistics.totalFlights}</span></p>
-                <p>Total (registered) time spent flying: <span>{(statistics.totalDuration / 60).toLocaleString()} hours</span></p>
-                <p>Total distance travelled: <span>{statistics.totalDistance.toLocaleString()} {metricUnits === "false" ? "mi" : "km"}</span></p>
-                <p>Total unique airports visited: <span>{statistics.totalUniqueAirports}</span></p>
-                <p>Range of days: <span>{statistics.daysRange} days</span></p>
+                <p className="mb-2">Number of flights: <span className="font-medium">{statistics.totalFlights}</span></p>
+                <p className="mb-2">Total (registered) time spent flying: <span className="font-medium">{(statistics.totalDuration / 60).toLocaleString()} hours</span></p>
+                <p className="mb-2">Total distance travelled: <span className="font-medium">{statistics.totalDistance.toLocaleString()} {metricUnits === "false" ? "mi" : "km"}</span></p>
+                <p className="mb-2">Total unique airports visited: <span className="font-medium">{statistics.totalUniqueAirports}</span></p>
+                <p className="mb-2">Range of days: <span className="font-medium">{statistics.daysRange} days</span></p>
             </div>
-
+            
             <div className="container">
-                <Subheading text="Most visited airports" />
+                <h3 className="text-lg font-semibold mb-4">Most visited airports</h3>
                 <StatFrequency object={statistics.mostVisitedAirports} measure="visits"/>
             </div>
-
+            
             <div className="container">
-                <Subheading text="Most common seat" />
+                <h3 className="text-lg font-semibold mb-4">Most common seat</h3>
                 <StatFrequency object={statistics.seatFrequency} measure="flights"/>
             </div>
-
+            
             <div className="container">
-                <Subheading text="Most common class" />
+                <h3 className="text-lg font-semibold mb-4">Most common class</h3>
                 <StatFrequency object={statistics.ticketClassFrequency} measure="flights"/>
+            </div>
+            
+            <div className="container">
+                <h3 className="text-lg font-semibold mb-4">Most common airlines</h3>
+                <StatFrequency object={statistics.mostCommonAirlines} measure="flights"/>
             </div>
         </div>
     );

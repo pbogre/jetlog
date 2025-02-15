@@ -67,7 +67,7 @@ export default function SingleFlight({ flightID }) {
             <h2 className="-mt-4 mb-4 text-xl">{flight.username} on {flight.date}</h2>
            
             <form onSubmit={updateFlight}>
-            <div className="flex flex-wrap">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                 <div className="container">
                     <Subheading text="Timings" />
                     { editMode ? 
@@ -119,7 +119,7 @@ export default function SingleFlight({ flightID }) {
                     }
                 </div>
 
-                <div className="container md:max-w-[33%]">
+                <div className="container">
                     <Subheading text="Other" />
                     { editMode ?
                     <>

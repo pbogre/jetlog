@@ -160,7 +160,7 @@ export default function Settings() {
     <>
         <Heading text="Settings" />
 
-        <div className="flex flex-wrap items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             <div className="container">
                 <Subheading text="Import"/>
 
@@ -227,31 +227,33 @@ export default function Settings() {
                     <>
                         <div className="container w-full">
                             <Subheading text="User Management"/>
-
-                            <div className="flex flex-wrap items-start gap-3">
-                            { allUsers.map((u) => (
-                                <div className="border-gray-500 border p-2">
-                                    <UserInfo user={u}/>
-                                </div> 
-                            ))
-                            }
+                            <div className="grid gap-3">
+                                {allUsers.map((u) => (
+                                    <div className="border-gray-500 border p-2">
+                                        <UserInfo user={u}/>
+                                    </div> 
+                                ))}
                             </div>
-
-                            <Dialog title="Create User" buttonLevel="success" onSubmit={createUser} formBody={(
-                                <>
-                                    <Label text="Username" required/>
-                                    <Input type="text" name="username" required/>
-                                    <br />
-                                    <Label text="Admin Status" required/>
-                                    <Select name="isAdmin" options={[
-                                        { text: "false", value: "false" },
-                                        { text: "true", value: "true" }
-                                    ]} />
-                                    <br />
-                                    <Label text="Password" required/>
-                                    <Input type="text" name="password" required/>
-                                </>
-                            )}/>
+                            <Dialog 
+                                title="Create User" 
+                                buttonLevel="success" 
+                                onSubmit={createUser} 
+                                formBody={(
+                                    <>
+                                        <Label text="Username" required/>
+                                        <Input type="text" name="username" required/>
+                                        <br />
+                                        <Label text="Admin Status" required/>
+                                        <Select name="isAdmin" options={[
+                                            { text: "false", value: "false" },
+                                            { text: "true", value: "true" }
+                                        ]} />
+                                        <br />
+                                        <Label text="Password" required/>
+                                        <Input type="text" name="password" required/>
+                                    </>
+                                )}
+                            />
                         </div>
                     </>
             }

@@ -50,7 +50,7 @@ export default function New() {
             <Heading text="New Flight" />
 
             <form onSubmit={postFlight}>
-                <div className="flex flex-wrap">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                     <div className="container">
                         <Label text="Origin" required />
                         <SearchInput name="origin" type="airports" subject={fetchedOrigin} />
@@ -65,9 +65,8 @@ export default function New() {
                             defaultValue={(new Date()).toISOString().substring(0, 10)}
                             required
                         />
-                    </div>
 
-                    <div className="container">
+                        <br />
                         <Label text="Departure Time" />
                         <Input
                             type="time"
@@ -88,8 +87,8 @@ export default function New() {
                     </div>
 
                     <div className="container">
-                        <div className="flex justify-between flex-wrap gap-4 items-start">
-                            <div className="flex flex-col">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
                                 <Label text="Seat Type" />
                                 <Select
                                     name="seat"
@@ -101,7 +100,7 @@ export default function New() {
                                     ]}
                                 />
                             </div>
-                            <div className="flex flex-col">
+                            <div>
                                 <Label text="Aircraft Side" />
                                 <Select
                                     name="aircraftSide"
@@ -113,7 +112,7 @@ export default function New() {
                                     ]}
                                 />
                             </div>
-                            <div className="flex flex-col">
+                            <div>
                                 <Label text="Class" />
                                 <Select
                                     name="ticketClass"
@@ -127,7 +126,7 @@ export default function New() {
                                     ]}
                                 />
                             </div>
-                            <div className="flex flex-col">
+                            <div>
                                 <Label text="Purpose" />
                                 <Select
                                     name="purpose"
@@ -143,41 +142,40 @@ export default function New() {
                         </div>
 
                         <br />
-                        <div className="flex flex-wrap gap-4">
-
-                            <div className="flex flex-col">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
                                 <Label text="Airplane" />
                                 <Input type="text" name="airplane" placeholder="B738" maxLength={16} />
                             </div>
-                            <div className="flex flex-col">
+                            <div>
                                 <Label text="Tail Number" />
                                 <Input type="text" name="tailNumber" placeholder="EI-DCL" maxLength={16} />
                             </div>
-
                         </div>
 
-                        <div className="flex flex-wrap gap-4 items-center">
-
-                            <div className='flex flex-col'>
+                        <br />
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+                            <div>
                                 <Label text="Airline" />
                                 <SearchInput name="airline" type="airlines" subject={fetchedAirline} />
                             </div>
-                            <div className="flex flex-col">
+                            <div className="whitespace-nowrap">
                                 <Label text="Flight Number" />
-                                    <Input
-                                        type="text"
-                                        name="flightNumber"
-                                        placeholder="FR2460"
-                                        maxLength={7}
-                                        onChange={(e) => setFlightNumber(e.target.value)}
-                                    />
+                                <Input
+                                    type="text"
+                                    name="flightNumber"
+                                    placeholder="FR2460"
+                                    maxLength={7}
+                                    onChange={(e) => setFlightNumber(e.target.value)}
+                                />
                             </div>
-
-                            <div className="flex flex-col">
+                            <div className="h-10 flex items-center">
                                 <Button text="Fetch" onClick={attemptFetchFlight} disabled={!flightNumber} />
                             </div>
                         </div>
-                        <br />
+                    </div>
+
+                    <div className="container md:col-span-2 lg:col-span-1">
                         <Label text="Notes" />
                         <TextArea
                             name="notes"
@@ -186,11 +184,13 @@ export default function New() {
                     </div>
                 </div>
 
-                <Button
-                    text="Done"
-                    submit
-                />
+                <div className="px-4 pb-4">
+                    <Button
+                        text="Done"
+                        submit
+                    />
+                </div>
             </form>
-        </>
+        </>    
     );
 }

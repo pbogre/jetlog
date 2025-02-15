@@ -76,8 +76,8 @@ async def get_statistics(metric: bool = True,
 
     most_visited_airports = { }
     for airport in res:
-        string = f"{airport[2] if airport[2] else airport[1]} - {airport[3]}/{airport[4]}"
-        most_visited_airports[string] = airport[0]
+        key = f"{airport[2] if airport[2] else airport[1]} - {airport[3]}/{airport[4]}"
+        most_visited_airports[key] = airport[0]
 
     # get seats frequency
     res = database.execute_read_query(f"""
@@ -101,11 +101,27 @@ async def get_statistics(metric: bool = True,
     ticket_class_frequency = { pair[0]: pair[1] for pair in res }
     ticket_class_frequency.pop(None, None) # ignore entries with no ticket class
 
+    # get top 5 airlines
+    res = database.execute_read_query(f"""
+        SELECT a.name, COUNT(*) AS freq
+        FROM flights f
+        JOIN airlines a ON a.icao = f.airline
+        GROUP BY a.icao
+        ORDER BY freq DESC
+        LIMIT 5;
+    """)
+    most_common_airlines = { }
+
+    for airline in res:
+        key = airline[0]
+        most_common_airlines[key] = airline[1]
+
     statistics = StatisticsModel.from_database(statistics_db, 
                                                explicit={ 
                                                          "most_visited_airports": most_visited_airports,
                                                          "seat_frequency": seat_frequency,
-                                                         "ticket_class_frequency": ticket_class_frequency
+                                                         "ticket_class_frequency": ticket_class_frequency,
+                                                         "most_common_airlines": most_common_airlines
                                                          })
 
     if not metric and statistics.total_distance:
