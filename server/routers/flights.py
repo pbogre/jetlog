@@ -68,6 +68,23 @@ async def spherical_distance(origin: AirportModel|str, destination: AirportModel
 
     return round(distance);
 
+def duration(departure_time: str, departure_date: datetime.date, arrival_time: str, arrival_date: datetime.date|None = None):
+    departure = datetime.datetime.strptime(f"{departure_date} {departure_time}", "%Y-%m-%d %H:%M")
+    arrival = datetime.datetime.strptime(f"{departure_date} {arrival_time}", "%Y-%m-%d %H:%M")
+
+    if arrival_date != None:
+        arrival_date = datetime.datetime.fromisoformat(f"{arrival_date}")
+        arrival = datetime.datetime.combine(arrival_date, arrival.time())
+    elif arrival.time() <= departure.time():
+        arrival_date = arrival.date() + datetime.timedelta(days=1)
+        arrival = datetime.datetime.combine(arrival_date, arrival.time())
+        arrival_date = arrival_date
+
+    delta = arrival - departure
+    delta_minutes = delta.total_seconds() / 60
+
+    return round(delta_minutes)
+
 @router.post("", status_code=201)
 async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)) -> int:
     if not (flight.date and flight.origin and flight.destination):
@@ -80,21 +97,8 @@ async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)
 
     # if duration not given, calculate it
     if not flight.duration and flight.departure_time and flight.arrival_time:
-        departure = datetime.datetime.strptime(f"{flight.date} {flight.departure_time}", "%Y-%m-%d %H:%M")
-        arrival = datetime.datetime.strptime(f"{flight.date} {flight.arrival_time}", "%Y-%m-%d %H:%M")
-
-        if flight.arrival_date:
-            arrival_date = datetime.datetime.fromisoformat(f"{flight.arrival_date}")
-            arrival = datetime.datetime.combine(arrival_date, arrival.time())
-        elif arrival.time() <= departure.time():
-            arrival_date = arrival.date() + datetime.timedelta(days=1)
-            arrival = datetime.datetime.combine(arrival_date, arrival.time())
-            flight.arrival_date = arrival_date
-
-        delta = arrival - departure
-        delta_minutes = delta.total_seconds() / 60
-
-        flight.duration = round(delta_minutes)
+        flight.duration = duration(flight.departure_time, flight.date,
+                                   flight.arrival_time, flight.arrival_date)
 
     columns = FlightModel.get_attributes(ignore=["id"])
 
@@ -153,6 +157,21 @@ async def update_flight(id: int,
         new_destination = new_flight.destination if new_flight.destination else original_flight.destination
 
         new_flight.distance = await spherical_distance(new_origin, new_destination)
+
+    # if arrival / departure date or arrival date changed, update duration (unless specified)
+    if not new_flight.duration:
+        if new_flight.date or new_flight.departure_time or new_flight.arrival_date or new_flight.arrival_time:
+            original_flight = await get_flights(id=id)
+            assert type(original_flight) == FlightModel
+
+            new_departure_date = new_flight.date if new_flight.date else original_flight.date
+            new_departure_time = new_flight.departure_time if new_flight.departure_time else original_flight.departure_time
+            new_arrival_date = new_flight.arrival_date if new_flight.arrival_date else original_flight.arrival_date
+            new_arrival_time = new_flight.arrival_time if new_flight.arrival_time else original_flight.arrival_time
+
+            # if arrival or departure times still not available, skip
+            if new_arrival_time and new_departure_time:
+                new_flight.duration = duration(new_departure_time, new_departure_date, new_arrival_time, new_arrival_date)
 
     query = "UPDATE flights SET "
  
