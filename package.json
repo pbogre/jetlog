@@ -3,7 +3,7 @@
     "version": "1.1.1",
     "source": "client/index.html",
     "scripts": {
-        "build": "PARCEL_WORKERS=0 parcel build --dist-dir dist",
+        "build": "PARCEL_WORKERS=0 parcel build --public-url ./ --dist-dir dist",
         "watch": "PARCEL_WORKERS=0 parcel watch --dist-dir dist"
     },
     "dependencies": {
