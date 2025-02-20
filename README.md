@@ -51,7 +51,8 @@ services:
 Once up and running, the default admin account has username and password `admin`. 
 Make sure that you change the password after the first login!
 
-For details about troubleshooting, environment variables, and more installation options, have a look at the [installation wiki](https://github.com/pbogre/jetlog/wiki/Installation)
+For details about troubleshooting, environment variables, and more installation options
+such as running Jetlog under a path prefix, have a look at the [installation wiki](https://github.com/pbogre/jetlog/wiki/Installation)
 
 ## Importing & Exporting
 
