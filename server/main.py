@@ -1,7 +1,7 @@
 from server.routers import flights, airports, airlines, statistics, geography, importing, exporting
 from server.auth import users, auth
-from fastapi import FastAPI, Depends
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Depends, Request
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
 
@@ -31,6 +31,10 @@ app.include_router(exporting.router, prefix="/api", dependencies=auth_dependency
 
 app.include_router(users.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
+
+@app.get("/config")
+async def get_config(request: Request):
+    return JSONResponse({"BASE_URL": request.scope.get("root_path", "/")})
 
 @app.get("/", include_in_schema=False)
 @app.get("/new", include_in_schema=False)

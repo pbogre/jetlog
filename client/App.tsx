@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 
+import { BASE_URL } from './api';
+
 import Login from './pages/Login';
 import New from './pages/New';
 import Home from './pages/Home'
@@ -12,8 +14,7 @@ import Navbar from './components/Navbar';
 
 export function App() {
     return (
-        <BrowserRouter>
-
+        <BrowserRouter basename={BASE_URL}>
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route element={
