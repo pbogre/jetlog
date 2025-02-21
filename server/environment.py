@@ -19,4 +19,5 @@ def _get_environment_variable(key: str, cast_int: bool = False) -> str|int:
 
 DATA_PATH = _get_environment_variable("DATA_PATH")
 SECRET_KEY = _get_environment_variable("SECRET_KEY")
+AUTH_HEADER = _get_environment_variable("AUTH_HEADER")
 TOKEN_DURATION = int(_get_environment_variable("TOKEN_DURATION", cast_int=True)) # double cast to make linter happy
