@@ -86,7 +86,7 @@ def duration(departure_time: str, departure_date: datetime.date, arrival_time: s
     return round(delta_minutes)
 
 @router.post("", status_code=201)
-async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)) -> int:
+async def add_flight(flight: FlightModel, timezones: bool = True, user: User = Depends(get_current_user)) -> int:
     if not (flight.date and flight.origin and flight.destination):
         raise HTTPException(status_code=404, 
                             detail="Insufficient flight data. Date, Origin, and Destination are required")
@@ -139,8 +139,9 @@ class FlightPatchModel(CustomModel):
     notes:          str|None = None
 
 @router.patch("", status_code=200)
-async def update_flight(id: int, 
+async def update_flight(id: int,
                         new_flight: FlightPatchModel,
+                        timezones: bool = True,
                         user: User = Depends(get_current_user)) -> int:
     await check_flight_authorization(id, user)
 

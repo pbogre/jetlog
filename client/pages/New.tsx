@@ -6,6 +6,7 @@ import SearchInput from '../components/SearchInput'
 import API from '../api';
 import { objectFromForm } from '../utils';
 import {Airline, Airport} from '../models';
+import ConfigStorage from '../storage/configStorage';
 
 export default function New() {
     const navigate = useNavigate();
@@ -14,6 +15,8 @@ export default function New() {
     const [fetchedOrigin, setFetchedOrigin] = useState<Airport>()
     const [fetchedDestination, setFetchedDestination] = useState<Airport>()
     const [fetchedAirline, setFetchedAirline] = useState<Airline>()
+
+    const localAirportTime = ConfigStorage.getSetting("localAirportTime");
 
     const postFlight = async (event) => {
         event.preventDefault();
@@ -24,7 +27,7 @@ export default function New() {
             return;
         }
 
-        API.post("/flights", flightData)
+        API.post(`/flights?timezones=${localAirportTime}`, flightData)
             .then((flightID) => navigate(`/flights?id=${flightID}`));
     };
 

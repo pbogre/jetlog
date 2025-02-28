@@ -207,6 +207,13 @@ export default function Settings() {
                                 checked={options.metricUnits === "true"} 
                                 onChange={changeOption} />
                 </div>
+
+                <div className="flex justify-between">
+                    <Label text="Use airport timezones for duration" />
+                    <Checkbox name="localAirportTime" 
+                                checked={options.localAirportTime === "true"} 
+                                onChange={changeOption} />
+                </div>
             </div>
 
             <div className="container">
