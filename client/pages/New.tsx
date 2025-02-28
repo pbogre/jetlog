@@ -15,7 +15,7 @@ export default function New() {
     const [fetchedDestination, setFetchedDestination] = useState<Airport>()
     const [fetchedAirline, setFetchedAirline] = useState<Airline>()
 
-    const postFlight = (event) => {
+    const postFlight = async (event) => {
         event.preventDefault();
 
         const flightData = objectFromForm(event);
@@ -25,7 +25,7 @@ export default function New() {
         }
 
         API.post("/flights", flightData)
-            .then(() => navigate("/"));
+            .then((flightID) => navigate(`/flights?id=${flightID}`));
     };
 
     const attemptFetchFlight = async () => {
