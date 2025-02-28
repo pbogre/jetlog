@@ -131,6 +131,7 @@ class AirportModel(CustomModel):
     continent:    str
     latitude:     float
     longitude:    float
+    timezone:     str
 
     @field_validator('icao')
     @classmethod

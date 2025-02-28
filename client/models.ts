@@ -39,6 +39,7 @@ export class Airport {
     continent: string;
     latitude: number;
     longitude: number;
+    timezone: string;
 
     toString(): string {
         if (this === null) return "N/A";
