@@ -20,11 +20,8 @@ class UserPatch(CustomModel):
 
 ALGORITHM = "HS256"
 
+# user auth via header
 async def get_user_from_auth_header(request: Request) -> User:
-    """
-    Authenticate users via AUTH_HEADER.
-    Automatically creates the user if they do not exist.
-    """
     header_username = request.headers.get(AUTH_HEADER)
 
     if not header_username:
@@ -38,9 +35,6 @@ async def get_user_from_auth_header(request: Request) -> User:
     return user
 
 async def get_user_from_token(token: str = Depends(oauth2_scheme)) -> User:
-    """
-    Authenticate users via OAuth2 token.
-    """
     credentials_exception = HTTPException(
         status_code=401,
         headers={"WWW-Authenticate": "Bearer"},
@@ -50,33 +44,25 @@ async def get_user_from_token(token: str = Depends(oauth2_scheme)) -> User:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
-        if username is None:
+
+        if username == None:
             raise credentials_exception
     except jwt.InvalidTokenError:
         raise credentials_exception
 
     user = get_user(username)
-    if user is None:
+
+    if user == None:
         raise credentials_exception
 
     return user
 
+@router.get("/me")
 async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)) -> User:
-    """
-    Use Auth Header if present, otherwise fallback to OAuth2 token.
-    """
     if AUTH_HEADER in request.headers:
         return await get_user_from_auth_header(request)
 
     return await get_user_from_token(token)
-
-@router.get("/me")
-async def get_current_user_route(user: User = Depends(get_current_user)) -> User:
-    """
-    Returns the current authenticated user.
-    Automatically authenticates via AUTH_HEADER if available.
-    """
-    return user
 
 @router.post("", status_code=201)
 async def create_user(new_user: UserPatch, user: User = Depends(get_current_user)):
@@ -88,16 +74,14 @@ async def create_user(new_user: UserPatch, user: User = Depends(get_current_user
         raise HTTPException(status_code=400, detail="Username should be at least 1 character long")
 
     password_hash = hash_password(new_user.password)
-    is_admin = new_user.is_admin if new_user.is_admin is not None else False
-    database.execute_query(
-        "INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
-        [new_user.username, password_hash, is_admin]
+    is_admin = new_user.is_admin if new_user.is_admin != None else False
+    database.execute_query("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
+                           [new_user.username, password_hash, is_admin]
     )
 
 @router.get("")
 async def get_users(_: User = Depends(get_current_user)) -> list[str]:
     res = database.execute_read_query("SELECT username FROM users;")
-
     usernames = [ entry[0] for entry in res ]
 
     return usernames
@@ -108,7 +92,7 @@ async def get_user_details(username: str, user: User = Depends(get_current_user)
         raise HTTPException(status_code=403, detail="Only admins can get other users' details")
 
     found_user = get_user(username)
-    if found_user is None:
+    if found_user == None:
         raise HTTPException(status_code=404, detail=f"User '{username}' not found")
 
     return found_user
@@ -127,7 +111,7 @@ async def update_user(username: str, new_user: UserPatch, user: User = Depends(g
 
     for attr in UserPatch.get_attributes():
         value = getattr(new_user, attr)
-        if value is None:
+        if value == None:
             continue
         if attr == "password":
             value = hash_password(value)
@@ -143,7 +127,7 @@ async def update_user(username: str, new_user: UserPatch, user: User = Depends(g
     values.append(username)
     database.execute_query(query, values)
 
-    # If username was edited, update all flights of that user
+    # if username was edited, update all flights of that user
     if new_user.username:
         database.execute_query(
             "UPDATE flights SET username = ? WHERE username = ?;",
