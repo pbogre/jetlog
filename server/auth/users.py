@@ -1,6 +1,6 @@
 from server.models import CustomModel, User
 from server.database import database
-from server.auth.utils import hash_password, get_user, generate_password, oauth2_scheme
+from server.auth.utils import hash_password, get_user, oauth2_scheme
 from server.environment import SECRET_KEY, AUTH_HEADER
 
 
@@ -31,16 +31,9 @@ async def get_user_from_auth_header(request: Request) -> User:
         raise HTTPException(status_code=401, detail="Missing authentication header")
 
     user = get_user(header_username)
-    if not user:
-        # Auto-create user
-        random_password = generate_password()
-        hashed_password = hash_password(random_password)
 
-        database.execute_query(
-            "INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
-            [header_username, hashed_password, False]
-        )
-        user = get_user(header_username)
+    if not user:
+        raise HTTPException(status_code=401, detail="Username supplied in header does not exist, please have your instance admin create this user.")
 
     return user
 

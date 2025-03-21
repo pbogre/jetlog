@@ -2,7 +2,6 @@ from server.models import User
 
 from fastapi.security import OAuth2PasswordBearer
 from argon2 import PasswordHasher
-import secrets
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/token", auto_error=False)
 _ph = PasswordHasher()
@@ -13,9 +12,6 @@ def verify_password(password: str, password_hash: str) -> bool:
 def hash_password(password: str) -> str:
     password_hash = _ph.hash(password)
     return password_hash
-
-def generate_password() -> str:
-    return secrets.token_urlsafe(32)
 
 def get_user(username: str) -> User|None:
     from server.database import database
