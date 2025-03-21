@@ -33,7 +33,7 @@ async def get_user_from_auth_header(request: Request) -> User:
     user = get_user(header_username)
 
     if not user:
-        raise HTTPException(status_code=401, detail="Username supplied in header does not exist, please have your instance admin create this user.")
+        raise HTTPException(status_code=403, detail="Username supplied in header does not exist, please have your instance admin create this user.")
 
     return user
 

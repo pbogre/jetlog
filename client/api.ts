@@ -37,10 +37,17 @@ class APIClass {
 
     private handleError(err: any) {
         if (err.response) {
-            if (err.response.status === 401) {
+            const status = err.response.status;
+            const detail = err.response.data?.detail;
+
+            if (status === 401) {
                 if (window.location.pathname !== BASE_URL + "/login") {
                     window.location.href = BASE_URL + "/login";
                 }
+            }
+            if (status === 403 && detail?.includes("Username supplied in header")) {
+                alert(detail);
+                return;
             }
             else {
                 alert("Bad response: " + JSON.stringify(err.response.data));
