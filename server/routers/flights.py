@@ -5,6 +5,7 @@ from server.auth.users import get_current_user
 from fastapi import APIRouter, Depends, HTTPException
 from enum import Enum
 import datetime
+from pytz import timezone
 import math
 
 router = APIRouter(
@@ -68,22 +69,27 @@ async def spherical_distance(origin: AirportModel|str, destination: AirportModel
 
     return round(distance);
 
-def duration(departure_time: str, departure_date: datetime.date, arrival_time: str, arrival_date: datetime.date|None = None):
+# TODO wtf is going on
+def duration(departure_time: str, departure_date: datetime.date, arrival_time: str, arrival_date: datetime.date|None = None,
+             tz_origin: str|None = None, tz_destination: str|None = None) -> int:
     departure = datetime.datetime.strptime(f"{departure_date} {departure_time}", "%Y-%m-%d %H:%M")
-    arrival = datetime.datetime.strptime(f"{departure_date} {arrival_time}", "%Y-%m-%d %H:%M")
+    arrival = datetime.datetime.strptime(f"{arrival_date if arrival_date else departure_date} {arrival_time}", "%Y-%m-%d %H:%M")
 
-    if arrival_date != None:
-        arrival_date = datetime.datetime.fromisoformat(f"{arrival_date}")
-        arrival = datetime.datetime.combine(arrival_date, arrival.time())
-    elif arrival.time() <= departure.time():
+    if tz_origin and tz_destination:
+        timezone_origin = timezone(tz_origin)
+        timezone_destination = timezone(tz_destination)
+
+        departure = timezone_origin.localize(departure)
+        arrival = timezone_destination.localize(arrival)
+
+    if arrival.time() <= departure.time():
         arrival_date = arrival.date() + datetime.timedelta(days=1)
         arrival = datetime.datetime.combine(arrival_date, arrival.time())
         arrival_date = arrival_date
 
     delta = arrival - departure
-    delta_minutes = delta.total_seconds() / 60
-
-    return round(delta_minutes)
+    delta_minutes = delta.seconds // 60
+    return delta_minutes
 
 @router.post("", status_code=201)
 async def add_flight(flight: FlightModel, timezones: bool = True, user: User = Depends(get_current_user)) -> int:
@@ -97,8 +103,22 @@ async def add_flight(flight: FlightModel, timezones: bool = True, user: User = D
 
     # if duration not given, calculate it
     if not flight.duration and flight.departure_time and flight.arrival_time:
+
+        tz_origin, tz_destination = None, None
+        if timezones:
+            if type(flight.origin) != AirportModel:
+                tz_origin = database.execute_read_query("SELECT timezone FROM airports WHERE icao = ?;", [flight.origin])[0][0]
+            else:
+                tz_origin = flight.origin.timezone
+
+            if type(flight.destination) != AirportModel:
+                tz_destination = database.execute_read_query("SELECT timezone FROM airports WHERE icao = ?;", [flight.destination])[0][0]
+            else:
+                tz_destination = flight.destination.timezone
+
         flight.duration = duration(flight.departure_time, flight.date,
-                                   flight.arrival_time, flight.arrival_date)
+                                   flight.arrival_time, flight.arrival_date,
+                                   tz_origin, tz_destination)
 
     columns = FlightModel.get_attributes(ignore=["id"])
 
