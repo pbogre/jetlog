@@ -17,7 +17,7 @@ def get_user(username: str) -> User|None:
     from server.database import database
 
     result = database.execute_read_query(f"SELECT * FROM users WHERE username = ?;", [username])
- 
+
     if not result:
         return None
 

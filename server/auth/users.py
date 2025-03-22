@@ -1,11 +1,11 @@
 from server.models import CustomModel, User
 from server.database import database
-from server.auth.utils import hash_password, get_user,  oauth2_scheme
-from server.environment import SECRET_KEY
+from server.auth.utils import hash_password, get_user, oauth2_scheme
+from server.environment import SECRET_KEY, AUTH_HEADER
 
 
 import jwt
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 router = APIRouter(
     prefix="/users",
@@ -20,12 +20,27 @@ class UserPatch(CustomModel):
 
 ALGORITHM = "HS256"
 
-@router.get("/me")
-async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
+# user auth via header
+async def get_user_from_auth_header(request: Request) -> User:
+    header_username = request.headers.get(AUTH_HEADER)
+
+    if not header_username:
+        raise HTTPException(status_code=401, detail="Missing authentication header")
+
+    user = get_user(header_username)
+
+    if not user:
+        raise HTTPException(status_code=403, detail="Username supplied in header does not exist, please have your instance admin create this user.")
+
+    return user
+
+async def get_user_from_token(token: str = Depends(oauth2_scheme)) -> User:
     credentials_exception = HTTPException(
-            status_code=401,
-            headers={"WWW-Authenticate": "Bearer"},
-            detail="Invalid token")
+        status_code=401,
+        headers={"WWW-Authenticate": "Bearer"},
+        detail="Invalid token"
+    )
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
@@ -42,20 +57,27 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
 
     return user
 
+@router.get("/me")
+async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)) -> User:
+    if AUTH_HEADER in request.headers:
+        return await get_user_from_auth_header(request)
+
+    return await get_user_from_token(token)
+
 @router.post("", status_code=201)
 async def create_user(new_user: UserPatch, user: User = Depends(get_current_user)):
     if not user.is_admin:
-        raise HTTPException(status_code=403, detail="Only admins change create new users")
+        raise HTTPException(status_code=403, detail="Only admins can create new users")
     if not new_user.username or not new_user.password:
         raise HTTPException(status_code=400, detail="Username and password are required fields")
-
     if len(new_user.username) < 1:
         raise HTTPException(status_code=400, detail="Username should be at least 1 character long")
 
     password_hash = hash_password(new_user.password)
     is_admin = new_user.is_admin if new_user.is_admin != None else False
-    database.execute_query(f"INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
-                           [new_user.username, password_hash, is_admin])
+    database.execute_query("INSERT INTO users (username, password_hash, is_admin) VALUES (?, ?, ?)",
+                           [new_user.username, password_hash, is_admin]
+    )
 
 @router.get("")
 async def get_users(_: User = Depends(get_current_user)) -> list[str]:
@@ -70,7 +92,7 @@ async def get_user_details(username: str, user: User = Depends(get_current_user)
         raise HTTPException(status_code=403, detail="Only admins can get other users' details")
 
     found_user = get_user(username)
-    if found_user is None:
+    if found_user == None:
         raise HTTPException(status_code=404, detail=f"User '{username}' not found")
 
     return found_user
@@ -80,19 +102,17 @@ async def update_user(username: str, new_user: UserPatch, user: User = Depends(g
     if user.username != username and not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can edit other users")
     if new_user.is_admin and not user.is_admin:
-        raise HTTPException(status_code=403, detail="Only admins can users admin")
+        raise HTTPException(status_code=403, detail="Only admins can set users as admins")
     if new_user.is_admin and username == user.username:
         raise HTTPException(status_code=403, detail="You may only change the admin status of other users")
 
     query = "UPDATE users SET "
-
     values = []
+
     for attr in UserPatch.get_attributes():
         value = getattr(new_user, attr)
-
         if value == None:
             continue
-
         if attr == "password":
             value = hash_password(value)
             attr = "password_hash"
@@ -103,14 +123,16 @@ async def update_user(username: str, new_user: UserPatch, user: User = Depends(g
     if query[-1] == ',':
         query = query[:-1]
 
-    query += f" WHERE username = ?;"
+    query += " WHERE username = ?;"
     values.append(username)
     database.execute_query(query, values)
 
     # if username was edited, update all flights of that user
     if new_user.username:
-        database.execute_query("UPDATE flights SET username = ? WHERE username = ?;",
-                               [new_user.username, username])
+        database.execute_query(
+            "UPDATE flights SET username = ? WHERE username = ?;",
+            [new_user.username, username]
+        )
 
 @router.delete("/{username}", status_code=200)
 async def delete_user(username: str, user: User = Depends(get_current_user)):
