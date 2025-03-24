@@ -11,6 +11,7 @@ requests = "2.31.0"
 python-multipart = "0.0.9"
 pyjwt = "2.9.0"
 argon2-cffi = "23.1.0"
+pytz = "*"
 
 [requires]
 python_version = "3.11"

@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
-import { Airline, Flight, User } from '../models';
+import { Flight, User } from '../models';
 import SearchInput from './SearchInput';
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
@@ -15,6 +15,7 @@ export default function SingleFlight({ flightID }) {
 
     const navigate = useNavigate();
     const metricUnits = ConfigStorage.getSetting("metricUnits");
+    const localAirportTime = ConfigStorage.getSetting("localAirportTime");
 
     useEffect(() => {
         API.get(`/flights?id=${flightID}&metric=${metricUnits}`)
@@ -57,7 +58,7 @@ export default function SingleFlight({ flightID }) {
             return;
         }
 
-        API.patch(`flights?id=${flight.id}`, flightPatchData)
+        API.patch(`flights?id=${flight.id}&timezones=${localAirportTime}`, flightPatchData)
         .then(() => window.location.reload());
     }
 
@@ -106,6 +107,7 @@ export default function SingleFlight({ flightID }) {
                             <li>Type: <span>{flight.origin.type}</span></li>
                             <li>Name: <span>{flight.origin.name}</span></li>
                             <li>Location: <span>{flight.origin.continent}, {flight.origin.country}, {flight.origin.region}, {flight.origin.municipality}</span></li>
+                            <li>Timezone: <span>{flight.origin.timezone}</span></li>
                         </ul>
 
                         <p className="font-bold">Destination</p> 
@@ -114,6 +116,7 @@ export default function SingleFlight({ flightID }) {
                             <li>Type: <span>{flight.destination.type}</span></li>
                             <li>Name: <span>{flight.destination.name}</span></li>
                             <li>Location: <span>{flight.destination.continent}, {flight.destination.country}, {flight.destination.region}, {flight.destination.municipality}</span></li>
+                            <li>Timezone: <span>{flight.destination.timezone}</span></li>
                         </ul>
                     </>
                     }

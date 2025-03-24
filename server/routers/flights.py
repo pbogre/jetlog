@@ -5,6 +5,7 @@ from server.auth.users import get_current_user
 from fastapi import APIRouter, Depends, HTTPException
 from enum import Enum
 import datetime
+import pytz
 import math
 
 router = APIRouter(
@@ -68,25 +69,28 @@ async def spherical_distance(origin: AirportModel|str, destination: AirportModel
 
     return round(distance);
 
-def duration(departure_time: str, departure_date: datetime.date, arrival_time: str, arrival_date: datetime.date|None = None):
-    departure = datetime.datetime.strptime(f"{departure_date} {departure_time}", "%Y-%m-%d %H:%M")
-    arrival = datetime.datetime.strptime(f"{departure_date} {arrival_time}", "%Y-%m-%d %H:%M")
+def to_utc(dt: datetime.datetime, airport: str|AirportModel) -> datetime.datetime:
+    if type(airport) != AirportModel:
+        tz_name = database.execute_read_query("SELECT timezone FROM airports WHERE icao = ?;", [airport])[0][0]
+    else:
+        tz_name = airport.timezone
 
-    if arrival_date != None:
-        arrival_date = datetime.datetime.fromisoformat(f"{arrival_date}")
-        arrival = datetime.datetime.combine(arrival_date, arrival.time())
-    elif arrival.time() <= departure.time():
+    tz = pytz.timezone(tz_name)
+    utc_dt = tz.localize(dt).astimezone(pytz.utc)
+
+    return utc_dt
+
+def duration(departure: datetime.datetime, arrival: datetime.datetime) -> int:
+    if arrival.time() <= departure.time():
         arrival_date = arrival.date() + datetime.timedelta(days=1)
-        arrival = datetime.datetime.combine(arrival_date, arrival.time())
-        arrival_date = arrival_date
+        arrival = arrival.replace(day=arrival_date.day)
 
     delta = arrival - departure
-    delta_minutes = delta.total_seconds() / 60
-
-    return round(delta_minutes)
+    delta_minutes = delta.seconds // 60
+    return delta_minutes
 
 @router.post("", status_code=201)
-async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)) -> int:
+async def add_flight(flight: FlightModel, timezones: bool = True, user: User = Depends(get_current_user)) -> int:
     if not (flight.date and flight.origin and flight.destination):
         raise HTTPException(status_code=404, 
                             detail="Insufficient flight data. Date, Origin, and Destination are required")
@@ -97,8 +101,16 @@ async def add_flight(flight: FlightModel, user: User = Depends(get_current_user)
 
     # if duration not given, calculate it
     if not flight.duration and flight.departure_time and flight.arrival_time:
-        flight.duration = duration(flight.departure_time, flight.date,
-                                   flight.arrival_time, flight.arrival_date)
+        # create datetime objects
+        departure = datetime.datetime.strptime(f"{flight.date} {flight.departure_time}", "%Y-%m-%d %H:%M")
+        arrival = datetime.datetime.strptime(f"{flight.arrival_date if flight.arrival_date else flight.date} {flight.arrival_time}", "%Y-%m-%d %H:%M")
+
+        # if using timezones, convert to UTC
+        if timezones:
+            departure = to_utc(departure, flight.origin)
+            arrival = to_utc(arrival, flight.destination)
+
+        flight.duration = duration(departure, arrival)
 
     columns = FlightModel.get_attributes(ignore=["id"])
 
@@ -139,8 +151,9 @@ class FlightPatchModel(CustomModel):
     notes:          str|None = None
 
 @router.patch("", status_code=200)
-async def update_flight(id: int, 
+async def update_flight(id: int,
                         new_flight: FlightPatchModel,
+                        timezones: bool = True,
                         user: User = Depends(get_current_user)) -> int:
     await check_flight_authorization(id, user)
 
@@ -171,7 +184,16 @@ async def update_flight(id: int,
 
             # if arrival or departure times still not available, skip
             if new_arrival_time and new_departure_time:
-                new_flight.duration = duration(new_departure_time, new_departure_date, new_arrival_time, new_arrival_date)
+                # create datetime objects
+                new_departure = datetime.datetime.strptime(f"{new_departure_date} {new_departure_time}", "%Y-%m-%d %H:%M")
+                new_arrival = datetime.datetime.strptime(f"{new_arrival_date if new_arrival_date else new_departure_date} {new_arrival_time}", "%Y-%m-%d %H:%M")
+
+                # if using timezones, convert to UTC
+                if timezones:
+                    new_departure = to_utc(new_departure, new_flight.origin if new_flight.origin else original_flight.origin)
+                    new_arrival = to_utc(new_arrival, new_flight.destination if new_flight.destination else original_flight.destination)
+
+                new_flight.duration = duration(new_departure, new_arrival)
 
     query = "UPDATE flights SET "
  

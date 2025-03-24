@@ -2,17 +2,17 @@
 export interface ConfigInterface {
     frequencyBasedMarker: string;
     frequencyBasedLine: string;
-    //militaryClock: string;
     metricUnits: string;
+    localAirportTime: string;
 }
-const ConfigKeys = ["frequencyBasedMarker", "frequencyBasedLine", /*"militaryClock",*/ "metricUnits"];
+const ConfigKeys = ["frequencyBasedMarker", "frequencyBasedLine", "metricUnits", "localAirportTime"];
 type Config = typeof ConfigKeys[number];
 
 const defaultConfig: ConfigInterface = {
     frequencyBasedMarker: "false",
     frequencyBasedLine: "false",
-    //militaryClock: "true",
-    metricUnits: "true"
+    metricUnits: "true",
+    localAirportTime: "true"
 }
 
 class ConfigStorageClass {

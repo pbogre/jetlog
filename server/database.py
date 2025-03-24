@@ -150,7 +150,8 @@ class Database():
             country      TEXT,
             continent    TEXT,
             latitude     FLOAT,
-            longitude    FLOAT
+            longitude    FLOAT,
+            timezone     TEXT
         );""")
 
         self.execute_query("""
