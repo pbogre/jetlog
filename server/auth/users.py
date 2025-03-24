@@ -59,7 +59,7 @@ async def get_user_from_token(token: str = Depends(oauth2_scheme)) -> User:
 
 @router.get("/me")
 async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)) -> User:
-    if AUTH_HEADER in request.headers:
+    if AUTH_HEADER != None and AUTH_HEADER in request.headers:
         return await get_user_from_auth_header(request)
 
     return await get_user_from_token(token)
