@@ -1,6 +1,6 @@
 {
     "name": "jetlog",
-    "version": "1.1.1",
+    "version": "1.1.2",
     "source": "client/index.html",
     "scripts": {
         "build": "PARCEL_WORKERS=0 parcel build --public-url ./ --dist-dir dist",
