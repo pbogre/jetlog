@@ -5,7 +5,7 @@ from server.auth.users import get_current_user
 from fastapi import APIRouter, Depends, HTTPException
 from enum import Enum
 import datetime
-from pytz import timezone
+import pytz
 import math
 
 router = APIRouter(
@@ -69,23 +69,21 @@ async def spherical_distance(origin: AirportModel|str, destination: AirportModel
 
     return round(distance);
 
-# TODO wtf is going on
-def duration(departure_time: str, departure_date: datetime.date, arrival_time: str, arrival_date: datetime.date|None = None,
-             tz_origin: str|None = None, tz_destination: str|None = None) -> int:
-    departure = datetime.datetime.strptime(f"{departure_date} {departure_time}", "%Y-%m-%d %H:%M")
-    arrival = datetime.datetime.strptime(f"{arrival_date if arrival_date else departure_date} {arrival_time}", "%Y-%m-%d %H:%M")
+def to_utc(dt: datetime.datetime, airport: str|AirportModel) -> datetime.datetime:
+    if type(airport) != AirportModel:
+        tz_name = database.execute_read_query("SELECT timezone FROM airports WHERE icao = ?;", [airport])[0][0]
+    else:
+        tz_name = airport.timezone
 
-    if tz_origin and tz_destination:
-        timezone_origin = timezone(tz_origin)
-        timezone_destination = timezone(tz_destination)
+    tz = pytz.timezone(tz_name)
+    utc_dt = tz.localize(dt).astimezone(pytz.utc)
 
-        departure = timezone_origin.localize(departure)
-        arrival = timezone_destination.localize(arrival)
+    return utc_dt
 
+def duration(departure: datetime.datetime, arrival: datetime.datetime) -> int:
     if arrival.time() <= departure.time():
         arrival_date = arrival.date() + datetime.timedelta(days=1)
-        arrival = datetime.datetime.combine(arrival_date, arrival.time())
-        arrival_date = arrival_date
+        arrival = arrival.replace(day=arrival_date.day)
 
     delta = arrival - departure
     delta_minutes = delta.seconds // 60
@@ -103,22 +101,16 @@ async def add_flight(flight: FlightModel, timezones: bool = True, user: User = D
 
     # if duration not given, calculate it
     if not flight.duration and flight.departure_time and flight.arrival_time:
+        # create datetime objects
+        departure = datetime.datetime.strptime(f"{flight.date} {flight.departure_time}", "%Y-%m-%d %H:%M")
+        arrival = datetime.datetime.strptime(f"{flight.arrival_date if flight.arrival_date else flight.date} {flight.arrival_time}", "%Y-%m-%d %H:%M")
 
-        tz_origin, tz_destination = None, None
+        # if using timezones, convert to UTC
         if timezones:
-            if type(flight.origin) != AirportModel:
-                tz_origin = database.execute_read_query("SELECT timezone FROM airports WHERE icao = ?;", [flight.origin])[0][0]
-            else:
-                tz_origin = flight.origin.timezone
+            departure = to_utc(departure, flight.origin)
+            arrival = to_utc(arrival, flight.destination)
 
-            if type(flight.destination) != AirportModel:
-                tz_destination = database.execute_read_query("SELECT timezone FROM airports WHERE icao = ?;", [flight.destination])[0][0]
-            else:
-                tz_destination = flight.destination.timezone
-
-        flight.duration = duration(flight.departure_time, flight.date,
-                                   flight.arrival_time, flight.arrival_date,
-                                   tz_origin, tz_destination)
+        flight.duration = duration(departure, arrival)
 
     columns = FlightModel.get_attributes(ignore=["id"])
 
@@ -192,7 +184,16 @@ async def update_flight(id: int,
 
             # if arrival or departure times still not available, skip
             if new_arrival_time and new_departure_time:
-                new_flight.duration = duration(new_departure_time, new_departure_date, new_arrival_time, new_arrival_date)
+                # create datetime objects
+                new_departure = datetime.datetime.strptime(f"{new_departure_date} {new_departure_time}", "%Y-%m-%d %H:%M")
+                new_arrival = datetime.datetime.strptime(f"{new_arrival_date if new_arrival_date else new_departure_date} {new_arrival_time}", "%Y-%m-%d %H:%M")
+
+                # if using timezones, convert to UTC
+                if timezones:
+                    new_departure = to_utc(new_departure, new_flight.origin if new_flight.origin else original_flight.origin)
+                    new_arrival = to_utc(new_arrival, new_flight.destination if new_flight.destination else original_flight.destination)
+
+                new_flight.duration = duration(new_departure, new_arrival)
 
     query = "UPDATE flights SET "
  
