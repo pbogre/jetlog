@@ -107,6 +107,7 @@ export default function SingleFlight({ flightID }) {
                             <li>Type: <span>{flight.origin.type}</span></li>
                             <li>Name: <span>{flight.origin.name}</span></li>
                             <li>Location: <span>{flight.origin.continent}, {flight.origin.country}, {flight.origin.region}, {flight.origin.municipality}</span></li>
+                            <li>Timezone: <span>{flight.origin.timezone}</span></li>
                         </ul>
 
                         <p className="font-bold">Destination</p> 
@@ -115,6 +116,7 @@ export default function SingleFlight({ flightID }) {
                             <li>Type: <span>{flight.destination.type}</span></li>
                             <li>Name: <span>{flight.destination.name}</span></li>
                             <li>Location: <span>{flight.destination.continent}, {flight.destination.country}, {flight.destination.region}, {flight.destination.municipality}</span></li>
+                            <li>Timezone: <span>{flight.destination.timezone}</span></li>
                         </ul>
                     </>
                     }
