@@ -166,6 +166,7 @@ async def import_CSV(csv_type: CSVType,
                 print(f"[{count}] Skipped cancelled flight.")
                 count += 1
                 continue
+
             arrival_str = row_data["Gate Arrival (Actual)"].strip()
             if not arrival_str:
                 print(f"[{count}] Skipped flight with no actual arrival time.")
