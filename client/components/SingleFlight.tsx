@@ -168,6 +168,7 @@ export default function SingleFlight({ flightID }) {
                         <p>Purpose: <span>{flight.purpose || "N/A"}</span></p>
                         <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
                         <p>Airline: <span>{flight.airline ? flight.airline.icao + " - " + flight.airline.name : "N/A"}</span></p>
+                        <p>Tail Number: <span>{flight.tailNumber || "N/A"}</span></p>
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
                         <p>Notes: {flight.notes ?  <p className="whitespace-pre-line inline">{flight.notes}</p> : "N/A"}</p>
                     </>}
