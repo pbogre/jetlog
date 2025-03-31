@@ -121,6 +121,22 @@ export function AllStats({ filters }) {
                 <h3 className="text-lg font-semibold mb-4">Most common airlines</h3>
                 <StatFrequency object={statistics.mostCommonAirlines} measure="flights"/>
             </div>
+
+            <div className="container">
+                <h3 className="text-lg font-semibold mb-4">Some more stats</h3>
+                
+                <p className="mb-2">Flight Time in hours: <span className="font-medium">{(statistics.totalDuration / 60).toLocaleString()}</span></p>
+                <p className="mb-2">Flight Time in days: <span className="font-medium">{(statistics.totalDuration / 1440).toLocaleString()}</span></p>
+                <p className="mb-2">Flight Time in weeks: <span className="font-medium">{(statistics.totalDuration / 10080).toLocaleString()}</span></p>
+                <p className="mb-2">Flight Time in months: <span className="font-medium">{(statistics.totalDuration / 302400).toLocaleString()}</span></p>
+                <p className="mb-2">Flight Time in years: <span className="font-medium">{(statistics.totalDuration / 525600).toLocaleString()}</span></p>
+
+                <p className="mb-2">Times around the earth: <span className="font-medium">{statistics.totalDistance.toLocaleString() / 12700} </span></p>
+                <p className="mb-2">Times to the moon: <span className="font-medium">{statistics.totalDistance.toLocaleString() / 385000} </span></p>
+                <p className="mb-2">Times to the sun: <span className="font-medium">{statistics.totalDistance.toLocaleString() / 149600000} </span></p>
+
+            </div>
+
         </div>
     );
 }
