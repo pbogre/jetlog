@@ -33,7 +33,6 @@ async def import_CSV(csv_type: CSVType,
 
     print(f"Parsing CSV into flights...")
     if csv_type == CSVType.MYFLIGHTRADAR24:
-        import re
         count = 0
 
         for row in reader:
@@ -154,7 +153,13 @@ async def import_CSV(csv_type: CSVType,
 
             if count == 0:
                 header = [col.strip() for col in row]
-                expected = ["Date", "Airline", "Flight", "From", "To", "Dep Terminal", "Dep Gate", "Arr Terminal", "Arr Gate", "Canceled", "Diverted To", "Gate Departure (Scheduled)", "Gate Departure (Actual)", "Take off (Scheduled)", "Take off (Actual)", "Landing (Scheduled)", "Landing (Actual)", "Gate Arrival (Scheduled)", "Gate Arrival (Actual)", "Aircraft Type Name", "Tail Number", "PNR", "Seat", "Seat Type", "Cabin Class", "Flight Reason", "Notes", "Flight Flighty ID", "Airline Flighty ID", "Departure Airport Flighty ID", "Arrival Airport Flighty ID", "Diverted To Airport Flighty ID", "Aircraft Type Flighty ID"]
+                expected = ["Date", "Airline", "Flight", "From", "To", "Dep Terminal", "Dep Gate",
+                            "Arr Terminal", "Arr Gate", "Canceled", "Diverted To", "Gate Departure (Scheduled)",
+                            "Gate Departure (Actual)", "Take off (Scheduled)", "Take off (Actual)", "Landing (Scheduled)",
+                            "Landing (Actual)", "Gate Arrival (Scheduled)", "Gate Arrival (Actual)", "Aircraft Type Name",
+                            "Tail Number", "PNR", "Seat", "Seat Type", "Cabin Class", "Flight Reason", "Notes",
+                            "Flight Flighty ID", "Airline Flighty ID", "Departure Airport Flighty ID",
+                            "Arrival Airport Flighty ID", "Diverted To Airport Flighty ID", "Aircraft Type Flighty ID"]
                 if header != expected:
                     raise HTTPException(status_code=400, detail="Flighty CSV columns do not match expected structure")
                 count += 1
