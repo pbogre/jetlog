@@ -26,6 +26,8 @@ export class Flight {
     tailNumber: string;
     flightNumber: string;
     notes: string;
+    connection: number;
+    layoverDuration: number;
 }
 
 export class Airport {
