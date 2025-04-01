@@ -12,25 +12,29 @@ class Database():
         "flights": {
             "pragma": """
                 (
-                    id             INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username       INTEGER NOT NULL DEFAULT admin,
-                    date           TEXT NOT NULL,
-                    origin         TEXT NOT NULL,
-                    destination    TEXT NOT NULL,
-                    departure_time TEXT,
-                    arrival_time   TEXT,
-                    arrival_date   TEXT,
-                    seat           TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
-                    aircraft_side  TEXT NULL CHECK(aircraft_side IN ('left', 'right', 'center')),
-                    ticket_class   TEXT NULL CHECK(ticket_class IN ('private', 'first', 'business', 'economy+', 'economy')),
-                    purpose        TEXT NULL CHECK(purpose IN ('leisure', 'business', 'crew', 'other')),
-                    duration       INTEGER,
-                    distance       INTEGER,
-                    airplane       TEXT,
-                    airline        TEXT,
-                    tail_number    TEXT,
-                    flight_number  TEXT,
-                    notes          TEXT
+                    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username         INTEGER NOT NULL DEFAULT admin,
+                    date             TEXT NOT NULL,
+                    origin           TEXT NOT NULL,
+                    destination      TEXT NOT NULL,
+                    departure_time   TEXT,
+                    arrival_time     TEXT,
+                    arrival_date     TEXT,
+                    seat             TEXT NULL CHECK(seat IN ('aisle', 'middle', 'window')),
+                    aircraft_side    TEXT NULL CHECK(aircraft_side IN ('left', 'right', 'center')),
+                    ticket_class     TEXT NULL CHECK(ticket_class IN ('private', 'first', 'business', 'economy+', 'economy')),
+                    purpose          TEXT NULL CHECK(purpose IN ('leisure', 'business', 'crew', 'other')),
+                    duration         INTEGER,
+                    distance         INTEGER,
+                    airplane         TEXT,
+                    airline          TEXT,
+                    tail_number      TEXT,
+                    flight_number    TEXT,
+                    notes            TEXT,
+                    connection       INTEGER NULL,
+                    layover_duration INTEGER NULL,
+                    FOREIGN KEY (connection) REFERENCES flights (id) ON DELETE SET NULL,
+                    CHECK (layover_duration IS NULL OR connection IS NOT NULL)
                 )""",
             "model": FlightModel
         },
@@ -55,6 +59,7 @@ class Database():
 
         if os.path.isfile(db_path):
             self.connection = sqlite3.connect(db_path)
+            self.connection.execute("PRAGMA foreign_keys = ON;")
 
             # update airports and airlines tables
             self.update_tables()
@@ -83,7 +88,7 @@ class Database():
                 needs_patch = False
                 for key in table_model.get_attributes():
                     if key not in column_names:
-                        print(f"Detected missing column '{key}' in table '{table}. Scheduled a patch...")
+                        print(f"Detected missing column '{key}' in table '{table}'. Scheduled a patch...")
                         needs_patch = True
 
                 if needs_patch:
@@ -175,6 +180,7 @@ class Database():
 
         table_pragma = self.tables[table]["pragma"]
 
+        self.execute_query(f"DROP TABLE IF EXISTS _{table};")
         self.execute_query(f"CREATE TABLE _{table} {table_pragma};")
         self.execute_query(f"INSERT INTO _{table} ({', '.join(present)}) SELECT * FROM {table};")
         self.execute_query(f"DROP TABLE {table};")
