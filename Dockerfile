@@ -9,6 +9,7 @@ WORKDIR ${BUILD_PATH}
 
 RUN apt-get update -y && apt-get upgrade -y
 COPY package.json ./
+RUN npm config set registry https://registry.npmjs.org/
 RUN npm i --package-lock-only
 RUN npm ci
 
