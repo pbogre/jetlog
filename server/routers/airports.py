@@ -19,6 +19,7 @@ async def get_airports(q: str) -> list[AirportModel]:
     LOWER(icao) LIKE LOWER(?) 
     ORDER BY LOWER(iata) = LOWER(?) DESC,
              LOWER(name) = LOWER(?) DESC,
+             LENGTH(name) ASC,
              LOWER(municipality) = LOWER(?) DESC,
              LOWER(region) LIKE LOWER(?) DESC,
              LOWER(icao) = LOWER(?) 
