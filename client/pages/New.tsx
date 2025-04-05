@@ -15,6 +15,7 @@ export default function New() {
     const [fetchedOrigin, setFetchedOrigin] = useState<Airport>()
     const [fetchedDestination, setFetchedDestination] = useState<Airport>()
     const [fetchedAirline, setFetchedAirline] = useState<Airline>()
+    const [fetchedConnection, setFetchedConnection] = useState<number>()
 
     const localAirportTime = ConfigStorage.getSetting("localAirportTime");
 
@@ -179,6 +180,28 @@ export default function New() {
                     </div>
 
                     <div className="container md:col-span-2 lg:col-span-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                            <div>
+                            <Label text="Connection" />    
+                            <Input
+                                type="text"
+                                name="connection"
+                                placeholder="Search existing..." 
+                                onChange={ (e) => setFetchedConnection(parseInt(e.target.value)) }
+                            />
+                            </div>
+
+                            { fetchedConnection &&
+                                <div>
+                                   <Label text="Layover duration" />
+                                   <Input
+                                        type="text"
+                                        name="layoverDuration"
+                                    />
+                                </div>
+                            }
+                        </div>
+
                         <Label text="Notes" />
                         <TextArea
                             name="notes"

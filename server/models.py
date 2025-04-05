@@ -138,7 +138,7 @@ class AirportModel(CustomModel):
     def icao_must_exist(cls, v) -> str|None:
         from server.database import database
 
-        if not v:
+        if v == None:
             return None
 
         res = database.execute_read_query(f"SELECT icao FROM airports WHERE LOWER(icao) = LOWER(?);", [v]);
@@ -158,7 +158,7 @@ class AirlineModel(CustomModel):
     def icao_must_exist(cls, v) -> str|None:
         from server.database import database
 
-        if not v:
+        if v == None:
             return None
 
         res = database.execute_read_query(f"SELECT icao FROM airlines WHERE LOWER(icao) = LOWER(?);", [v])
@@ -170,30 +170,32 @@ class AirlineModel(CustomModel):
 
 
 class FlightModel(CustomModel):
-    id:             int|None = None
-    username:       str|None = None
-    date:           datetime.date
-    origin:         AirportModel|str # API uses AirportModel/str, database uses str
-    destination:    AirportModel|str
-    departure_time: str|None = None
-    arrival_time:   str|None = None
-    arrival_date:   datetime.date|None = None
-    seat:           SeatType|None = None
-    aircraft_side:  AircraftSide|None = None
-    ticket_class:   ClassType|None = None
-    purpose:        FlightPurpose|None = None
-    duration:       int|None = None
-    distance:       int|None = None
-    airplane:       str|None = None
-    airline:        AirlineModel|str|None = None
-    tail_number:    str|None = None
-    flight_number:  str|None = None
-    notes:          str|None = None
+    id:               int|None = None
+    username:         str|None = None
+    date:             datetime.date
+    origin:           AirportModel|str # API uses AirportModel/str, database uses str
+    destination:      AirportModel|str
+    departure_time:   str|None = None
+    arrival_time:     str|None = None
+    arrival_date:     datetime.date|None = None
+    seat:             SeatType|None = None
+    aircraft_side:    AircraftSide|None = None
+    ticket_class:     ClassType|None = None
+    purpose:          FlightPurpose|None = None
+    duration:         int|None = None
+    distance:         int|None = None
+    airplane:         str|None = None
+    airline:          AirlineModel|str|None = None
+    tail_number:      str|None = None
+    flight_number:    str|None = None
+    notes:            str|None = None
+    connection:       int|None = None
+    layover_duration: int|None = None
 
     @field_validator('origin', 'destination')
     @classmethod
     def airport_must_exist(cls, v) -> str|AirportModel|None:
-        if not v:
+        if v == None:
             return None
 
         icao = v.icao if type(v) == AirportModel else v
@@ -204,7 +206,7 @@ class FlightModel(CustomModel):
     @field_validator('airline')
     @classmethod
     def airline_must_exist(cls, v) -> str|AirlineModel|None:
-        if not v:
+        if v == None:
             return None
 
         icao = v.icao if type(v) == AirlineModel else v
@@ -215,7 +217,7 @@ class FlightModel(CustomModel):
     @field_validator('departure_time', 'arrival_time')
     @classmethod
     def time_must_be_hh_mm(cls, v) -> str|None:
-        if not v:
+        if v == None:
             return None
 
         try:
@@ -228,15 +230,30 @@ class FlightModel(CustomModel):
 
     @field_validator('username')
     @classmethod
-    def user_must_exist(cls, v) -> int:
+    def user_must_exist(cls, v) -> str|None:
+        if v == None:
+            return None
+
         from server.database import database
 
-        res = database.execute_read_query(f"SELECT id FROM users WHERE username = ?;", [v]);
+        res = database.execute_read_query("SELECT 1 FROM users WHERE username = ?;", [v])
 
         if len(res) < 1:
             raise ValueError(f"must have valid username, got '{v}'")
 
         return v
+
+    #@field_validator('connection')
+    #@classmethod
+    #def connection_must_exist(cls, v) -> int|None:
+    #    from server.database import database
+
+    #    res = database.execute_read_query("SELECT 1 FROM flights WHERE id = ?;", [v])
+
+    #    if len(res) < 1:
+    #        raise ValueError(f"must have valid connection flight id, got '{v}'")
+
+    #    return v
 
 class StatisticsModel(CustomModel):
     total_flights:          int
