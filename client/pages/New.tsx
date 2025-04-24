@@ -1,21 +1,23 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Heading, Label, Button, Input, Select, TextArea } from '../components/Elements';
 import SearchInput from '../components/SearchInput'
+import SearchFlights from '../components/SearchFlights'
 import API from '../api';
 import { objectFromForm } from '../utils';
-import {Airline, Airport} from '../models';
+import {Airline, Airport, Flight} from '../models';
 import ConfigStorage from '../storage/configStorage';
 
 export default function New() {
     const navigate = useNavigate();
 
-    const [flightNumber, setFlightNumber] = useState('');
+    const [date, setDate] = useState<string>((new Date()).toISOString().substring(0, 10));
+    const [flightNumber, setFlightNumber] = useState<string>();
     const [fetchedOrigin, setFetchedOrigin] = useState<Airport>()
     const [fetchedDestination, setFetchedDestination] = useState<Airport>()
     const [fetchedAirline, setFetchedAirline] = useState<Airline>()
-    const [fetchedConnection, setFetchedConnection] = useState<number>()
+    const [fetchedConnection, setFetchedConnection] = useState<Flight>()
 
     const localAirportTime = ConfigStorage.getSetting("localAirportTime");
 
@@ -49,6 +51,20 @@ export default function New() {
         });
     };
 
+    const computeConnectionsFilters = () => {
+        // filters: 3 days before, 1 day after
+        const start = new Date(date);
+        start.setDate(start.getDate() - 3);
+
+        const end = new Date(date);
+        end.setDate(end.getDate() + 1);
+
+        // set format
+        const fmt = d => d.toISOString().substring(0, 10);
+
+        return `start=${fmt(start)}&end=${fmt(end)}`;
+    }
+
     return (
         <>
             <Heading text="New Flight" />
@@ -67,6 +83,7 @@ export default function New() {
                             type="date"
                             name="date"
                             defaultValue={(new Date()).toISOString().substring(0, 10)}
+                            onChange={(e) => setDate(e.target.value)}
                             required
                         />
 
@@ -183,19 +200,14 @@ export default function New() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
                             <div>
                             <Label text="Connection" />    
-                            <Input
-                                type="text"
-                                name="connection"
-                                placeholder="Search existing..." 
-                                onChange={ (e) => setFetchedConnection(parseInt(e.target.value)) }
-                            />
+                            <SearchFlights name="connection" filters={computeConnectionsFilters()} />
                             </div>
 
                             { fetchedConnection &&
                                 <div>
                                    <Label text="Layover duration" />
                                    <Input
-                                        type="text"
+                                        type="number"
                                         name="layoverDuration"
                                     />
                                 </div>

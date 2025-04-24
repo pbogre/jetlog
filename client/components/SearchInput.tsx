@@ -23,7 +23,7 @@ export default function SearchInput({ name, type, placeholder, subject }: Search
     }, [subject])
 
     // this method returns an actual instance of 
-    // AirportModel or Airline model so that their 
+    // Airport/Airline so that their 
     // class methods can be used
     const createInstance = (obj) => {
         const correct = type == "airports" ? new Airport() : new Airline();
@@ -32,12 +32,12 @@ export default function SearchInput({ name, type, placeholder, subject }: Search
         return correct;
     }
 
-    const searchAirport = (event) => {
+    const searchSubject = (event) => {
         const value = event.target.value;
 
         if (value.length > 1) {
             API.get(`/${type}?q=${value}`)
-            .then((data: Airport[]) => setSubjectsData(data))
+            .then((data: Airport[]|Airline[]) => setSubjectsData(data))
         }
         else setSubjectsData([]);
     }
@@ -47,7 +47,7 @@ export default function SearchInput({ name, type, placeholder, subject }: Search
         <Input 
             type="text"
             maxLength={16}
-            onChange={searchAirport}
+            onChange={searchSubject}
             placeholder="Search"
         />
 
