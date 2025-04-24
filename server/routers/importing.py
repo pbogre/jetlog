@@ -84,6 +84,7 @@ async def import_CSV(csv_type: CSVType,
                 values_dict['duration'] = int(values[6][:2]) * 60 + int(values[6][3:5]) 
                 values_dict['airline'] = values[7][-4:-1] if values[7] != " (/)" else None
                 values_dict['airplane'] = values[8] if values[8] != " ()" else None
+                values_dict['flight_number'] = values[1] if values[1] else None
 
                 flight = FlightModel(**values_dict)
                 imported_flights.append(flight)
