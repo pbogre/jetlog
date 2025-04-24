@@ -155,7 +155,7 @@ export default function SingleFlight({ flightID }) {
                         ]} /></p>
                         <p>Airplane: <Input type="text" name="airplane" placeholder={flight.airplane} /></p>
                         <p>Airline: <SearchInput name="airline" type="airlines" placeholder={flight.airline} /></p>
-                        <p>Tail Number: <Input type="text" name="tail_Number" placeholder={flight.tailNumber} /></p>
+                        <p>Tail Number: <Input type="text" name="tailNumber" placeholder={flight.tailNumber} /></p>
                         <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
                         <p>Notes</p>
                         <TextArea name="notes" defaultValue={flight.notes}/>
