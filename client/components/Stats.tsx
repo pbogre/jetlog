@@ -138,8 +138,7 @@ export function AllStats({ filters }) {
 
                 <div className="mb-4">
                     <p className="mb-1">Times around the earth: <span className="font-medium">{(statistics.totalDistance / 12700).toLocaleString()}</span></p>
-                    
-                    <h3 className="font-medium mb-1">Times to:</h3>
+                    <p className="mb-1">Times to:</p>
                     <div className="ml-4">
                         <p className="mb-1">the moon: <span className="font-medium">{(statistics.totalDistance / 385000).toLocaleString()}</span></p>
                         <p className="mb-1">the sun: <span className="font-medium">{(statistics.totalDistance / 149600000).toLocaleString()}</span></p>
