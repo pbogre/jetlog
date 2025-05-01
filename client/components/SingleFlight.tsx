@@ -155,7 +155,7 @@ export default function SingleFlight({ flightID }) {
                         ]} /></p>
                         <p>Airplane: <Input type="text" name="airplane" placeholder={flight.airplane} /></p>
                         <p>Airline: <SearchInput name="airline" type="airlines" placeholder={flight.airline} /></p>
-                        <p>Tail Number: <Input type="text" name="tail_Number" placeholder={flight.tailNumber} /></p>
+                        <p>Tail Number: <Input type="text" name="tailNumber" placeholder={flight.tailNumber} /></p>
                         <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
                         <p>Notes</p>
                         <TextArea name="notes" defaultValue={flight.notes}/>
@@ -168,6 +168,7 @@ export default function SingleFlight({ flightID }) {
                         <p>Purpose: <span>{flight.purpose || "N/A"}</span></p>
                         <p>Airplane: <span>{flight.airplane || "N/A"}</span></p>
                         <p>Airline: <span>{flight.airline ? flight.airline.icao + " - " + flight.airline.name : "N/A"}</span></p>
+                        <p>Tail Number: <span>{flight.tailNumber || "N/A"}</span></p>
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
                         <p>Notes: {flight.notes ?  <p className="whitespace-pre-line inline">{flight.notes}</p> : "N/A"}</p>
                     </>}
