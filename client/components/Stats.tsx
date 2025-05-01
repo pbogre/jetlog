@@ -125,23 +125,24 @@ export function AllStats({ filters }) {
             <div className="container">
                 <h3 className="text-lg font-semibold mb-4">Some more stats</h3>  
 
-                <div className="mb-4">
-                    <h3 className="font-medium mb-1">Flight Time in:</h3>
+                <div className="container">
+                    <h3 className="font-medium mb-1">Flight Times in:</h3>
                     <div className="ml-4">
-                        <p className="mb-1">Hours: <span className="font-medium">{(statistics.totalDuration / 60).toLocaleString()}</span></p>
-                        <p className="mb-1">Days: <span className="font-medium">{(statistics.totalDuration / 1440).toLocaleString()}</span></p>
-                        <p className="mb-1">Weeks: <span className="font-medium">{(statistics.totalDuration / 10080).toLocaleString()}</span></p>
-                        <p className="mb-1">Months: <span className="font-medium">{(statistics.totalDuration / 302400).toLocaleString()}</span></p>
-                        <p className="mb-1">Years: <span className="font-medium">{(statistics.totalDuration / 525600).toLocaleString()}</span></p>
+                        <p className="mb-1">- Hours: <span className="font-medium">{(statistics.totalDuration / 60).toLocaleString()}</span></p>
+                        <p className="mb-1">- Days: <span className="font-medium">{(statistics.totalDuration / 1440).toLocaleString()}</span></p>
+                        <p className="mb-1">- Weeks: <span className="font-medium">{(statistics.totalDuration / 10080).toLocaleString()}</span></p>
+                        <p className="mb-1">- Months: <span className="font-medium">{(statistics.totalDuration / 302400).toLocaleString()}</span></p>
+                        <p className="mb-1">- Years: <span className="font-medium">{(statistics.totalDuration / 525600).toLocaleString()}</span></p>
                     </div>
                 </div>
 
-                <div className="mb-4">
+                <div className="container">
+                    <h3 className="font-medium mb-1">Flight Distances</h3>
                     <p className="mb-1">Times around the earth: <span className="font-medium">{(statistics.totalDistance / 12700).toLocaleString()}</span></p>
                     <p className="mb-1">Times to:</p>
                     <div className="ml-4">
-                        <p className="mb-1">the moon: <span className="font-medium">{(statistics.totalDistance / 385000).toLocaleString()}</span></p>
-                        <p className="mb-1">the sun: <span className="font-medium">{(statistics.totalDistance / 149600000).toLocaleString()}</span></p>
+                        <p className="mb-1">- the moon: <span className="font-medium">{(statistics.totalDistance / 385000).toLocaleString()}</span></p>
+                        <p className="mb-1">- the sun: <span className="font-medium">{(statistics.totalDistance / 149600000).toLocaleString()}</span></p>
                     </div>
                 </div>
                 </div>
