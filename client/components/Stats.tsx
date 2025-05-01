@@ -131,9 +131,9 @@ export function AllStats({ filters }) {
                 <p className="mb-2">Flight Time in months: <span className="font-medium">{(statistics.totalDuration / 302400).toLocaleString()}</span></p>
                 <p className="mb-2">Flight Time in years: <span className="font-medium">{(statistics.totalDuration / 525600).toLocaleString()}</span></p>
 
-                <p className="mb-2">Times around the earth: <span className="font-medium">{statistics.totalDistance.toLocaleString() / 12700} </span></p>
-                <p className="mb-2">Times to the moon: <span className="font-medium">{statistics.totalDistance.toLocaleString() / 385000} </span></p>
-                <p className="mb-2">Times to the sun: <span className="font-medium">{statistics.totalDistance.toLocaleString() / 149600000} </span></p>
+                <p className="mb-2">Times around the earth: <span className="font-medium">{(statistics.totalDistance / 12700).toLocaleString()} </span></p>
+                <p className="mb-2">Times to the moon: <span className="font-medium">{(statistics.totalDistance / 385000).toLocaleString()} </span></p>
+                <p className="mb-2">Times to the sun: <span className="font-medium">{(statistics.totalDistance / 149600000).toLocaleString()} </span></p>
 
             </div>
 
