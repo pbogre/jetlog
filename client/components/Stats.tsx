@@ -1,6 +1,6 @@
 import React, {useState, useMemo, useEffect} from 'react';
 
-import { Subheading, Whisper } from './Elements';
+import { Whisper } from './Elements';
 import { Statistics } from '../models';
 import ConfigStorage from '../storage/configStorage';
 import API from '../api';
