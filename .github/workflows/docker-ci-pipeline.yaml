@@ -43,7 +43,7 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/jetlog
           tags: |
-            ${{ github.event_name == 'pull_request' && 'pr-${{ github.event.number }}' || '' }}
+            ${{ github.event_name == 'pull_request' && 'pr-${{ github.event.pull_request.number }}' || '' }}
             ${{ github.event_name == 'push' && 'experimental' || '' }}
             ${{ github.event_name == 'release' && 'latest' || '' }}
             ${{ github.event_name == 'release' && steps.version.outputs.version || '' }}
