@@ -76,77 +76,96 @@ function StatFrequency({ object, measure }) {
 }
 
 export function AllStats({ filters }) {
-    const [statistics, setStatistics] = useState<Statistics>()
-    const metricUnits = ConfigStorage.getSetting("metricUnits");
+    const [statistics, setStatistics] = useState<Statistics>();
+    const [durationUnitIndex, setDurationUnitIndex] = useState(0);
+    const [distanceUnitIndex, setDistanceUnitIndex] = useState(0);
+    const metricUnits = ConfigStorage.getSetting('metricUnits');
 
     useEffect(() => {
-        API.get(`/statistics?metric=${metricUnits}`, filters)
-        .then((data: Statistics) => {
-            setStatistics(data);
+        API.get(`/statistics?metric=${metricUnits}`, filters).then((data: Statistics) => {
+        setStatistics(data);
         });
-    }, [filters]);
+    }, [filters, metricUnits]);
 
-    if (statistics === undefined) {
+    if (!statistics) {
         return <p className="m-4">loading...</p>;
     }
+
+    // cycle through duration units
+    const durationUnits = [
+        { label: "hours", divisor: 60 },
+        { label: "days",  divisor: 1440 },
+        { label: "weeks", divisor: 10080 },
+    ];
+
+    const handleDurationClick = () => {
+        setDurationUnitIndex((prev) => (prev + 1) % durationUnits.length);
+    };
+
+    // cycle through distance units
+    const distanceUnits = [
+        { label: metricUnits === 'false' ? 'mi' : 'km', divisor: 1 },
+        { label: "times around Earth", divisor: metricUnits === 'false' ? 3963 : 6371 },
+        { label: "times to Moon", divisor: metricUnits === 'false' ?  239000 : 385000 },
+    ];
+
+    const handleDistanceClick = () => {
+        setDistanceUnitIndex((prev) => (prev + 1) % distanceUnits.length);
+    };
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
             <div className="container">
                 <h3 className="text-lg font-semibold mb-4">Generic</h3>
-                
-                <p className="mb-2">Number of flights: <span className="font-medium">{statistics.totalFlights}</span></p>
-                <p className="mb-2">Total (registered) time spent flying: <span className="font-medium">{(statistics.totalDuration / 60).toLocaleString()} hours</span></p>
-                <p className="mb-2">Total distance travelled: <span className="font-medium">{statistics.totalDistance.toLocaleString()} {metricUnits === "false" ? "mi" : "km"}</span></p>
-                <p className="mb-2">Total unique airports visited: <span className="font-medium">{statistics.totalUniqueAirports}</span></p>
-                <p className="mb-2">Range of days: <span className="font-medium">{statistics.daysRange} days</span></p>
+
+                <p className="mb-2">
+                    Number of flights: <span className="font-medium">{statistics.totalFlights}</span>
+                </p>
+                <p className="mb-2">
+                    Total (registered) time spent flying:{' '}
+                    <span className="font-medium cursor-pointer" onClick={handleDurationClick}>
+                        {(statistics.totalDuration / durationUnits[durationUnitIndex].divisor).toFixed(1)} {' '}
+                        {durationUnits[durationUnitIndex].label}
+                    </span>
+                </p>
+                <p className="mb-2">
+                    Total distance travelled:{' '}
+                    <span className="font-medium cursor-pointer" onClick={handleDistanceClick}>
+                        {(statistics.totalDistance / distanceUnits[distanceUnitIndex].divisor).toFixed(1)} {' '}
+                        {distanceUnits[distanceUnitIndex].label}
+                    </span>
+                </p>
+                <p className="mb-2">
+                    Total unique airports visited:{' '}
+                    <span className="font-medium">{statistics.totalUniqueAirports}</span>
+                </p>
+                <p className="mb-2">
+                    Range of days:{' '}
+                    <span className="font-medium">{statistics.daysRange} days</span>
+                </p>
             </div>
-            
+
             <div className="container">
                 <h3 className="text-lg font-semibold mb-4">Most visited airports</h3>
-                <StatFrequency object={statistics.mostVisitedAirports} measure="visits"/>
+                <StatFrequency object={statistics.mostVisitedAirports} measure="visits" />
             </div>
-            
+
             <div className="container">
                 <h3 className="text-lg font-semibold mb-4">Most common seat</h3>
-                <StatFrequency object={statistics.seatFrequency} measure="flights"/>
+                <StatFrequency object={statistics.seatFrequency} measure="flights" />
             </div>
-            
+
             <div className="container">
                 <h3 className="text-lg font-semibold mb-4">Most common class</h3>
-                <StatFrequency object={statistics.ticketClassFrequency} measure="flights"/>
+                <StatFrequency object={statistics.ticketClassFrequency} measure="flights" />
             </div>
-            
+
             <div className="container">
                 <h3 className="text-lg font-semibold mb-4">Most common airlines</h3>
-                <StatFrequency object={statistics.mostCommonAirlines} measure="flights"/>
+                <StatFrequency object={statistics.mostCommonAirlines} measure="flights" />
             </div>
 
-            <div className="container">
-                <h3 className="text-lg font-semibold mb-4">Some more stats</h3>  
-
-                <div className="container">
-                    <h3 className="font-medium mb-1">Flight Times in:</h3>
-                    <div className="ml-4">
-                        <p className="mb-1">- Hours: <span className="font-medium">{(statistics.totalDuration / 60).toLocaleString()}</span></p>
-                        <p className="mb-1">- Days: <span className="font-medium">{(statistics.totalDuration / 1440).toLocaleString()}</span></p>
-                        <p className="mb-1">- Weeks: <span className="font-medium">{(statistics.totalDuration / 10080).toLocaleString()}</span></p>
-                        <p className="mb-1">- Months: <span className="font-medium">{(statistics.totalDuration / 302400).toLocaleString()}</span></p>
-                        <p className="mb-1">- Years: <span className="font-medium">{(statistics.totalDuration / 525600).toLocaleString()}</span></p>
-                    </div>
-                </div>
-
-                <div className="container">
-                    <h3 className="font-medium mb-1">Flight Distances</h3>
-                    <p className="mb-1">Times around the earth: <span className="font-medium">{(statistics.totalDistance / 12700).toLocaleString()}</span></p>
-                    <p className="mb-1">Times to:</p>
-                    <div className="ml-4">
-                        <p className="mb-1">- the moon: <span className="font-medium">{(statistics.totalDistance / 385000).toLocaleString()}</span></p>
-                        <p className="mb-1">- the sun: <span className="font-medium">{(statistics.totalDistance / 149600000).toLocaleString()}</span></p>
-                    </div>
-                </div>
-                </div>
-
-        </div>
-    );
+    </div>
+  );
 }
+
