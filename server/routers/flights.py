@@ -240,7 +240,7 @@ async def get_flights(id: int|None = None,
 
     id_filter = f"AND f.id = {str(id)}" if id else ""
 
-    date_filter = "AND" if start or end else ""
+    date_filter = " AND " if start or end else ""
     date_filter += f"JULIANDAY(date) > JULIANDAY('{start}')" if start else ""
     date_filter += " AND " if start and end else ""
     date_filter += f"JULIANDAY(date) < JULIANDAY('{end}')" if end else ""
@@ -268,6 +268,7 @@ async def get_flights(id: int|None = None,
         LIMIT {limit}
         OFFSET {offset};"""
 
+    print(query)
     res = database.execute_read_query(query);
 
     # get rid of origin, destination, and airline ICAOs for proper conversion
