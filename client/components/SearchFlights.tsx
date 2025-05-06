@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import { useState } from 'react';
 import { Button, Whisper } from '../components/Elements'
 import API from '../api';
@@ -7,22 +7,16 @@ import { Flight } from '../models';
 interface SearchFlightsProps {
     name: string;
     filters: string;
+    flight?: Flight;
+    setFlight: Function;
 }
 
-export default function SearchFlights({ name, filters }: SearchFlightsProps) {
+export default function SearchFlights({ name, filters, flight, setFlight }: SearchFlightsProps) {
+    const [hasSearched, setHasSearched] = useState<Boolean>(false);
     const [flightsData, setFlightsData] = useState<Flight[]>([]);
-    const [selectedFlight, setSelectedFlight ] = useState<Flight>();
-
-    //useEffect(() => {
-    //    if (subject) {
-    //        setSubjectsData([]);
-    //        setSelectedSubject(subject);
-    //    }
-    //}, [subject])
 
     // this method returns an actual instance of 
-    // Airport/Airline/Flight so that their 
-    // class methods can be used
+    // Flight so that its class methods can be used
     const createInstance = (obj) => {
         let correct: Flight = new Flight();
         Object.assign(correct, obj);
@@ -32,7 +26,9 @@ export default function SearchFlights({ name, filters }: SearchFlightsProps) {
 
     const searchFlights = () => {
         API.get(`/flights?${filters}`)
-        .then((data: Flight[]) => setFlightsData(data))
+        .then((data: Flight[]) => setFlightsData(data));
+
+        setHasSearched(true);
     }
 
     return (
@@ -42,25 +38,26 @@ export default function SearchFlights({ name, filters }: SearchFlightsProps) {
             onClick={searchFlights}
         />
 
-        <input type="hidden" name={name} value={selectedFlight?.id}/>
-        { flightsData.length > 0 ?
-        <ul className="-mt-4 mb-4 border-x-2 border-b-2 border-gray-200">
-            { flightsData.map((flight: Flight) => (
+        <input type="hidden" name={name} value={flight?.id}/>
+        { (flightsData.length == 0 && hasSearched) ?
+        <ul className="mb-4 border-2 border-gray-200">
+           <li className="py-1 px-2">No results!</li> 
+        </ul>
+        :
+        flightsData.length > 0 &&
+        <ul className="mb-4 border-2 border-gray-200">
+            { flightsData.map((foundFlight: Flight) => (
             <li className="py-1 px-2 even:bg-gray-100 cursor-pointer hover:bg-gray-200"
-                value={flight.id} 
-                onClick={() => { setSelectedFlight(flight); setFlightsData([]); }}>
-                { createInstance(flight).toString() }
+                value={foundFlight.id} 
+                onClick={() => { setFlight(foundFlight); setFlightsData([]); setHasSearched(false); }}>
+                { createInstance(foundFlight).toString() }
             </li>
             ))}
         </ul>
-        :
-        <ul className="-mt-4 mb-4 border-x-2 border-b-2 border-gray-200">
-           <li className="py-1 px-2">No results!</li> 
-        </ul>
         }
 
-        { selectedFlight &&
-            <Whisper text={`selected: ${(selectedFlight).toString()}`} negativeTopMargin />
+        { flight &&
+            <Whisper text={`selected: ${createInstance(flight).toString()}`} />
         }
     </>
     );

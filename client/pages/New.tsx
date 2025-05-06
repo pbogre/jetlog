@@ -51,19 +51,14 @@ export default function New() {
         });
     };
 
-    const computeConnectionsFilters = () => {
-        // filters: 3 days before, 1 day after
-        const start = new Date(date);
-        start.setDate(start.getDate() - 3);
+    const start = new Date(date);
+    start.setDate(start.getDate() - 3);
 
-        const end = new Date(date);
-        end.setDate(end.getDate() + 1);
+    const end = new Date(date);
+    end.setDate(end.getDate() + 1);
 
-        // set format
-        const fmt = d => d.toISOString().substring(0, 10);
-
-        return `start=${fmt(start)}&end=${fmt(end)}`;
-    }
+    const fmt = d => d.toISOString().substring(0, 10);
+    const connectionsFilters = `start=${fmt(start)}&end=${fmt(end)}`;
 
     return (
         <>
@@ -196,23 +191,22 @@ export default function New() {
                         </div>
                     </div>
 
-                    <div className="container md:col-span-2 lg:col-span-1">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-                            <div>
-                            <Label text="Connection" />    
-                            <SearchFlights name="connection" filters={computeConnectionsFilters()} />
-                            </div>
-
-                            { fetchedConnection &&
-                                <div>
-                                   <Label text="Layover duration" />
-                                   <Input
-                                        type="number"
-                                        name="layoverDuration"
-                                    />
-                                </div>
-                            }
+                    <div className="container">
+                        <div>
+                        <Label text="Connection" />    
+                        <SearchFlights name="connection" filters={connectionsFilters} 
+                                       flight={fetchedConnection} setFlight={setFetchedConnection} />
                         </div>
+
+                        { fetchedConnection &&
+                            <div>
+                               <Label text="Layover duration" />
+                               <Input
+                                    type="number"
+                                    name="layoverDuration"
+                                />
+                            </div>
+                        }
 
                         <Label text="Notes" />
                         <TextArea
