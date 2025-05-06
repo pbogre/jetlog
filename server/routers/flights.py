@@ -240,7 +240,7 @@ async def get_flights(id: int|None = None,
 
     id_filter = f"AND f.id = {str(id)}" if id else ""
 
-    date_filter = "AND" if start or end else ""
+    date_filter = " AND " if start or end else ""
     date_filter += f"JULIANDAY(date) > JULIANDAY('{start}')" if start else ""
     date_filter += " AND " if start and end else ""
     date_filter += f"JULIANDAY(date) < JULIANDAY('{end}')" if end else ""
