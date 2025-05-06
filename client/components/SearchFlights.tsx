@@ -7,11 +7,12 @@ import { Flight } from '../models';
 interface SearchFlightsProps {
     name: string;
     filters: string;
+    placeholder?: Flight;
     flight?: Flight;
     setFlight: Function;
 }
 
-export default function SearchFlights({ name, filters, flight, setFlight }: SearchFlightsProps) {
+export default function SearchFlights({ name, filters, placeholder, flight, setFlight }: SearchFlightsProps) {
     const [hasSearched, setHasSearched] = useState<Boolean>(false);
     const [flightsData, setFlightsData] = useState<Flight[]>([]);
 
@@ -56,7 +57,10 @@ export default function SearchFlights({ name, filters, flight, setFlight }: Sear
         </ul>
         }
 
-        { flight &&
+        { (placeholder && !flight) ?
+            <Whisper text={`selected: ${createInstance(placeholder).toString()}`} />
+            :
+            flight &&
             <Whisper text={`selected: ${createInstance(flight).toString()}`} />
         }
     </>

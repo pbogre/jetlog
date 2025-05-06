@@ -7,6 +7,7 @@ import SearchInput from './SearchInput';
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
 import { objectFromForm } from '../utils';
+import SearchFlights from './SearchFlights';
 
 export default function SingleFlight({ flightID }) {
     const [flight, setFlight] = useState<Flight>();
@@ -157,6 +158,7 @@ export default function SingleFlight({ flightID }) {
                         <p>Airline: <SearchInput name="airline" type="airlines" placeholder={flight.airline} /></p>
                         <p>Tail Number: <Input type="text" name="tail_Number" placeholder={flight.tailNumber} /></p>
                         <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
+                        {/*<p>Connection: <SearchFlights name="connection" /></p> */}
                         <p>Notes</p>
                         <TextArea name="notes" defaultValue={flight.notes}/>
                     </>
@@ -170,6 +172,8 @@ export default function SingleFlight({ flightID }) {
                         <p>Airline: <span>{flight.airline ? flight.airline.icao + " - " + flight.airline.name : "N/A"}</span></p>
                         <p>Tail Number: <span>{flight.tailNumber || "N/A"}</span></p>
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
+                        <p>Connection: <span>{flight.connection ? <a href={`/flights?id=${flight.connection}`} className="underline">link</a> : "N/A"}</span></p>
+                        <p>Layover duration: <span>{flight.layoverDuration || "N/A"}</span></p>
                         <p>Notes: {flight.notes ?  <p className="whitespace-pre-line inline">{flight.notes}</p> : "N/A"}</p>
                     </>}
                 </div>
