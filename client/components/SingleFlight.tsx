@@ -7,6 +7,7 @@ import SearchInput from './SearchInput';
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
 import { objectFromForm } from '../utils';
+import WorldMap from './WorldMap';
 
 export default function SingleFlight({ flightID }) {
     const [flight, setFlight] = useState<Flight>();
@@ -172,6 +173,10 @@ export default function SingleFlight({ flightID }) {
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
                         <p>Notes: {flight.notes ?  <p className="whitespace-pre-line inline">{flight.notes}</p> : "N/A"}</p>
                     </>}
+                </div>
+
+                <div className="container">
+                    <WorldMap flightID={flightID} distance={flight.distance} /> 
                 </div>
             </div>
 
