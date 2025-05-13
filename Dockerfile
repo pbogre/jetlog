@@ -9,6 +9,7 @@ WORKDIR ${BUILD_PATH}
 
 RUN apt-get update -y && apt-get upgrade -y
 COPY package.json ./
+RUN npm config set registry https://registry.npmjs.org/
 RUN npm i --package-lock-only
 RUN npm ci
 
@@ -19,7 +20,7 @@ RUN npm run build
 # RUNTIME
 FROM python:3.11-slim-bookworm
 RUN apt-get update -y && apt-get upgrade -y
-RUN apt-get install -y gosu tini sqlite3 && rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y gosu tini sqlite3 curl && rm -rf /var/lib/apt/lists/*
 RUN pip install pipenv
 
 
