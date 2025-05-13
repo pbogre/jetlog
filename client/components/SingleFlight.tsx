@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
@@ -8,6 +8,7 @@ import API from '../api';
 import ConfigStorage from '../storage/configStorage';
 import { objectFromForm } from '../utils';
 import WorldMap from './WorldMap';
+import FetchConnection from './FetchConnection';
 
 export default function SingleFlight({ flightID }) {
     const [flight, setFlight] = useState<Flight>();
@@ -101,7 +102,7 @@ export default function SingleFlight({ flightID }) {
                         <p>Destination: <SearchInput name="destination" 
                                                      type="airports" 
                                                      value={flight.destination}
-                                                     onSelect={(airport: Airport) => Object.assign(flight.destination, airport)}/></p>
+                                                     onSelect={(airport: Airport) => setFlight(prev => ({...prev!, destination: airport}))}/></p>
                         <p>Distance (km): <Input type="number" name="distance" placeholder={flight.distance?.toString()}/></p>
                     </>
                     :
@@ -165,7 +166,11 @@ export default function SingleFlight({ flightID }) {
                                                  value={flight.airline} /></p>
                         <p>Tail Number: <Input type="text" name="tailNumber" placeholder={flight.tailNumber} /></p>
                         <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
-                        {/*<p>Connection: <SearchFlights name="connection" /></p> */}
+                        <p>Connection: <FetchConnection name="connection" 
+                                                        date={flight.date} 
+                                                        destination={flight.destination.icao}
+                                                        value={flight.connection}
+                                                        /></p>
                         <p>Notes</p>
                         <TextArea name="notes" defaultValue={flight.notes}/>
                     </>

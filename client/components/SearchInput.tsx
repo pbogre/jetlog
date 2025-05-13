@@ -34,10 +34,10 @@ export default function SearchInput({ name, type, value, onSelect }: SearchInput
     }
 
     const searchSubject = (event) => {
-        const value = event.target.value;
+        const query = event.target.value;
 
-        if (value.length > 1) {
-            API.get(`/${type}?q=${value}`)
+        if (query.length > 1) {
+            API.get(`/${type}?q=${query}`)
             .then((data: Airport[]|Airline[]) => setSubjectsData(data))
         }
         else setSubjectsData([]);

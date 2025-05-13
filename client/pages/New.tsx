@@ -5,7 +5,7 @@ import { Heading, Label, Button, Input, Select, TextArea } from '../components/E
 import SearchInput from '../components/SearchInput'
 import API from '../api';
 import { objectFromForm } from '../utils';
-import { Airline, Airport, Flight } from '../models';
+import { Airline, Airport } from '../models';
 import ConfigStorage from '../storage/configStorage';
 import FetchConnection from '../components/FetchConnection';
 
@@ -17,7 +17,7 @@ export default function New() {
     const [origin, setOrigin] = useState<Airport>();
     const [destination, setDestination] = useState<Airport>();
     const [airline, setAirline] = useState<Airline>();
-    const [connection, setConnection] = useState<Flight>();
+    const [connection, setConnection] = useState<number>();
 
     const localAirportTime = ConfigStorage.getSetting("localAirportTime");
 
@@ -197,7 +197,8 @@ export default function New() {
                             <FetchConnection name="connection" 
                                              date={date} 
                                              destination={destination?.icao}
-                                             onFetched={(f: Flight) => setConnection(f)}/>
+                                             value={connection}
+                                             onFetched={(c: number) => setConnection(c)} />
                         </div>
 
                         { connection &&
@@ -206,7 +207,7 @@ export default function New() {
                                <Input
                                     type="number"
                                     name="layoverDuration"
-                                />
+                                /> minutes
                             </div>
                         }
 

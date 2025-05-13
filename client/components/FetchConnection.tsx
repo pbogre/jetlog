@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import { Button } from '../components/Elements'
 import API from '../api';
@@ -8,14 +8,29 @@ interface FetchConnectionProps {
     name: string;
     date: string;
     destination: string|undefined;
-    onFetched?: (f: Flight) => void;
-    placeholder?: Flight;
+    value?: number;
+    onFetched?: (c: number) => void;
 }
 
-export default function FetchConnection({ name, date, destination, onFetched, placeholder }: FetchConnectionProps) {
-    const [connection, setConnection] = useState<Flight>();
-    const [noneFound, setNoneFound] = useState<boolean>(false);
-    
+export default function FetchConnection({ name, date, destination, value, onFetched }: FetchConnectionProps) {
+    const [searched, setSearched] = useState<boolean>(false);
+    const [connectionFlight, setConnectionFlight] = useState<Flight>(); // only needed for printing flight info
+
+    // if value is initially set, we must
+    // find matching flight (only first render)
+    useEffect(() => {
+        if (value) {
+            API.get(`flights?id=${value}`)
+            .then((data: Flight) => { setConnectionFlight(data) });
+        }
+    }, [])
+
+    // whenever destination or date is changed,
+    // we can search again
+    useEffect(() => {
+        setSearched(false);
+    }, [date, destination]);
+
     // this method returns an actual instance of 
     // Flight so that its class methods can be used
     const createInstance = (obj) => {
@@ -39,33 +54,56 @@ export default function FetchConnection({ name, date, destination, onFetched, pl
 
         API.get(`/flights?start=${fmt(start)}&end=${fmt(end)}&origin=${destination}`)
         .then((data: Flight|Flight[]) => {
+            if (!onFetched) return; // only keep going if we have to do something
+
             if (Array.isArray(data)) {
-                if (data.length === 0) setNoneFound(true);
-                else alert("multiple found...")
+                if (data.length > 0) {
+                    // this should be very rare, for now we handle it
+                    // with a crude alert input
+                    const choice = prompt(`Multiple possible connections found, select one by entering its number:
+                                          ${ data.map((f: Flight, i) => `\n[${i}] ${createInstance(f).toString()}`) }`);
+
+                    if (!choice) {
+                        alert("Your input must be a valid index!");
+                        return;
+                    }
+
+                    const parsed = Number.parseInt(choice);
+
+                    if (!Number.isInteger(parsed) || parsed < 0 || parsed > data.length - 1) {
+                        alert("Your input must be a valid index!");
+                        return;
+                    }
+
+                    const connection: Flight = data[choice];
+                    setConnectionFlight(connection);
+                    onFetched(connection.id);
+                }
             } else {
-                setConnection(data);
-                if (onFetched) onFetched(data);
+                setConnectionFlight(data);
+                onFetched(data.id);
             }
         });
+
+        setSearched(true);
     }
 
     return (
     <>
-        <Button
-            text="Fetch"
-            disabled={destination === undefined || noneFound}
-            onClick={searchConnection}
-        />
+        { !searched &&
+            <Button
+                text="Fetch"
+                disabled={destination === undefined}
+                onClick={searchConnection}
+            />
+        }
 
-        <input type="hidden" name={name} value={connection?.id}/>
+        <input type="hidden" name={name} value={value}/>
 
-        { (placeholder && !connection) ?
-            <p>{createInstance(placeholder).toString()}</p>
+        { connectionFlight ?
+            <p>{createInstance(connectionFlight).toString()}</p>
             :
-            connection ?
-            <p>{createInstance(connection).toString()}</p>
-            :
-            noneFound &&
+            searched &&
             <p>No results!</p>
         }
     </>
