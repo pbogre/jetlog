@@ -1,13 +1,13 @@
-import React, {useRef, useState} from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Heading, Label, Button, Input, Select, TextArea } from '../components/Elements';
 import SearchInput from '../components/SearchInput'
-import SearchFlights from '../components/SearchFlights'
 import API from '../api';
 import { objectFromForm } from '../utils';
-import {Airline, Airport, Flight} from '../models';
+import { Airline, Airport } from '../models';
 import ConfigStorage from '../storage/configStorage';
+import FetchConnection from '../components/FetchConnection';
 
 export default function New() {
     const navigate = useNavigate();
@@ -17,9 +17,15 @@ export default function New() {
     const [fetchedOrigin, setFetchedOrigin] = useState<Airport>()
     const [fetchedDestination, setFetchedDestination] = useState<Airport>()
     const [fetchedAirline, setFetchedAirline] = useState<Airline>()
-    const [fetchedConnection, setFetchedConnection] = useState<Flight>()
 
     const localAirportTime = ConfigStorage.getSetting("localAirportTime");
+
+    const getInputValue = (name: string) => {
+        //console.log(document.getElementsByName(name));
+        //const inputElement = document.getElementsByName(name)[0] as HTMLInputElement;
+        //return inputElement.value;
+        return "";
+    }
 
     const postFlight = async (event) => {
         event.preventDefault();
@@ -50,15 +56,6 @@ export default function New() {
             setFetchedAirline({ ...airline });
         });
     };
-
-    const start = new Date(date);
-    start.setDate(start.getDate() - 3);
-
-    const end = new Date(date);
-    end.setDate(end.getDate() + 1);
-
-    const fmt = d => d.toISOString().substring(0, 10);
-    const connectionsFilters = `start=${fmt(start)}&end=${fmt(end)}`;
 
     return (
         <>
@@ -194,11 +191,12 @@ export default function New() {
                     <div className="container">
                         <div>
                         <Label text="Connection" />    
-                        <SearchFlights name="connection" filters={connectionsFilters} 
-                                       flight={fetchedConnection} setFlight={setFetchedConnection} />
+                        <FetchConnection name="connection" 
+                                         date={date} 
+                                         destination={getInputValue("destination")} />
                         </div>
 
-                        { fetchedConnection &&
+                        { getInputValue("connection") &&
                             <div>
                                <Label text="Layover duration" />
                                <Input
