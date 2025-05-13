@@ -5,7 +5,7 @@ import { Heading, Label, Button, Input, Select, TextArea } from '../components/E
 import SearchInput from '../components/SearchInput'
 import API from '../api';
 import { objectFromForm } from '../utils';
-import { Airline, Airport } from '../models';
+import { Airline, Airport, Flight } from '../models';
 import ConfigStorage from '../storage/configStorage';
 import FetchConnection from '../components/FetchConnection';
 
@@ -14,18 +14,12 @@ export default function New() {
 
     const [date, setDate] = useState<string>((new Date()).toISOString().substring(0, 10));
     const [flightNumber, setFlightNumber] = useState<string>();
-    const [fetchedOrigin, setFetchedOrigin] = useState<Airport>()
-    const [fetchedDestination, setFetchedDestination] = useState<Airport>()
-    const [fetchedAirline, setFetchedAirline] = useState<Airline>()
+    const [origin, setOrigin] = useState<Airport>();
+    const [destination, setDestination] = useState<Airport>();
+    const [airline, setAirline] = useState<Airline>();
+    const [connection, setConnection] = useState<Flight>();
 
     const localAirportTime = ConfigStorage.getSetting("localAirportTime");
-
-    const getInputValue = (name: string) => {
-        //console.log(document.getElementsByName(name));
-        //const inputElement = document.getElementsByName(name)[0] as HTMLInputElement;
-        //return inputElement.value;
-        return "";
-    }
 
     const postFlight = async (event) => {
         event.preventDefault();
@@ -51,9 +45,9 @@ export default function New() {
             const destination= await API.get(`/airports/${destinationICAO}`);
             const airline = await API.get(`/airlines/${airlineICAO}`)
 
-            setFetchedOrigin({...origin});
-            setFetchedDestination({...destination});
-            setFetchedAirline({ ...airline });
+            setOrigin({...origin});
+            setDestination({...destination});
+            setAirline({ ...airline });
         });
     };
 
@@ -65,10 +59,16 @@ export default function New() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                     <div className="container">
                         <Label text="Origin" required />
-                        <SearchInput name="origin" type="airports" subject={fetchedOrigin} />
+                        <SearchInput name="origin" 
+                                     type="airports" 
+                                     value={origin} 
+                                     onSelect={(airport: Airport) => setOrigin(airport)} />
                         <br />
                         <Label text="Destination" required />
-                        <SearchInput name="destination" type="airports" subject={fetchedDestination} />
+                        <SearchInput name="destination" 
+                                     type="airports" 
+                                     value={destination}
+                                     onSelect={(airport: Airport) => setDestination(airport)} />
                         <br />
                         <Label text="Date" required />
                         <Input
@@ -170,7 +170,10 @@ export default function New() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                             <div>
                                 <Label text="Airline" />
-                                <SearchInput name="airline" type="airlines" subject={fetchedAirline} />
+                                <SearchInput name="airline" 
+                                             type="airlines" 
+                                             value={airline}
+                                             onSelect={(airline: Airline) => setAirline(airline)} />
                             </div>
                             <div className="whitespace-nowrap">
                                 <Label text="Flight Number" />
@@ -190,13 +193,14 @@ export default function New() {
 
                     <div className="container">
                         <div>
-                        <Label text="Connection" />    
-                        <FetchConnection name="connection" 
-                                         date={date} 
-                                         destination={getInputValue("destination")} />
+                            <Label text="Connection" />    
+                            <FetchConnection name="connection" 
+                                             date={date} 
+                                             destination={destination?.icao}
+                                             onFetched={(f: Flight) => setConnection(f)}/>
                         </div>
 
-                        { getInputValue("connection") &&
+                        { connection &&
                             <div>
                                <Label text="Layover duration" />
                                <Input

@@ -8,10 +8,11 @@ interface FetchConnectionProps {
     name: string;
     date: string;
     destination: string|undefined;
+    onFetched?: (f: Flight) => void;
     placeholder?: Flight;
 }
 
-export default function FetchConnection({ name, date, destination, placeholder }: FetchConnectionProps) {
+export default function FetchConnection({ name, date, destination, onFetched, placeholder }: FetchConnectionProps) {
     const [connection, setConnection] = useState<Flight>();
     const [noneFound, setNoneFound] = useState<boolean>(false);
     
@@ -42,8 +43,8 @@ export default function FetchConnection({ name, date, destination, placeholder }
                 if (data.length === 0) setNoneFound(true);
                 else alert("multiple found...")
             } else {
-                console.log(data);
                 setConnection(data);
+                if (onFetched) onFetched(data);
             }
         });
     }

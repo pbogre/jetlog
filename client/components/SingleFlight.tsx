@@ -1,13 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
-import { Flight, User } from '../models';
+import { Airport, Flight, User } from '../models';
 import SearchInput from './SearchInput';
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
 import { objectFromForm } from '../utils';
-import SearchFlights from './SearchFlights';
 import WorldMap from './WorldMap';
 
 export default function SingleFlight({ flightID }) {
@@ -96,8 +95,13 @@ export default function SingleFlight({ flightID }) {
                     <Subheading text="Airports" />
                     { editMode ?
                     <>
-                        <p>Origin: <SearchInput name="origin" type="airports" placeholder={flight.origin}/></p>
-                        <p>Destination: <SearchInput name="destination" type="airports" placeholder={flight.destination} /></p>
+                        <p>Origin: <SearchInput name="origin"
+                                                type="airports"
+                                                value={flight.origin}/></p>
+                        <p>Destination: <SearchInput name="destination" 
+                                                     type="airports" 
+                                                     value={flight.destination}
+                                                     onSelect={(airport: Airport) => Object.assign(flight.destination, airport)}/></p>
                         <p>Distance (km): <Input type="number" name="distance" placeholder={flight.distance?.toString()}/></p>
                     </>
                     :
@@ -156,7 +160,9 @@ export default function SingleFlight({ flightID }) {
                             { text: "Other", value: "other" }
                         ]} /></p>
                         <p>Airplane: <Input type="text" name="airplane" placeholder={flight.airplane} /></p>
-                        <p>Airline: <SearchInput name="airline" type="airlines" placeholder={flight.airline} /></p>
+                        <p>Airline: <SearchInput name="airline" 
+                                                 type="airlines" 
+                                                 value={flight.airline} /></p>
                         <p>Tail Number: <Input type="text" name="tailNumber" placeholder={flight.tailNumber} /></p>
                         <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
                         {/*<p>Connection: <SearchFlights name="connection" /></p> */}
