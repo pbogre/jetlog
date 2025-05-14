@@ -171,6 +171,7 @@ export default function SingleFlight({ flightID }) {
                                                         destination={flight.destination.icao}
                                                         value={flight.connection}
                                                         onFetched={(c: number) => setFlight(prev => ({...prev!, connection: c}))} /></p>
+                        <p>Layover duration: <Input type="number" name="layoverDuration" placeholder={flight.layoverDuration?.toString()} /></p>
                         <p>Notes</p>
                         <TextArea name="notes" defaultValue={flight.notes}/>
                     </>
