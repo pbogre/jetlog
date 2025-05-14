@@ -192,7 +192,7 @@ export default function SingleFlight({ flightID }) {
                 </div>
 
                 <div className="container">
-                    <WorldMap flightID={flightID} distance={flight.distance} /> 
+                    <WorldMap flightData={[flightID, flight.distance]} /> 
                 </div>
             </div>
 

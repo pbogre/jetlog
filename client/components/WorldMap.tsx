@@ -1,43 +1,29 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { ComposableMap, ZoomableGroup, Geographies, Geography, Marker, Line } from "react-simple-maps";
 
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
-import { Trajectory } from '../models';
-
-function CustomMarker({ longitude, latitude, frequency }) {
-    return (<Marker coordinates={[longitude, latitude]}>
-            <circle r={
-                        ConfigStorage.getSetting("frequencyBasedMarker") === "true" ?
-                        Math.min(3 + Math.floor(frequency / 3), 6)
-                        : 3
-                        } 
-                    fill={
-                        ConfigStorage.getSetting("frequencyBasedMarker") === "true" ?
-                        "#FFA50080"
-                        : "#FFA500"
-                        }
-                    stroke="#FFA500"
-                    strokeWidth={0.5}/>
-            </Marker>);
-}
+import { Coord, Trajectory } from '../models';
 
 interface WorldMapProps {
-    flightID?: number;
-    distance?: number;
+    flightData?: [number, number]; // flightID, distance
 }
-export default function WorldMap({ flightID, distance }: WorldMapProps) {
-    const [world, setWorld] = useState<object>()
-    const [lines, setLines] = useState<Trajectory[]>([])
+export default function WorldMap({ flightData }: WorldMapProps) {
+    const [world, setWorld] = useState<object>();
+    const [lines, setLines] = useState<Trajectory[]>([]);
+    const [markers, setMarkers] = useState<Coord[]>([]);
 
     useEffect(() => {
         API.get("/geography/world")
         .then((data) => setWorld(data));
 
-        const query = flightID ? `?flight_id=${flightID}` : ""
+        const query = flightData ? `?flight_id=${flightData[0]}` : ""
 
-        API.get(`/geography/lines${query}`)
-        .then((data: Trajectory[]) => setLines(data));
+        API.get(`/geography/decorations${query}`)
+        .then((data: [Trajectory[], Coord[]]) => {
+            setLines(data[0]);
+            setMarkers(data[1]);
+        });
     }, []);
 
     if (world === undefined) {
@@ -48,7 +34,7 @@ export default function WorldMap({ flightID, distance }: WorldMapProps) {
     let zoom = 1;
 
     // compute center and zoom factor if flight specified
-    if (flightID && distance) {
+    if (flightData) {
         const longitudeDelta = Math.abs(lines[0].second.longitude - lines[0].first.longitude);
         const clipsMap = longitudeDelta > 180;
 
@@ -59,7 +45,7 @@ export default function WorldMap({ flightID, distance }: WorldMapProps) {
 
             center = [middleLongitude, middleLatitude];
 
-            zoom = Math.min(20000/distance, 10);
+            zoom = Math.min(20000/flightData[1], 10);
         }
 
     }
@@ -86,7 +72,6 @@ export default function WorldMap({ flightID, distance }: WorldMapProps) {
                     </Geographies>
 
                     { lines.map((line) => (
-                        <>
                         <Line 
                             from={[line.first.longitude, line.first.latitude]}
                             to={[line.second.longitude, line.second.latitude]}
@@ -98,15 +83,25 @@ export default function WorldMap({ flightID, distance }: WorldMapProps) {
                                     } 
                             strokeLinecap="round" />
 
-                        <CustomMarker longitude={line.first.longitude} 
-                                      latitude={line.first.latitude} 
-                                      frequency={line.first.frequency} />
-
-                        <CustomMarker longitude={line.second.longitude} 
-                                      latitude={line.second.latitude} 
-                                      frequency={line.second.frequency} />
-                        </>
                     ))} 
+
+                    { markers.map((marker) => (
+                        <Marker coordinates={[marker.longitude, marker.latitude]}>
+                            <circle r={
+                                ConfigStorage.getSetting("frequencyBasedMarker") === "true" ?
+                                Math.min(3 + Math.floor(marker.frequency / 3), 6)
+                                : 3 
+                                } 
+                                fill={
+                                    ConfigStorage.getSetting("frequencyBasedMarker") === "true" ?
+                                    "#FFA50080"
+                                    : "#FFA500"
+                                }
+                                stroke="#FFA500"
+                                strokeWidth={0.5}
+                            />
+                        </Marker>
+                    ))}
 
                 </ZoomableGroup>
             </ComposableMap>
