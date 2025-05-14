@@ -132,23 +132,25 @@ async def add_flight(flight: FlightModel, timezones: bool = True, user: User = D
     return database.execute_query(query, values)
 
 class FlightPatchModel(CustomModel):
-    date:           datetime.date|None = None
-    origin:         AirportModel|str|None = None
-    destination:    AirportModel|str|None = None
-    departure_time: str|None = None
-    arrival_time:   str|None = None
-    arrival_date:   datetime.date|None = None
-    seat:           SeatType|None = None
-    aircraft_side:  AircraftSide|None = None
-    ticket_class:   ClassType|None = None
-    purpose:        FlightPurpose|None = None
-    duration:       int|None = None
-    distance:       int|None = None
-    airplane:       str|None = None
-    airline:        AirlineModel|str|None = None
-    tail_number:    str|None = None
-    flight_number:  str|None = None
-    notes:          str|None = None
+    date:             datetime.date|None = None
+    origin:           AirportModel|str|None = None
+    destination:      AirportModel|str|None = None
+    departure_time:   str|None = None
+    arrival_time:     str|None = None
+    arrival_date:     datetime.date|None = None
+    seat:             SeatType|None = None
+    aircraft_side:    AircraftSide|None = None
+    ticket_class:     ClassType|None = None
+    purpose:          FlightPurpose|None = None
+    duration:         int|None = None
+    distance:         int|None = None
+    airplane:         str|None = None
+    airline:          AirlineModel|str|None = None
+    tail_number:      str|None = None
+    flight_number:    str|None = None
+    notes:            str|None = None
+    connection:       int|None = None
+    layover_duration: int|None = None
 
 @router.patch("", status_code=200)
 async def update_flight(id: int,
