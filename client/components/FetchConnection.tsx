@@ -75,12 +75,10 @@ export default function FetchConnection({ name, date, destination, value, onFetc
                 }
 
                 const connection: Flight = data[choice];
-                console.log(connection);
                 setConnectionFlight(connection);
                 onFetched(connection.id);
-            } else {
+            } else if (data.length == 1) {
                 const connection: Flight = data[0];
-                console.log(connection);
                 setConnectionFlight(connection);
                 onFetched(connection.id);
             }
