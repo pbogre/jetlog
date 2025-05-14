@@ -44,23 +44,24 @@ export default function WorldMap({ flightID, distance }: WorldMapProps) {
         return;
     }
 
-    // check if it will 'clip' through the edges of the map using coords
-    const longitudeDelta = lines[0].second.longitude - lines[0].first.longitude;
-    const clipsMap = Math.abs(longitudeDelta) > 180;
-
-    // compute center
     let center: [number, number] = [0, 0];
-    if (flightID && !clipsMap){
-        const middleLongitude = (lines[0].first.longitude + lines[0].second.longitude) / 2;
-        const middleLatitude = (lines[0].first.latitude + lines[0].second.latitude) / 2;
-
-        center = [middleLongitude, middleLatitude];
-    }
-
-    // compute zoom factor
     let zoom = 1;
-    if (flightID && distance && !clipsMap) {
-        zoom = Math.min(20000/distance, 10);
+
+    // compute center and zoom factor if flight specified
+    if (flightID && distance) {
+        const longitudeDelta = Math.abs(lines[0].second.longitude - lines[0].first.longitude);
+        const clipsMap = longitudeDelta > 180;
+
+        // proceed if the trajectory does not 'clip' around the map
+        if (!clipsMap) {
+            const middleLongitude = (lines[0].first.longitude + lines[0].second.longitude) / 2;
+            const middleLatitude = (lines[0].first.latitude + lines[0].second.latitude) / 2;
+
+            center = [middleLongitude, middleLatitude];
+
+            zoom = Math.min(20000/distance, 10);
+        }
+
     }
 
     return (
