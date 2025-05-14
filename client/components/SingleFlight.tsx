@@ -170,7 +170,7 @@ export default function SingleFlight({ flightID }) {
                                                         date={flight.date} 
                                                         destination={flight.destination.icao}
                                                         value={flight.connection}
-                                                        /></p>
+                                                        onFetched={(c: number) => setFlight(prev => ({...prev!, connection: c}))} /></p>
                         <p>Notes</p>
                         <TextArea name="notes" defaultValue={flight.notes}/>
                     </>

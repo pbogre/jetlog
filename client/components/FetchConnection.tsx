@@ -53,39 +53,40 @@ export default function FetchConnection({ name, date, destination, value, onFetc
         const fmt = d => d.toISOString().substring(0, 10);
 
         API.get(`/flights?start=${fmt(start)}&end=${fmt(end)}&origin=${destination}`)
-        .then((data: Flight|Flight[]) => {
+        .then((data: Flight[]) => {
             if (!onFetched) return; // only keep going if we have to do something
 
-            if (Array.isArray(data)) {
-                if (data.length > 0) {
-                    // this should be very rare, for now we handle it
-                    // with a crude alert input
-                    const choice = prompt(`Multiple possible connections found, select one by entering its number:
+            if (data.length > 1) {
+                // this should be very rare, for now we handle it
+                // with a crude prompt
+                const choice = prompt(`Multiple possible connections found, select one by entering its number:
                                           ${ data.map((f: Flight, i) => `\n[${i}] ${createInstance(f).toString()}`) }`);
 
-                    if (!choice) {
-                        alert("Your input must be a valid index!");
-                        return;
-                    }
-
-                    const parsed = Number.parseInt(choice);
-
-                    if (!Number.isInteger(parsed) || parsed < 0 || parsed > data.length - 1) {
-                        alert("Your input must be a valid index!");
-                        return;
-                    }
-
-                    const connection: Flight = data[choice];
-                    setConnectionFlight(connection);
-                    onFetched(connection.id);
+                if (!choice) {
+                    alert("Your input must be a valid index!");
+                    return;
                 }
-            } else {
-                setConnectionFlight(data);
-                onFetched(data.id);
-            }
-        });
 
-        setSearched(true);
+                const parsed = Number.parseInt(choice);
+
+                if (!Number.isInteger(parsed) || parsed < 0 || parsed > data.length - 1) {
+                    alert("Your input must be a valid index!");
+                    return;
+                }
+
+                const connection: Flight = data[choice];
+                console.log(connection);
+                setConnectionFlight(connection);
+                onFetched(connection.id);
+            } else {
+                const connection: Flight = data[0];
+                console.log(connection);
+                setConnectionFlight(connection);
+                onFetched(connection.id);
+            }
+
+            setSearched(true);
+        });
     }
 
     return (
