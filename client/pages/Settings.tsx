@@ -232,6 +232,7 @@ export default function Settings() {
                                 onChange={changeOption} />
                 </div>
 
+                <hr />
 
                 <Subheading text="Utilities" />
 
@@ -241,7 +242,6 @@ export default function Settings() {
                 </div>
             </div>
 
-            <hr />
 
             <div className="container">
                 <Subheading text="You"/>
