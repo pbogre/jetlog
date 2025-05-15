@@ -171,7 +171,6 @@ export default function SingleFlight({ flightID }) {
                                                         destination={flight.destination.icao}
                                                         value={flight.connection}
                                                         onFetched={(c: number) => setFlight(prev => ({...prev!, connection: c}))} /></p>
-                        <p>Layover duration: <Input type="number" name="layoverDuration" placeholder={flight.layoverDuration?.toString()} /></p>
                         <p>Notes</p>
                         <TextArea name="notes" defaultValue={flight.notes}/>
                     </>
@@ -186,7 +185,6 @@ export default function SingleFlight({ flightID }) {
                         <p>Tail Number: <span>{flight.tailNumber || "N/A"}</span></p>
                         <p>Flight Number: <span>{flight.flightNumber || "N/A"}</span></p>
                         <p>Connection: <span>{flight.connection ? <a href={`/flights?id=${flight.connection}`} className="underline">link</a> : "N/A"}</span></p>
-                        <p>Layover duration: <span>{flight.layoverDuration || "N/A"}</span></p>
                         <p>Notes: {flight.notes ?  <p className="whitespace-pre-line inline">{flight.notes}</p> : "N/A"}</p>
                     </>}
                 </div>

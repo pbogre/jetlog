@@ -190,7 +190,6 @@ class FlightModel(CustomModel):
     flight_number:    str|None = None
     notes:            str|None = None
     connection:       int|None = None
-    layover_duration: int|None = None
 
     @field_validator('origin', 'destination')
     @classmethod

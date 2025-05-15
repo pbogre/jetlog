@@ -150,7 +150,6 @@ class FlightPatchModel(CustomModel):
     flight_number:    str|None = None
     notes:            str|None = None
     connection:       int|None = None
-    layover_duration: int|None = None
 
 @router.patch("", status_code=200)
 async def update_flight(id: int,

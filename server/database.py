@@ -32,9 +32,7 @@ class Database():
                     flight_number    TEXT,
                     notes            TEXT,
                     connection       INTEGER NULL,
-                    layover_duration INTEGER NULL,
                     FOREIGN KEY (connection) REFERENCES flights (id) ON DELETE SET NULL,
-                    CHECK (layover_duration IS NULL OR connection IS NOT NULL),
                     CHECK (connection IS NULL OR connection <> id)
                 )""",
             "model": FlightModel

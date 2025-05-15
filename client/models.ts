@@ -27,7 +27,6 @@ export class Flight {
     flightNumber: string;
     notes: string;
     connection: number;
-    layoverDuration: number;
 
     toString(): string {
         if (this === null) return "N/A";

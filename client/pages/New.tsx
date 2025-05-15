@@ -201,16 +201,6 @@ export default function New() {
                                              onFetched={(c: number) => setConnection(c)} />
                         </div>
 
-                        { connection &&
-                            <div>
-                               <Label text="Layover duration" />
-                               <Input
-                                    type="number"
-                                    name="layoverDuration"
-                                /> minutes
-                            </div>
-                        }
-
                         <Label text="Notes" />
                         <TextArea
                             name="notes"
