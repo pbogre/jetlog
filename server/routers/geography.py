@@ -44,7 +44,9 @@ async def get_flights_decorations(flight_id: int|None = None, user: User = Depen
     flight_filter = f" AND f.id = {flight_id}" if flight_id != None else ""
 
     query = f"""
-        SELECT o.latitude, o.longitude, d.latitude, d.longitude
+        SELECT o.latitude, o.longitude, 
+               d.latitude, d.longitude,
+               f.connection
         FROM flights f
         JOIN airports o ON UPPER(f.origin) = o.icao 
         JOIN airports d ON UPPER(f.destination) = d.icao
@@ -56,12 +58,17 @@ async def get_flights_decorations(flight_id: int|None = None, user: User = Depen
     lines: list[Trajectory] = []
     coordinates: list[Coord] = []
 
-    for airport_pair in res:
-        origin_data = airport_pair[:2]
+    for row in res:
+        # this is so that we don't count
+        # connection airports twice in 
+        # marker frequencies
+        has_connection = row[4] != None
+
+        origin_data = row[:2]
         origin_coords = Coord.from_database(origin_data, explicit={'frequency': 1})
         origin_coords = Coord.model_validate(origin_coords)
 
-        destination_coords= airport_pair[2:]
+        destination_coords= row[2:4]
         destination_coords = Coord.from_database(destination_coords, explicit={'frequency': 1})
         destination_coords = Coord.model_validate(destination_coords)
 
@@ -77,7 +84,7 @@ async def get_flights_decorations(flight_id: int|None = None, user: User = Depen
                     coord.frequency += 1
             if coord == destination_coords:
                 found_destination = True
-                if coord.frequency != None:
+                if coord.frequency != None and not has_connection:
                     coord.frequency += 1
 
             if found_origin and found_destination:
