@@ -9,7 +9,7 @@ export default function Home() {
             <ShortStats />
 
             <div className="md:w-4/5 md:m-auto">
-                <WorldMap showVisitedCountries/>
+                <WorldMap />
             </div>
         </>
     );
