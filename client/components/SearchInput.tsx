@@ -7,23 +7,24 @@ import { Airline, Airport } from '../models';
 interface SearchInputProps {
     name: string;
     type: "airports"|"airlines";
-    placeholder?: Airport|Airline;
-    subject?: Airport|Airline;
+    value?: Airport|Airline;
+    onSelect?: (s) => void; // type any for implementation, but really is Airport|Airline
 }
 
-export default function SearchInput({ name, type, placeholder, subject }: SearchInputProps) {
+export default function SearchInput({ name, type, value, onSelect }: SearchInputProps) {
     const [subjectsData, setSubjectsData] = useState<Airport[]|Airline[]>([]);
-    const [selectedSubject, setSelectedSubject] = useState<Airport|Airline>();
 
+    // this allows the parent to override
+    // the selected subject, e.g. when fetching with
+    // flight number
     useEffect(() => {
-        if (subject) {
+        if (value) {
             setSubjectsData([]);
-            setSelectedSubject(subject);
         }
-    }, [subject])
+    }, [value]);
 
     // this method returns an actual instance of 
-    // AirportModel or Airline model so that their 
+    // Airport/Airline so that their 
     // class methods can be used
     const createInstance = (obj) => {
         const correct = type == "airports" ? new Airport() : new Airline();
@@ -32,12 +33,12 @@ export default function SearchInput({ name, type, placeholder, subject }: Search
         return correct;
     }
 
-    const searchAirport = (event) => {
-        const value = event.target.value;
+    const searchSubject = (event) => {
+        const query = event.target.value;
 
-        if (value.length > 1) {
-            API.get(`/${type}?q=${value}`)
-            .then((data: Airport[]) => setSubjectsData(data))
+        if (query.length > 1) {
+            API.get(`/${type}?q=${query}`)
+            .then((data: Airport[]|Airline[]) => setSubjectsData(data))
         }
         else setSubjectsData([]);
     }
@@ -47,28 +48,28 @@ export default function SearchInput({ name, type, placeholder, subject }: Search
         <Input 
             type="text"
             maxLength={16}
-            onChange={searchAirport}
+            onChange={searchSubject}
             placeholder="Search"
         />
 
-        <input type="hidden" name={name} value={selectedSubject?.icao}/>
+        <input type="hidden" name={name} value={value?.icao}/>
         { subjectsData.length > 0 &&
         <ul className="-mt-4 mb-4 border-x-2 border-b-2 border-gray-200">
-            { subjectsData.map((subject: Airport|Airline) => (
+            { subjectsData.map((s: Airport|Airline) => (
             <li className="py-1 px-2 even:bg-gray-100 cursor-pointer hover:bg-gray-200"
-                value={subject.icao} 
-                onClick={() => { setSelectedSubject(subject); setSubjectsData([]); }}>
-                { createInstance(subject).toString() }
+                value={s.icao} 
+                onClick={() => {
+                    setSubjectsData([]); 
+                    if (onSelect) onSelect(s);
+                }} >
+                { createInstance(s).toString() }
             </li>
             ))}
         </ul>
         }
 
-        { (placeholder && !selectedSubject) ?
-            <Whisper text={`selected: ${createInstance(placeholder).toString()}`} negativeTopMargin />
-            :
-            selectedSubject &&
-            <Whisper text={`selected: ${createInstance(selectedSubject).toString()}`} negativeTopMargin />
+        { value &&
+            <Whisper text={`selected: ${createInstance(value).toString()}`} negativeTopMargin />
         }
     </>
     );

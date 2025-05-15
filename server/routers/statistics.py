@@ -67,7 +67,10 @@ async def get_statistics(metric: bool = True,
                a.country
         FROM airports a
         JOIN flights f
-        ON ( a.icao = UPPER(f.origin) OR a.icao = UPPER(f.destination) )
+        ON ( 
+            a.icao = UPPER(f.origin) OR 
+            ( a.icao = UPPER(f.destination) AND f.connection IS NULL ) 
+        )
         {filters}
         GROUP BY a.icao
         ORDER BY visits DESC

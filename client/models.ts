@@ -26,6 +26,17 @@ export class Flight {
     tailNumber: string;
     flightNumber: string;
     notes: string;
+    connection: number;
+
+    toString(): string {
+        if (this === null) return "N/A";
+
+        if (this.origin.country == this.destination.country) {
+            return this.origin.region + " to " + this.destination.region + ", " + this.date
+        }
+
+        return this.origin.country + " to " + this.destination.country + ", " + this.date
+    }
 }
 
 export class Airport {

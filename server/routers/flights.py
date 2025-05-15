@@ -132,23 +132,24 @@ async def add_flight(flight: FlightModel, timezones: bool = True, user: User = D
     return database.execute_query(query, values)
 
 class FlightPatchModel(CustomModel):
-    date:           datetime.date|None = None
-    origin:         AirportModel|str|None = None
-    destination:    AirportModel|str|None = None
-    departure_time: str|None = None
-    arrival_time:   str|None = None
-    arrival_date:   datetime.date|None = None
-    seat:           SeatType|None = None
-    aircraft_side:  AircraftSide|None = None
-    ticket_class:   ClassType|None = None
-    purpose:        FlightPurpose|None = None
-    duration:       int|None = None
-    distance:       int|None = None
-    airplane:       str|None = None
-    airline:        AirlineModel|str|None = None
-    tail_number:    str|None = None
-    flight_number:  str|None = None
-    notes:          str|None = None
+    date:             datetime.date|None = None
+    origin:           AirportModel|str|None = None
+    destination:      AirportModel|str|None = None
+    departure_time:   str|None = None
+    arrival_time:     str|None = None
+    arrival_date:     datetime.date|None = None
+    seat:             SeatType|None = None
+    aircraft_side:    AircraftSide|None = None
+    ticket_class:     ClassType|None = None
+    purpose:          FlightPurpose|None = None
+    duration:         int|None = None
+    distance:         int|None = None
+    airplane:         str|None = None
+    airline:          AirlineModel|str|None = None
+    tail_number:      str|None = None
+    flight_number:    str|None = None
+    notes:            str|None = None
+    connection:       int|None = None
 
 @router.patch("", status_code=200)
 async def update_flight(id: int,
@@ -231,19 +232,12 @@ async def get_flights(id: int|None = None,
                       sort: Sort = Sort.DATE,
                       start: datetime.date|None = None,
                       end: datetime.date|None = None,
+                      origin: str|None = None,
+                      destination: str|None = None,
                       username: str|None = None,
                       user: User = Depends(get_current_user)) -> list[FlightModel]|FlightModel:
 
-    user_filter = f"AND f.username = '{user.username}'" if not id else ""
-    if username:
-        user_filter = f"AND f.username = '{username}'"
-
-    id_filter = f"AND f.id = {str(id)}" if id else ""
-
-    date_filter = "AND" if start or end else ""
-    date_filter += f"JULIANDAY(date) > JULIANDAY('{start}')" if start else ""
-    date_filter += " AND " if start and end else ""
-    date_filter += f"JULIANDAY(date) < JULIANDAY('{end}')" if end else ""
+    username_filter = None if id else username if username else user.username
 
     if sort == Sort.DATE:
         sort_clause = f"ORDER BY f.date {order.value}, f.departure_time {order.value}"
@@ -260,15 +254,22 @@ async def get_flights(id: int|None = None,
         JOIN airports o ON UPPER(f.origin) = o.icao
         JOIN airports d ON UPPER(f.destination) = d.icao
         LEFT JOIN airlines a ON UPPER(f.airline) = a.icao
-        WHERE 1=1
-        {user_filter}
-        {id_filter}
-        {date_filter}
+        WHERE (? IS NULL OR f.id = ?)
+        AND   (? IS NULL OR f.username = ?)
+        AND   (? IS NULL OR JULIANDAY(date) >= JULIANDAY(?))
+        AND   (? IS NULL OR JULIANDAY(date) <= JULIANDAY(?))
+        AND   (? IS NULL OR f.origin = UPPER(?))
+        AND   (? IS NULL OR f.destination = UPPER(?))
         {sort_clause}
         LIMIT {limit}
         OFFSET {offset};"""
 
-    res = database.execute_read_query(query);
+    values = []
+    for value in [id, username_filter, start, end, origin, destination]:
+        values.append(value)
+        values.append(value)
+
+    res = database.execute_read_query(query, values);
 
     # get rid of origin, destination, and airline ICAOs for proper conversion
     # after this, each flight_db is in the format:
