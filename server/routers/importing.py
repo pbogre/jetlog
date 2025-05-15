@@ -126,6 +126,9 @@ async def import_CSV(csv_type: CSVType,
             if "username" in present_columns and not user.is_admin:
                 raise HTTPException(status_code=403, detail=f"Only admins can specify the 'username' column")
 
+            if "connection" in present_columns:
+                raise HTTPException(status_code=400, detail="Connection field can only be set after importing flights")
+
             values = row
             values = [ val.rstrip('\r\n').replace("\\n", "\n") if val != '' else None for val in values ] 
             values_dict = {}

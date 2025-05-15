@@ -185,7 +185,7 @@ class Database():
         self.execute_query(f"DROP TABLE {table};")
         self.execute_query(f"ALTER TABLE _{table} RENAME TO {table};")
 
-    def execute_query(self, query: str, parameters=[]) -> int:
+    def execute_query(self, query: str, parameters=[]) -> tuple:
         try:
             cursor = self.connection.cursor()
             cursor.execute(query, parameters)
@@ -195,7 +195,7 @@ class Database():
         except sqlite3.Error as err:
             raise HTTPException(status_code=500, detail="SQL error: " + str(err))
 
-        return result[0] if result else -1
+        return result if result else ()
 
     def execute_read_query(self, query: str, parameters=[]) -> list:
         try:

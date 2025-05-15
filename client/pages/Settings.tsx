@@ -127,7 +127,7 @@ export default function Settings() {
             if(file instanceof Blob && file.size > 0) {
                 var sendFormData = new FormData();
                 sendFormData.append('file', file);
-                API.post(`/importing?csv_type=${pair[0]}`,sendFormData)
+                API.post(`/importing?csv_type=${pair[0]}`, sendFormData)
                 .then(() => navigate("/"));
             }
         }
@@ -154,6 +154,13 @@ export default function Settings() {
         await API.post("/users", userData);
 
         window.location.reload();
+    }
+
+    const computeConnections = async () => {
+        API.post("/flights/connections", {})
+        .then((data: object) => {
+            alert(`Flights skipped: ${data["amountSkipped"]}\nFlights updated: ${data["amountUpdated"]}`);
+        });
     }
 
     return (
@@ -224,7 +231,17 @@ export default function Settings() {
                                 checked={options.localAirportTime === "true"} 
                                 onChange={changeOption} />
                 </div>
+
+
+                <Subheading text="Utilities" />
+
+                <div className="flex justify-between">
+                    <Label text="Compute flight connections" />
+                    <Button text="Run" onClick={computeConnections} />
+                </div>
             </div>
+
+            <hr />
 
             <div className="container">
                 <Subheading text="You"/>

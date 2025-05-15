@@ -30,12 +30,12 @@ async def export_to_CSV(user: User = Depends(get_current_user)) -> FileResponse:
 
     file = open("/tmp/jetlog.csv", 'w', newline='')
     csv_writer = csv.writer(file, quotechar='"', delimiter=',')
-    columns = FlightModel.get_attributes(ignore=["id", "username"])
+    columns = FlightModel.get_attributes(ignore=["id", "username", "connection"])
 
     csv_writer.writerow(columns)
 
     for flight in flights:
-        values = [ str(val).replace("\n", "\\n") if val != None else '' for val in flight.get_values(ignore=["id", "username"]) ]
+        values = [ str(val).replace("\n", "\\n") if val != None else '' for val in flight.get_values(ignore=["id", "username", "connection"]) ]
         csv_writer.writerow(values)
 
     file.close()

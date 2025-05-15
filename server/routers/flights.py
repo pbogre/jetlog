@@ -129,7 +129,8 @@ async def add_flight(flight: FlightModel, timezones: bool = True, user: User = D
     explicit = {"username": user.username} if not flight.username else {}
     values = flight.get_values(ignore=["id"], explicit=explicit)
 
-    return database.execute_query(query, values)
+    new_id = database.execute_query(query, values)[0]
+    return new_id
 
 class FlightPatchModel(CustomModel):
     date:             datetime.date|None = None
@@ -210,18 +211,15 @@ async def update_flight(id: int,
 
     values = [value for value in new_flight.get_values() if value is not None]
 
-    return database.execute_query(query, values)
+    new_id = database.execute_query(query, values)[0]
+    return new_id 
 
 @router.delete("", status_code=200)
 async def delete_flight(id: int, user: User = Depends(get_current_user)) -> int:
     await check_flight_authorization(id, user)
 
-    return database.execute_query(
-        """
-        DELETE FROM flights WHERE id = ? RETURNING id;
-        """,
-        [id]
-    )
+    deleted_id = database.execute_query("DELETE FROM flights WHERE id = ? RETURNING id;", [id])[0]
+    return deleted_id
 
 @router.get("", status_code=200)
 async def get_flights(id: int|None = None, 
@@ -306,3 +304,40 @@ async def get_flights(id: int|None = None,
     if id:
         return FlightModel.model_validate(flights[0])
     return [ FlightModel.model_validate(flight) for flight in flights ]
+
+@router.post("/connections", status_code=200)
+async def compute_connections(user: User = Depends(get_current_user)) -> dict[str, int]:
+    query = """
+        WITH plausible AS (
+            SELECT f.id  AS flight_id, c.id AS conn_id
+            FROM flights AS f
+            JOIN flights AS c ON 
+                c.origin = f.destination 
+                AND JULIANDAY(c.date) BETWEEN JULIANDAY(f.date) - 1 AND JULIANDAY(f.date) + 2
+                AND c.username = ?
+            WHERE f.username = ?
+        ),
+        one_conn AS (
+            SELECT flight_id, MAX(conn_id) AS conn_id
+            FROM plausible
+            GROUP BY flight_id
+            HAVING COUNT(*) = 1
+        ),
+        multi_conn AS (
+            SELECT flight_id FROM plausible
+            GROUP BY flight_id
+            HAVING COUNT(*) > 1
+        )
+
+        UPDATE flights SET connection = (
+            SELECT conn_id
+            FROM one_conn
+            WHERE one_conn.flight_id = flights.id
+        )
+        WHERE id IN (SELECT flight_id FROM one_conn)
+        RETURNING 
+            ( SELECT COUNT(*) FROM multi_conn ) AS amount_skipped,
+            ( SELECT COUNT(*) FROM one_conn ) AS amount_updated;"""
+
+    res = database.execute_query(query, [user.username]*2)
+    return { "amountSkipped": res[0], "amountUpdated": res[1] }
