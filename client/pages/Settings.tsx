@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import API from '../api';
-import {Heading, Label, Input, Checkbox, Subheading, Button, Dialog, Select} from '../components/Elements'
-import ConfigStorage, {ConfigInterface} from '../storage/configStorage';
-import {User} from '../models';
+import { Heading, Label, Input, Checkbox, Subheading, Button, Dialog, Select } from '../components/Elements'
+import ConfigStorage, { ConfigInterface } from '../storage/configStorage';
+import { User } from '../models';
 import TokenStorage from '../storage/tokenStorage';
 
 interface UserInfoProps {
@@ -201,6 +201,13 @@ export default function Settings() {
                     <Label text="Frequency based line size" />
                     <Checkbox name="frequencyBasedLine" 
                                 checked={options.frequencyBasedLine === "true"} 
+                                onChange={changeOption} />
+                </div>
+
+                <div className="flex justify-between">
+                    <Label text="Show visited countries" />
+                    <Checkbox name="showVisitedCountries" 
+                                checked={options.showVisitedCountries === "true"} 
                                 onChange={changeOption} />
                 </div>
 

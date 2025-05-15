@@ -2,15 +2,21 @@
 export interface ConfigInterface {
     frequencyBasedMarker: string;
     frequencyBasedLine: string;
+    showVisitedCountries: string;
     metricUnits: string;
     localAirportTime: string;
 }
-const ConfigKeys = ["frequencyBasedMarker", "frequencyBasedLine", "metricUnits", "localAirportTime"];
+const ConfigKeys = ["frequencyBasedMarker",
+                    "frequencyBasedLine",
+                    "showVisitedCountries",
+                    "metricUnits",
+                    "localAirportTime"];
 type Config = typeof ConfigKeys[number];
 
 const defaultConfig: ConfigInterface = {
     frequencyBasedMarker: "false",
     frequencyBasedLine: "false",
+    showVisitedCountries: "false",
     metricUnits: "true",
     localAirportTime: "true"
 }

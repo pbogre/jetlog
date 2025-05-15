@@ -6,15 +6,15 @@ import ConfigStorage from '../storage/configStorage';
 import { Coord, Trajectory } from '../models';
 
 interface WorldMapProps {
-    showVisitedCountries?: boolean;
     flightData?: [number, number]; // flightID, distance
 }
-export default function WorldMap({ showVisitedCountries = false, flightData }: WorldMapProps) {
+export default function WorldMap({ flightData }: WorldMapProps) {
     const [world, setWorld] = useState<object>();
     const [lines, setLines] = useState<Trajectory[]>([]);
     const [markers, setMarkers] = useState<Coord[]>([]);
 
     useEffect(() => {
+        const showVisitedCountries = ConfigStorage.getSetting("showVisitedCountries");
         API.get(`/geography/world?visited=${showVisitedCountries}`)
         .then((data) => setWorld(data));
 
@@ -66,7 +66,7 @@ export default function WorldMap({ showVisitedCountries = false, flightData }: W
                                 key={geo.rsmKey}
                                 geography={geo}
                                 stroke="#111"
-                                fill={geo.properties.visited ? "#FFA500" : "#333"}
+                                fill={geo.properties.visited ? "#F25000" : "#333"}
                                 />
                           ))
                         }
