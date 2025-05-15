@@ -38,14 +38,14 @@ export function ShortStats() {
             <StatBox stat={statistics.totalUniqueAirports}
                      description="airports"/>
 
-            <StatBox stat={(statistics.totalDuration / 60).toLocaleString()}
+            <StatBox stat={(statistics.totalDuration / 60).toFixed(0)}
                      description="hours"/>
 
             <StatBox stat={statistics.totalDistance.toLocaleString()}
                      description={metricUnits === "false" ? "miles" : "kilometers"}/>
 
             <StatBox stat={statistics.daysRange != 0 ? 
-                            (statistics.daysRange / (statistics.totalFlights)).toLocaleString()
+                            (statistics.daysRange / (statistics.totalFlights)).toFixed(0)
                             : 0}
                      description="days per flight"/>
         </div>
@@ -105,7 +105,7 @@ export function AllStats({ filters }) {
     // cycle through distance units
     const distanceUnits = [
         { label: metricUnits === 'false' ? 'mi' : 'km', divisor: 1 },
-        { label: "times around Earth", divisor: metricUnits === 'false' ? 3963 : 6371 },
+        { label: "times around Earth", divisor: metricUnits === 'false' ? 24900 : 40000 },
         { label: "times to Moon", divisor: metricUnits === 'false' ?  239000 : 385000 },
     ];
 
