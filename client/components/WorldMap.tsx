@@ -14,7 +14,8 @@ export default function WorldMap({ flightData }: WorldMapProps) {
     const [markers, setMarkers] = useState<Coord[]>([]);
 
     useEffect(() => {
-        API.get("/geography/world")
+        const showVisitedCountries = ConfigStorage.getSetting("showVisitedCountries");
+        API.get(`/geography/world?visited=${showVisitedCountries}`)
         .then((data) => setWorld(data));
 
         const query = flightData ? `?flight_id=${flightData[0]}` : ""
@@ -53,26 +54,26 @@ export default function WorldMap({ flightData }: WorldMapProps) {
     return (
         <>
             <ComposableMap width={1000} height={470}>
-                <ZoomableGroup maxZoom={10} 
-                               zoom={zoom} 
-                               center={center} 
+                <ZoomableGroup maxZoom={10}
+                               zoom={zoom}
+                               center={center}
                                translateExtent={[[0, 0], [1000, 470]]}>
 
                     <Geographies geography={world}>
                         {({ geographies }) =>
                           geographies.map((geo) => (
-                            <Geography 
-                                key={geo.rsmKey} 
-                                geography={geo} 
+                            <Geography
+                                key={geo.rsmKey}
+                                geography={geo}
                                 stroke="#111"
-                                fill="#333"
+                                fill={geo.properties.visited ? "#F25000" : "#333"}
                                 />
                           ))
                         }
                     </Geographies>
 
                     { lines.map((line) => (
-                        <Line 
+                        <Line
                             from={[line.first.longitude, line.first.latitude]}
                             to={[line.second.longitude, line.second.latitude]}
                             stroke="#FF5533CC"
@@ -80,18 +81,18 @@ export default function WorldMap({ flightData }: WorldMapProps) {
                                         ConfigStorage.getSetting("frequencyBasedLine") === "true" ?
                                         Math.min(1 + Math.floor(line.frequency / 3), 6)
                                         : 1
-                                    } 
+                                    }
                             strokeLinecap="round" />
 
-                    ))} 
+                    ))}
 
                     { markers.map((marker) => (
                         <Marker coordinates={[marker.longitude, marker.latitude]}>
                             <circle r={
                                 ConfigStorage.getSetting("frequencyBasedMarker") === "true" ?
                                 Math.min(3 + Math.floor(marker.frequency / 3), 6)
-                                : 3 
-                                } 
+                                : 3
+                                }
                                 fill={
                                     ConfigStorage.getSetting("frequencyBasedMarker") === "true" ?
                                     "#FFA50080"

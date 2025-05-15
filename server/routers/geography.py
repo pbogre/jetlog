@@ -33,22 +33,58 @@ class Trajectory(CustomModel):
         return self.first == other.second and self.second == other.first
 
 @router.get("/world", status_code=200)
-async def get_world_geojson() -> object:
+async def get_world_geojson(visited: bool = False, user: User = Depends(get_current_user)) -> object:
     geojson_path = Path(__file__).parent.parent.parent / 'data' / 'world.geo.json'
     geojson_content = geojson_path.read_text()
-    
-    return json.loads(geojson_content)
+    geojson = json.loads(geojson_content)
+
+    if visited:
+        # compute and add 'visited' property to countries
+        # this query selects all airports that:
+        #   - are the destination of a flight without connection; or
+        #   - are the origin of a flight which is not a connection of another flight
+        query = """
+            WITH selected_airports AS (
+                SELECT destination AS icao
+                FROM flights
+                WHERE connection IS NULL
+                AND username = ?
+
+                UNION
+
+                SELECT origin AS icao
+                FROM flights AS f
+                WHERE NOT EXISTS (
+                    SELECT 1
+                    FROM flights AS prev
+                    WHERE prev.connection = f.id
+                )
+                AND username = ?
+            )
+
+            SELECT DISTINCT a.country
+            FROM selected_airports AS sa
+            JOIN airports AS a ON a.icao = sa.icao;"""
+
+        res = database.execute_read_query(query, [user.username]*2)
+        visited_countries = [ r[0] for r in res ]
+
+        for feature in geojson.get("features", []):
+            country_name = feature.get("properties", {}).get("subunit")
+            feature["properties"]["visited"] = country_name in visited_countries
+
+    return geojson
 
 @router.get("/decorations", status_code=200)
 async def get_flights_decorations(flight_id: int|None = None, user: User = Depends(get_current_user)) -> tuple[list[Trajectory], list[Coord]]:
     flight_filter = f" AND f.id = {flight_id}" if flight_id != None else ""
 
     query = f"""
-        SELECT o.latitude, o.longitude, 
+        SELECT o.latitude, o.longitude,
                d.latitude, d.longitude,
                f.connection
         FROM flights f
-        JOIN airports o ON UPPER(f.origin) = o.icao 
+        JOIN airports o ON UPPER(f.origin) = o.icao
         JOIN airports d ON UPPER(f.destination) = d.icao
         WHERE username = ?
         {flight_filter};"""
@@ -60,7 +96,7 @@ async def get_flights_decorations(flight_id: int|None = None, user: User = Depen
 
     for row in res:
         # this is so that we don't count
-        # connection airports twice in 
+        # connection airports twice in
         # marker frequencies
         has_connection = row[4] != None
 
@@ -105,6 +141,6 @@ async def get_flights_decorations(flight_id: int|None = None, user: User = Depen
                 break
 
         if not found:
-            lines.append(line)        
+            lines.append(line)
 
     return lines, coordinates

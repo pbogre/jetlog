@@ -40,7 +40,7 @@ export default function New() {
             const originICAO = data["response"]["flightroute"]["origin"]["icao_code"];
             const destinationICAO = data["response"]["flightroute"]["destination"]["icao_code"];
             const airlineICAO = data["response"]["flightroute"]["airline"]["icao"];
-            
+
             const origin = await API.get(`/airports/${originICAO}`);
             const destination= await API.get(`/airports/${destinationICAO}`);
             const airline = await API.get(`/airlines/${airlineICAO}`)
@@ -59,14 +59,14 @@ export default function New() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
                     <div className="container">
                         <Label text="Origin" required />
-                        <SearchInput name="origin" 
-                                     type="airports" 
-                                     value={origin} 
+                        <SearchInput name="origin"
+                                     type="airports"
+                                     value={origin}
                                      onSelect={(airport: Airport) => setOrigin(airport)} />
                         <br />
                         <Label text="Destination" required />
-                        <SearchInput name="destination" 
-                                     type="airports" 
+                        <SearchInput name="destination"
+                                     type="airports"
                                      value={destination}
                                      onSelect={(airport: Airport) => setDestination(airport)} />
                         <br />
@@ -170,8 +170,8 @@ export default function New() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
                             <div>
                                 <Label text="Airline" />
-                                <SearchInput name="airline" 
-                                             type="airlines" 
+                                <SearchInput name="airline"
+                                             type="airlines"
                                              value={airline}
                                              onSelect={(airline: Airline) => setAirline(airline)} />
                             </div>
@@ -193,9 +193,9 @@ export default function New() {
 
                     <div className="container">
                         <div>
-                            <Label text="Connection" />    
-                            <FetchConnection name="connection" 
-                                             date={date} 
+                            <Label text="Connection" />
+                            <FetchConnection name="connection"
+                                             date={date}
                                              destination={destination?.icao}
                                              value={connection}
                                              onFetched={(c: number) => setConnection(c)} />
@@ -216,6 +216,6 @@ export default function New() {
                     />
                 </div>
             </form>
-        </>    
+        </>
     );
 }
