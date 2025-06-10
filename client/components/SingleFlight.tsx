@@ -7,7 +7,7 @@ import SearchInput from './SearchInput';
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
 import { objectFromForm } from '../utils';
-import WorldMap from './WorldMap';
+import { SingleFlightMap } from './WorldMap';
 import FetchConnection from './FetchConnection';
 
 export default function SingleFlight({ flightID }) {
@@ -190,7 +190,7 @@ export default function SingleFlight({ flightID }) {
                 </div>
 
                 <div className="container">
-                    <WorldMap flightData={[flightID, flight.distance]} /> 
+                    <SingleFlightMap flightID={flightID} distance={flight.distance} /> 
                 </div>
             </div>
 
