@@ -131,28 +131,51 @@ export function SingleFlightMap({ flightID, distance }: SingleFlightMapProps) {
         return;
     }
 
-    // compute center and zoom factor
-    const longitudeDelta = Math.abs(lines[0].second.longitude - lines[0].first.longitude);
-    const clipsMap = longitudeDelta > 180;
+    // function that computes midpoint of a trajectory 
+    // on a sphere, i.e. supporting trajs. that 'clip'
+    // around the world projection
+    const midpointOnSphere = (p1: Coord, p2: Coord) => {
+        // convert degrees to radians
+        const toRad = deg => deg * Math.PI / 180;
+        const toDeg = rad => rad * 180 / Math.PI;
 
-    let center: [number, number] = [0, 0];
-    let zoom: number = 160;
+        const lat1 = toRad(p1.latitude);
+        const lon1 = toRad(p1.longitude);
+        const lat2 = toRad(p2.latitude);
+        const lon2 = toRad(p2.longitude);
 
-    // proceed if the trajectory does not 'clip' around the map
-    if (!clipsMap) {
-        const middleLongitude = (lines[0].first.longitude + lines[0].second.longitude) / 2;
-        const middleLatitude = (lines[0].first.latitude + lines[0].second.latitude) / 2;
+        // convert to cartesian
+        const x1 = Math.cos(lat1) * Math.cos(lon1);
+        const y1 = Math.cos(lat1) * Math.sin(lon1);
+        const z1 = Math.sin(lat1);
 
-        center = [middleLongitude, middleLatitude];
-        zoom = Math.min(20000/distance, 10) * 320;
-    }
+        const x2 = Math.cos(lat2) * Math.cos(lon2);
+        const y2 = Math.cos(lat2) * Math.sin(lon2);
+        const z2 = Math.sin(lat2);
+
+        // compute average
+        const x = (x1 + x2) / 2;
+        const y = (y1 + y2) / 2;
+        const z = (z1 + z2) / 2;
+
+        // convert back to lat/lon
+        const lon = Math.atan2(y, x);
+        const hyp = Math.sqrt(x * x + y * y);
+        const lat = Math.atan2(z, hyp);
+
+        return [toDeg(lon), toDeg(lat)];
+    };
+
+    // compute center and zoom of map so that it fits the trajectory
+    const center = midpointOnSphere(markers[0], markers[1]);
+    const zoom = Math.min(20000/distance, 10) * 160;
 
     return (
         <ComposableMap width={1000} 
                        height={470}
                        projectionConfig={{
                            scale: zoom,
-                           center: center
+                           rotate: [-center[0], -center[1], 0] // rotate world around center of traj.
                        }}>
 
                 {/* the zoom calculation effectively undoes the automatic zoom 
