@@ -1,11 +1,17 @@
 #!/bin/bash
 set -e
 
+if [ -f "/proc/net/if_inet6" ] ; then
+  ALL_IP="::"
+else
+  ALL_IP="0.0.0.0"
+fi
+
 start_command="python -m \
                uvicorn \
                main:app \
                --app-dir server \
-               --host 0.0.0.0 \
+               --host ${ALL_IP} \
                --port ${JETLOG_PORT} \
                --root-path ${JETLOG_BASE_URL:-/}"
 
