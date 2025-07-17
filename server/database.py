@@ -13,7 +13,7 @@ class Database():
             "pragma": """
                 (
                     id               INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username         INTEGER NOT NULL DEFAULT admin,
+                    username         TEXT NOT NULL DEFAULT admin,
                     date             TEXT NOT NULL,
                     origin           TEXT NOT NULL,
                     destination      TEXT NOT NULL,

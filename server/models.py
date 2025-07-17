@@ -260,7 +260,9 @@ class StatisticsModel(CustomModel):
     total_distance:         int
     total_unique_airports:  int
     days_range:             int
+    visited_countries:      int
     most_visited_airports:  dict
+    most_common_countries:  dict
     seat_frequency:         dict
     ticket_class_frequency: dict
-    most_common_airlines: dict
+    most_common_airlines:   dict
