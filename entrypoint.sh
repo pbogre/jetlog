@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-if [ "${USE_IPV6}"="true" ] ; then
+if [ "${USE_IPV6}" = "true" ] ; then
   ALL_IP="::"
 else
   ALL_IP="0.0.0.0"
