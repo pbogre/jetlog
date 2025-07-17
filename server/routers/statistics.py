@@ -17,7 +17,7 @@ async def get_statistics(metric: bool = True,
                          start: datetime.date|None = None,
                          end: datetime.date|None = None,
                          username: str|None = None,
-                         user: User = Depends(get_current_user)):
+                         user: User = Depends(get_current_user)) -> StatisticsModel:
 
     user_filter = f"WHERE f.username = '{user.username}'"
     if username:
@@ -82,6 +82,31 @@ async def get_statistics(metric: bool = True,
         key = f"{airport[2] if airport[2] else airport[1]} - {airport[3]}/{airport[4]}"
         most_visited_airports[key] = airport[0]
 
+    # get top 5 countries
+    res = database.execute_read_query(f"""
+        WITH seen_airports AS (
+            SELECT origin AS icao
+            FROM flights f
+            {filters}
+
+            UNION ALL
+
+            SELECT destination AS icao
+            FROM flights f
+            {filters}
+        ) 
+
+        SELECT a.country, COUNT(*) as freq
+        FROM seen_airports sa
+        JOIN airports a ON a.icao = sa.icao
+        GROUP BY a.country
+        ORDER BY freq DESC
+        LIMIT 5;
+    """)
+    most_common_countries = { pair[0]: pair[1] for pair in res }
+
+    print("hi")
+
     # get seats frequency
     res = database.execute_read_query(f"""
         SELECT seat, COUNT(*) AS freq
@@ -109,6 +134,7 @@ async def get_statistics(metric: bool = True,
         SELECT a.name, COUNT(*) AS freq
         FROM flights f
         JOIN airlines a ON a.icao = f.airline
+        {filters}
         GROUP BY a.icao
         ORDER BY freq DESC
         LIMIT 5;
@@ -122,6 +148,7 @@ async def get_statistics(metric: bool = True,
     statistics = StatisticsModel.from_database(statistics_db, 
                                                explicit={ 
                                                          "most_visited_airports": most_visited_airports,
+                                                         "most_common_countries": most_common_countries,
                                                          "seat_frequency": seat_frequency,
                                                          "ticket_class_frequency": ticket_class_frequency,
                                                          "most_common_airlines": most_common_airlines
