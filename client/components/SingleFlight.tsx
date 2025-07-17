@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
-import { Airport, Flight, User } from '../models';
+import { Airline, Airport, Flight, User } from '../models';
 import SearchInput from './SearchInput';
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
@@ -163,7 +163,8 @@ export default function SingleFlight({ flightID }) {
                         <p>Airplane: <Input type="text" name="airplane" placeholder={flight.airplane} /></p>
                         <p>Airline: <SearchInput name="airline" 
                                                  type="airlines" 
-                                                 value={flight.airline} /></p>
+                                                 value={flight.airline}
+                                                 onSelect={(airline: Airline) => setFlight(prev => ({...prev!, airline: airline}))}/></p>
                         <p>Tail Number: <Input type="text" name="tailNumber" placeholder={flight.tailNumber} /></p>
                         <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
                         <p>Connection: <FetchConnection name="connection" 
