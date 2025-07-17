@@ -78,6 +78,7 @@ export class Statistics {
     totalUniqueAirports: number;
     daysRange: number;
     mostVisitedAirports: object;
+    mostCommonCountries: object;
     seatFrequency: object;
     ticketClassFrequency: object;
     mostCommonAirlines: object;

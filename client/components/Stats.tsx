@@ -151,6 +151,11 @@ export function AllStats({ filters }) {
             </div>
 
             <div className="container">
+                <h3 className="text-lg font-semibold mb-4">Most common countries</h3>
+                <StatFrequency object={statistics.mostCommonCountries} measure="flights" />
+            </div>
+
+            <div className="container">
                 <h3 className="text-lg font-semibold mb-4">Most common seat</h3>
                 <StatFrequency object={statistics.seatFrequency} measure="flights" />
             </div>
