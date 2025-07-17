@@ -92,6 +92,7 @@ export default function Settings() {
     const [options, setOptions] = useState<ConfigInterface>(ConfigStorage.getAllSettings())
     const [user, setUser] = useState<User>();
     const [allUsers, setAllUsers] = useState<User[]>([]);
+    const [disableJobs, setDisableJobs] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -157,10 +158,23 @@ export default function Settings() {
     }
 
     const computeConnections = async () => {
+        setDisableJobs(true);
+
         API.post("/flights/connections", {})
         .then((data: object) => {
             alert(`Flights skipped: ${data["amountSkipped"]}\nFlights updated: ${data["amountUpdated"]}`);
+            setDisableJobs(false);
         });
+    }
+
+    const fetchAirlinesFromCallsigns = async () => {
+        setDisableJobs(true);
+
+        API.post("/flights/airlines_from_callsigns", {})
+        .then((data: object) => {
+            alert(`Flights skipped: ${data["amountSkipped"]}\nFlights updated: ${data["amountUpdated"]}`);
+            setDisableJobs(false);
+        })
     }
 
     return (
@@ -238,7 +252,12 @@ export default function Settings() {
 
                 <div className="flex justify-between">
                     <Label text="Compute flight connections" />
-                    <Button text="Run" onClick={computeConnections} />
+                    <Button text="Run" disabled={disableJobs} onClick={computeConnections} />
+                </div>
+
+                <div className="flex justify-between">
+                    <Label text="Fetch missing airlines" />
+                    <Button text="Run" disabled={disableJobs} onClick={fetchAirlinesFromCallsigns} />
                 </div>
             </div>
 

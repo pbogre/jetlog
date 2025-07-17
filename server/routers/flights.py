@@ -92,7 +92,7 @@ def duration(departure: datetime.datetime, arrival: datetime.datetime) -> int:
 @router.post("", status_code=201)
 async def add_flight(flight: FlightModel, timezones: bool = True, user: User = Depends(get_current_user)) -> int:
     if not (flight.date and flight.origin and flight.destination):
-        raise HTTPException(status_code=404, 
+        raise HTTPException(status_code=404,
                             detail="Insufficient flight data. Date, Origin, and Destination are required")
 
     # if distance not given, calculate it
@@ -164,7 +164,7 @@ async def update_flight(id: int,
 
     # if airports changed, update distance (unless specified)
     if new_flight.origin or new_flight.destination and not new_flight.distance:
-        # first must have both airports 
+        # first must have both airports
         original_flight = await get_flights(id=id)
         assert type(original_flight) == FlightModel
 
@@ -198,7 +198,7 @@ async def update_flight(id: int,
                 new_flight.duration = duration(new_departure, new_arrival)
 
     query = "UPDATE flights SET "
- 
+
     for attr in FlightPatchModel.get_attributes():
         value = getattr(new_flight, attr)
         if value:
@@ -212,7 +212,7 @@ async def update_flight(id: int,
     values = [value for value in new_flight.get_values() if value is not None]
 
     new_id = database.execute_query(query, values)[0]
-    return new_id 
+    return new_id
 
 @router.delete("", status_code=200)
 async def delete_flight(id: int, user: User = Depends(get_current_user)) -> int:
@@ -222,10 +222,10 @@ async def delete_flight(id: int, user: User = Depends(get_current_user)) -> int:
     return deleted_id
 
 @router.get("", status_code=200)
-async def get_flights(id: int|None = None, 
+async def get_flights(id: int|None = None,
                       metric: bool = True,
-                      limit: int = 50, 
-                      offset: int = 0, 
+                      limit: int = 50,
+                      offset: int = 0,
                       order: Order = Order.DESCENDING,
                       sort: Sort = Sort.DATE,
                       start: datetime.date|None = None,
@@ -243,9 +243,9 @@ async def get_flights(id: int|None = None,
         sort_clause = f"ORDER BY f.{sort.value} {order.value}"
 
     query = f"""
-        SELECT 
+        SELECT
             f.*,
-            o.*, 
+            o.*,
             d.*,
             a.*
         FROM flights f
@@ -289,7 +289,7 @@ async def get_flights(id: int|None = None,
         destination = AirportModel.from_database(db_destination)
         airline = AirlineModel.from_database(db_airline) if db_airline[0] != None else None
 
-        flight = FlightModel.from_database(db_flight, { "origin": origin, 
+        flight = FlightModel.from_database(db_flight, { "origin": origin,
                                                         "destination": destination,
                                                         "airline": airline } )
 
@@ -306,13 +306,13 @@ async def get_flights(id: int|None = None,
     return [ FlightModel.model_validate(flight) for flight in flights ]
 
 @router.post("/connections", status_code=200)
-async def compute_connections(user: User = Depends(get_current_user)) -> dict[str, int]:
+async def compute_connections(user: User = Depends(get_current_user)) -> dict:
     query = """
         WITH plausible AS (
             SELECT f.id  AS flight_id, c.id AS conn_id
             FROM flights AS f
-            JOIN flights AS c ON 
-                c.origin = f.destination 
+            JOIN flights AS c ON
+                c.origin = f.destination
                 AND JULIANDAY(c.date) BETWEEN JULIANDAY(f.date) - 1 AND JULIANDAY(f.date) + 2
                 AND c.username = ?
             WHERE f.username = ?
@@ -335,9 +335,45 @@ async def compute_connections(user: User = Depends(get_current_user)) -> dict[st
             WHERE one_conn.flight_id = flights.id
         )
         WHERE id IN (SELECT flight_id FROM one_conn)
-        RETURNING 
+        RETURNING
             ( SELECT COUNT(*) FROM multi_conn ) AS amount_skipped,
             ( SELECT COUNT(*) FROM one_conn ) AS amount_updated;"""
 
     res = database.execute_query(query, [user.username]*2)
     return { "amountSkipped": res[0], "amountUpdated": res[1] }
+
+@router.post("/airlines_from_callsigns", status_code=200)
+async def fetch_airlines_from_callsigns(user: User = Depends(get_current_user)) -> dict:
+    import requests
+
+    res = database.execute_read_query("""SELECT flight_number, COUNT(*)
+                                         FROM flights
+                                         WHERE flight_number IS NOT NULL AND airline IS NULL AND username = ?
+                                         GROUP BY flight_number;""", [user.username])
+
+    updates = 0
+    skips = 0
+    for callsign, amount in res:
+        adsbdb_res = requests.get(f"https://api.adsbdb.com/v0/callsign/{callsign}")
+
+        print(callsign, amount, adsbdb_res.status_code)
+
+        if adsbdb_res.status_code != 200:
+            skips += amount
+            continue
+
+        data = adsbdb_res.json()
+
+        origin_icao = data["response"]["flightroute"]["origin"]["icao_code"]
+        destination_icao = data["response"]["flightroute"]["destination"]["icao_code"];
+        airline_icao = data["response"]["flightroute"]["airline"]["icao"];
+
+        query = """UPDATE flights
+                   SET origin = ?, destination = ?, airline = ?
+                   WHERE flight_number = ? AND airline IS NULL AND username = ?;"""
+
+        database.execute_query(query, [origin_icao, destination_icao, airline_icao, callsign, user.username])
+        updates += amount
+
+
+    return { "amountSkipped": skips, "amountUpdated": updates }
