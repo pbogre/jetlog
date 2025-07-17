@@ -98,7 +98,8 @@ export default function SingleFlight({ flightID }) {
                     <>
                         <p>Origin: <SearchInput name="origin"
                                                 type="airports"
-                                                value={flight.origin}/></p>
+                                                value={flight.origin}
+                                                onSelect={(airport: Airport) => setFlight(prev => ({...prev!, origin: airport}))}/></p>
                         <p>Destination: <SearchInput name="destination" 
                                                      type="airports" 
                                                      value={flight.destination}

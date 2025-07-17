@@ -364,15 +364,13 @@ async def fetch_airlines_from_callsigns(user: User = Depends(get_current_user)) 
 
         data = adsbdb_res.json()
 
-        origin_icao = data["response"]["flightroute"]["origin"]["icao_code"]
-        destination_icao = data["response"]["flightroute"]["destination"]["icao_code"];
         airline_icao = data["response"]["flightroute"]["airline"]["icao"];
 
         query = """UPDATE flights
-                   SET origin = ?, destination = ?, airline = ?
+                   SET airline = ?
                    WHERE flight_number = ? AND airline IS NULL AND username = ?;"""
 
-        database.execute_query(query, [origin_icao, destination_icao, airline_icao, callsign, user.username])
+        database.execute_query(query, [airline_icao, callsign, user.username])
         updates += amount
 
 
