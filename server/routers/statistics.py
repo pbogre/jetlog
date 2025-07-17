@@ -32,6 +32,23 @@ async def get_statistics(metric: bool = True,
 
     # get simple numerical stats
     res = database.execute_read_query(f"""
+        WITH visited_airports AS (
+            SELECT destination AS icao
+            FROM flights
+            {filters}
+            AND connection IS NULL
+
+            UNION
+
+            SELECT origin AS icao
+            FROM flights AS f
+            {filters}
+            AND NOT EXISTS (
+               SELECT 1
+               FROM flights AS prev
+               WHERE prev.connection = f.id
+            )
+        )
         SELECT COUNT(*) AS total_flights,
                COALESCE(SUM(duration), 0) AS total_duration,
                COALESCE(SUM(distance), 0) AS total_distance,
@@ -51,9 +68,15 @@ async def get_statistics(metric: bool = True,
                ( SELECT JULIANDAY(date)
                  FROM flights f {filters}
                  ORDER BY date ASC LIMIT 1 ), 0)
-               AS days_range
+               AS days_range,
 
-               FROM flights f {filters};
+               ( SELECT COUNT(DISTINCT a.country)
+                 FROM visited_airports va
+                 JOIN airports AS a ON a.icao = va.icao
+               )
+               AS visited_countries
+
+        FROM flights f {filters};
     """)
 
     statistics_db = res[0]
@@ -104,8 +127,6 @@ async def get_statistics(metric: bool = True,
         LIMIT 5;
     """)
     most_common_countries = { pair[0]: pair[1] for pair in res }
-
-    print("hi")
 
     # get seats frequency
     res = database.execute_read_query(f"""

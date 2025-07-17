@@ -44,7 +44,7 @@ async def get_world_geojson(visited: bool = False, user: User = Depends(get_curr
         #   - are the destination of a flight without connection; or
         #   - are the origin of a flight which is not a connection of another flight
         query = """
-            WITH selected_airports AS (
+            WITH visited_airports AS (
                 SELECT destination AS icao
                 FROM flights
                 WHERE connection IS NULL
@@ -63,8 +63,8 @@ async def get_world_geojson(visited: bool = False, user: User = Depends(get_curr
             )
 
             SELECT DISTINCT a.country
-            FROM selected_airports AS sa
-            JOIN airports AS a ON a.icao = sa.icao;"""
+            FROM visited_airports AS va
+            JOIN airports AS a ON a.icao = va.icao;"""
 
         res = database.execute_read_query(query, [user.username]*2)
         visited_countries = [ r[0] for r in res ]
