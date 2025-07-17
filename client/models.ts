@@ -77,6 +77,7 @@ export class Statistics {
     totalDistance: number;
     totalUniqueAirports: number;
     daysRange: number;
+    visitedCountries: number;
     mostVisitedAirports: object;
     mostCommonCountries: object;
     seatFrequency: object;

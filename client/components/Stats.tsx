@@ -44,10 +44,8 @@ export function ShortStats() {
             <StatBox stat={statistics.totalDistance.toLocaleString()}
                      description={metricUnits === "false" ? "miles" : "kilometers"}/>
 
-            <StatBox stat={statistics.daysRange != 0 ? 
-                            (statistics.daysRange / (statistics.totalFlights)).toFixed(0)
-                            : 0}
-                     description="days per flight"/>
+            <StatBox stat={statistics.visitedCountries}
+                     description="countries visited"/>
         </div>
     );
 }
@@ -142,6 +140,10 @@ export function AllStats({ filters }) {
                 <p className="mb-2">
                     Range of days:{' '}
                     <span className="font-medium">{statistics.daysRange} days</span>
+                </p>
+                <p className="mb-2">
+                    'Visited' countries:{' '}
+                    <span className="font-medium">{statistics.visitedCountries}</span>
                 </p>
             </div>
 
