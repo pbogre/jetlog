@@ -7,12 +7,13 @@ import { Flight } from '../models';
 interface FetchConnectionProps {
     name: string;
     date: string;
+    origin: string|undefined;
     destination: string|undefined;
     value?: number;
     onFetched?: (c: number) => void;
 }
 
-export default function FetchConnection({ name, date, destination, value, onFetched }: FetchConnectionProps) {
+export default function FetchConnection({ name, date, origin, destination, value, onFetched }: FetchConnectionProps) {
     const [searched, setSearched] = useState<boolean>(false);
     const [connectionFlight, setConnectionFlight] = useState<Flight>(); // only needed for printing flight info
 
@@ -25,11 +26,11 @@ export default function FetchConnection({ name, date, destination, value, onFetc
         }
     }, [])
 
-    // whenever destination or date is changed,
+    // whenever origin or destination or date is changed,
     // we can search again
     useEffect(() => {
         setSearched(false);
-    }, [date, destination]);
+    }, [date, origin, destination]);
 
     // this method returns an actual instance of 
     // Flight so that its class methods can be used
@@ -43,7 +44,8 @@ export default function FetchConnection({ name, date, destination, value, onFetc
     const searchConnection = () => {
         // connection flight must be within 2 days after
         // and 1 day before the actual flight, and should
-        // have origin where actual flight has destination
+        // have origin where actual flight has destination,
+        // and destination != actual flight origin
         const start = new Date(date);
         start.setDate(start.getDate() - 1);
 
@@ -55,6 +57,10 @@ export default function FetchConnection({ name, date, destination, value, onFetc
         API.get(`/flights?start=${fmt(start)}&end=${fmt(end)}&origin=${destination}`)
         .then((data: Flight[]) => {
             if (!onFetched) return; // only keep going if we have to do something
+
+            // only keep results where connection flight destination != actual flight origin,
+            // so that quick trips aren't counted as a connection back and forth
+            data = data.filter((flight: Flight) => flight.destination.icao != origin)
 
             if (data.length > 1) {
                 // this should be very rare, for now we handle it

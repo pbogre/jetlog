@@ -170,6 +170,7 @@ export default function SingleFlight({ flightID }) {
                         <p>Flight Number: <Input type="text" name="flightNumber" placeholder={flight.flightNumber} /></p>
                         <p>Connection: <FetchConnection name="connection" 
                                                         date={flight.date} 
+                                                        origin={flight.origin.icao}
                                                         destination={flight.destination.icao}
                                                         value={flight.connection}
                                                         onFetched={(c: number) => setFlight(prev => ({...prev!, connection: c}))} /></p>

@@ -313,9 +313,10 @@ async def compute_connections(user: User = Depends(get_current_user)) -> dict:
             FROM flights AS f
             JOIN flights AS c ON
                 c.origin = f.destination
+                AND c.destination != f.origin
                 AND JULIANDAY(c.date) BETWEEN JULIANDAY(f.date) - 1 AND JULIANDAY(f.date) + 2
                 AND c.username = ?
-            WHERE f.username = ?
+            WHERE f.username = ? AND f.connection IS NULL
         ),
         one_conn AS (
             SELECT flight_id, MAX(conn_id) AS conn_id
@@ -340,6 +341,10 @@ async def compute_connections(user: User = Depends(get_current_user)) -> dict:
             ( SELECT COUNT(*) FROM one_conn ) AS amount_updated;"""
 
     res = database.execute_query(query, [user.username]*2)
+
+    if not res:
+        res = (0, 0)
+
     return { "amountSkipped": res[0], "amountUpdated": res[1] }
 
 @router.post("/airlines_from_callsigns", status_code=200)
@@ -372,6 +377,5 @@ async def fetch_airlines_from_callsigns(user: User = Depends(get_current_user)) 
 
         database.execute_query(query, [airline_icao, callsign, user.username])
         updates += amount
-
 
     return { "amountSkipped": skips, "amountUpdated": updates }

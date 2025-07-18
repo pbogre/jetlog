@@ -196,6 +196,7 @@ export default function New() {
                             <Label text="Connection" />
                             <FetchConnection name="connection"
                                              date={date}
+                                             origin={origin?.icao}
                                              destination={destination?.icao}
                                              value={connection}
                                              onFetched={(c: number) => setConnection(c)} />
