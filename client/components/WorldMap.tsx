@@ -139,10 +139,17 @@ export default function WorldMap() {
     }, []);
 
     return (
-        <>
-            <ComposableMap width={1000} height={470}>
+        <div className="w-full h-full">
+            <ComposableMap
+                width={800}
+                height={400}
+                style={{ width: '100%', height: '100%' }}
+                projectionConfig={{
+                    scale: 147,
+                    center: [0, 0]
+                }}
+            >
                 <ZoomableGroup maxZoom={10}
-                               translateExtent={[[0, 0], [1000, 470]]}
                                zoom={initialZoom}
                                center={center}
                                onMove={({zoom: newZoom}) => {
@@ -153,7 +160,7 @@ export default function WorldMap() {
 
                 </ZoomableGroup>
             </ComposableMap>
-        </>
+        </div>
     );
 }
 

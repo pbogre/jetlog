@@ -50,7 +50,7 @@ export default function Navbar() {
     };
 
     return(
-        <nav className="bg-gray-700 list-none">
+        <nav className="bg-gray-700 list-none relative z-20">
             <div className="flex justify-between max-md:hidden">
                 <div className="flex">
                 {[items.home, items.new, items.flights, items.statistics]}
