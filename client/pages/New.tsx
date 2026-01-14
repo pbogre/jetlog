@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Heading, Label, Button, Input, Select, TextArea } from '../components/Elements';
-import SearchInput from '../components/SearchInput'
+import SearchInput from '../components/SearchInput';
+import TimeInput from '../components/TimeInput';
 import API, { ENABLE_EXTERNAL_APIS } from '../api';
 import { objectFromForm } from '../utils';
 import { Airline, Airport, User } from '../models';
@@ -203,14 +204,12 @@ export default function New() {
 
                         <br />
                         <Label text="Departure Time" />
-                        <Input
-                            type="time"
+                        <TimeInput
                             name="departureTime"
                         />
                         <br />
                         <Label text="Arrival Time" />
-                        <Input
-                            type="time"
+                        <TimeInput
                             name="arrivalTime"
                         />
                         <br />

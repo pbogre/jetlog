@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button, Heading, Input, Select, Subheading, TextArea } from '../components/Elements'
 import { Airline, Airport, Flight, User } from '../models';
 import SearchInput from './SearchInput';
+import TimeInput from './TimeInput';
 import API from '../api';
 import ConfigStorage from '../storage/configStorage';
 import { objectFromForm } from '../utils';
@@ -76,8 +77,8 @@ export default function SingleFlight({ flightID }) {
                     { editMode ? 
                     <>
                         <p>Date: <Input type="date" name="date" defaultValue={flight.date} /></p>
-                        <p>Departure Time: <Input type="time" name="departureTime" defaultValue={flight.departureTime} /></p>
-                        <p>Arrival Time: <Input type="time" name="arrivalTime" defaultValue={flight.arrivalTime} /></p>
+                        <p>Departure Time: <TimeInput name="departureTime" defaultValue={flight.departureTime} /></p>
+                        <p>Arrival Time: <TimeInput name="arrivalTime" defaultValue={flight.arrivalTime} /></p>
                         <p>Arrival Date: <Input type="date" name="arrivalDate" defaultValue={flight.arrivalDate}/></p>
                         <p>Duration: <Input type="number" name="duration" placeholder={flight.duration?.toString()}/></p>
                     </>

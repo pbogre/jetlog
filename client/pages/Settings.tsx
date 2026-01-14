@@ -254,6 +254,13 @@ export default function Settings() {
 
                 </div>
 
+                <div className="flex justify-between">
+                    <Label text="Use 24-hour time format" />
+                    <Checkbox name="use24HourFormat"
+                                checked={options.use24HourFormat === "true"}
+                                onChange={changeOption} />
+                </div>
+
                 <hr />
 
                 <Subheading text="Utilities" />
