@@ -1,8 +1,12 @@
+import { lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Plane } from 'lucide-react'
 
 import { useFlights, useStatistics } from '@/api/queries'
-import { WorldMap } from '@/components/map/WorldMap'
+
+const WorldMap = lazy(() =>
+    import('@/components/map/WorldMap').then((m) => ({ default: m.WorldMap })),
+)
 import { Panel, PanelHeader, PanelTitle, PanelBody } from '@/components/ui/Panel'
 import { SplitFlap } from '@/components/ui/SplitFlap'
 import { Spinner } from '@/components/ui/Spinner'
@@ -152,7 +156,15 @@ export default function Home() {
                         Visited airports & routes
                     </span>
                 </PanelHeader>
-                <WorldMap className="bg-paper-soft/30" />
+                <Suspense
+                    fallback={
+                        <div className="flex justify-center py-16">
+                            <Spinner />
+                        </div>
+                    }
+                >
+                    <WorldMap className="bg-paper-soft/30" />
+                </Suspense>
             </Panel>
 
             <RecentFlights />

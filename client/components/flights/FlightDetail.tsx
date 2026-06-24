@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, lazy, Suspense } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Pencil, Trash2, X, Check } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -23,7 +23,9 @@ import { Combobox, type ComboboxOption } from '@/components/ui/Combobox'
 import { Spinner } from '@/components/ui/Spinner'
 import { Badge } from '@/components/ui/Badge'
 import { DataBlock } from '@/components/ui/DataBlock'
-import { SingleFlightMap } from '@/components/map/WorldMap'
+const SingleFlightMap = lazy(() =>
+    import('@/components/map/WorldMap').then((m) => ({ default: m.SingleFlightMap })),
+)
 
 import { formatDuration, formatDistance, formatTime, airportCode } from '@/lib/format'
 
@@ -227,7 +229,19 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                         <PanelTitle>Route</PanelTitle>
                     </PanelHeader>
                     {flight.distance ? (
-                        <SingleFlightMap flightId={flightId} distance={flight.distance} className="bg-paper-soft/30" />
+                        <Suspense
+                            fallback={
+                                <div className="flex justify-center py-12">
+                                    <Spinner />
+                                </div>
+                            }
+                        >
+                            <SingleFlightMap
+                                flightId={flightId}
+                                distance={flight.distance}
+                                className="bg-paper-soft/30"
+                            />
+                        </Suspense>
                     ) : (
                         <PanelBody className="text-center text-ink-muted text-sm">No route data</PanelBody>
                     )}

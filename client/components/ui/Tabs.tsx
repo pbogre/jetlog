@@ -11,7 +11,7 @@ export const TabsList = forwardRef<
     <RTabs.List
         ref={ref}
         className={cn(
-            'inline-flex items-stretch border-b border-rule -mb-px',
+            'flex items-stretch border-b border-rule -mb-px overflow-x-auto',
             className,
         )}
         {...props}
@@ -26,7 +26,7 @@ export const TabsTrigger = forwardRef<
     <RTabs.Trigger
         ref={ref}
         className={cn(
-            'px-4 h-10 font-mono uppercase tracking-board text-[11px] text-ink-muted',
+            'px-4 h-10 font-mono uppercase tracking-board text-[11px] text-ink-muted whitespace-nowrap shrink-0',
             'border-b-2 border-transparent -mb-px',
             'hover:text-ink',
             'data-[state=active]:border-accent data-[state=active]:text-ink',

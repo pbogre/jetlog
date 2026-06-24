@@ -66,9 +66,4 @@
     .panel {
         @apply bg-paper border border-rule;
     }
-
-    /* Transitional: old pages still use these classes; will be removed as pages migrate. */
-    .legacy-container {
-        @apply p-4 mr-5 mb-4 grow border border-rule rounded shadow-paper;
-    }
 }
