@@ -14,7 +14,7 @@ RUN npm i --package-lock-only
 RUN npm ci
 
 COPY ./client ./client
-COPY ./tailwind.config.js ./.postcssrc ./
+COPY ./tailwind.config.js ./postcss.config.js ./vite.config.ts ./tsconfig.json ./
 RUN npm run build
 
 # RUNTIME

@@ -2,16 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    :root {
+        color-scheme: light;
+        --tnum: 'tnum' 1, 'lnum' 1;
+    }
+
+    html,
+    body,
+    #app {
+        height: 100%;
+    }
+
+    body {
+        @apply bg-paper text-ink font-sans antialiased;
+        font-feature-settings: var(--tnum);
+    }
+
+    /* Subtle paper texture: faint horizontal scanlines */
+    body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image: repeating-linear-gradient(
+            0deg,
+            rgba(20, 19, 15, 0.018) 0px,
+            rgba(20, 19, 15, 0.018) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+        z-index: 1;
+    }
+
+    #app {
+        position: relative;
+        z-index: 2;
+    }
+
+    *:focus-visible {
+        @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-paper;
+    }
+
+    ::selection {
+        background-color: #f5c518;
+        color: #14130f;
+    }
+}
+
 @layer components {
-    .container {
-        @apply p-4 mr-5 mb-4 grow border border-gray-400 rounded shadow-md;
+    .board-label {
+        @apply font-mono uppercase tracking-board text-ink-muted text-[11px];
     }
 
-    hr {
-        @apply w-full mb-4
+    .board-value {
+        @apply font-mono tabular-nums text-ink;
     }
 
-    span {
-        @apply font-mono text-primary-500
+    .hairline {
+        @apply border-rule;
+    }
+
+    .panel {
+        @apply bg-paper border border-rule;
+    }
+
+    /* Transitional: old pages still use these classes; will be removed as pages migrate. */
+    .legacy-container {
+        @apply p-4 mr-5 mb-4 grow border border-rule rounded shadow-paper;
     }
 }
