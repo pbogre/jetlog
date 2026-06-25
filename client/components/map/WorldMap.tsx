@@ -18,8 +18,8 @@ const COLORS = {
     visited: '#F5C518',
     visitedStroke: '#C99A00',
     line: '#14130F',
-    marker: '#14130F',
-    markerRing: '#F5C518',
+    marker: '#E85D1F',
+    markerStroke: '#A33A0E',
 }
 
 export function WorldMap({ flightId, className, interactive = true }: WorldMapProps) {
@@ -101,11 +101,17 @@ export function WorldMap({ flightId, className, interactive = true }: WorldMapPr
                     ))}
 
                     {markers.map((marker, i) => {
-                        const r = freqMarker ? Math.min(2 + marker.frequency * 0.4, 5.5) : 2.5
+                        const r = freqMarker ? Math.min(2.5 + marker.frequency * 0.4, 6) : 3
                         return (
                             <Marker key={`m-${i}`} coordinates={[marker.longitude, marker.latitude]}>
-                                <circle r={r + 0.8} fill={COLORS.markerRing} opacity={0.9} />
-                                <circle r={r} fill={COLORS.marker} />
+                                <circle
+                                    r={r}
+                                    fill={COLORS.marker}
+                                    fillOpacity={0.55}
+                                    stroke={COLORS.markerStroke}
+                                    strokeOpacity={0.7}
+                                    strokeWidth={0.4}
+                                />
                             </Marker>
                         )
                     })}
@@ -164,8 +170,14 @@ export function SingleFlightMap({ flightId, distance, className }: SingleFlightM
                 ))}
                 {markers.map((m, i) => (
                     <Marker key={`m-${i}`} coordinates={[m.longitude, m.latitude]}>
-                        <circle r={2.4} fill={COLORS.markerRing} />
-                        <circle r={1.4} fill={COLORS.marker} />
+                        <circle
+                            r={3}
+                            fill={COLORS.marker}
+                            fillOpacity={0.7}
+                            stroke={COLORS.markerStroke}
+                            strokeOpacity={0.8}
+                            strokeWidth={0.4}
+                        />
                     </Marker>
                 ))}
             </ComposableMap>
