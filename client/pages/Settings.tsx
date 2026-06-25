@@ -18,6 +18,7 @@ import TokenStorage from '@/storage/tokenStorage'
 import type { User } from '@/models'
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
+import { ColumnsManager } from '@/components/settings/ColumnsManager'
 import { Panel, PanelHeader, PanelTitle, PanelBody } from '@/components/ui/Panel'
 import { Switch } from '@/components/ui/Switch'
 import { Button } from '@/components/ui/Button'
@@ -78,6 +79,7 @@ export default function Settings() {
             <Tabs defaultValue="preferences">
                 <TabsList>
                     <TabsTrigger value="preferences">Preferences</TabsTrigger>
+                    <TabsTrigger value="table">Flights table</TabsTrigger>
                     <TabsTrigger value="data">Import / Export</TabsTrigger>
                     <TabsTrigger value="account">Account</TabsTrigger>
                     {me?.isAdmin && (
@@ -90,6 +92,16 @@ export default function Settings() {
 
                 <TabsContent value="preferences">
                     <PreferencesPanel />
+                </TabsContent>
+                <TabsContent value="table">
+                    <Panel>
+                        <PanelHeader>
+                            <PanelTitle>Columns on All Flights</PanelTitle>
+                        </PanelHeader>
+                        <PanelBody>
+                            <ColumnsManager />
+                        </PanelBody>
+                    </Panel>
                 </TabsContent>
                 <TabsContent value="data">
                     <DataPanel />

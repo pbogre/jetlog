@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/Button'
 import { Select } from '@/components/ui/Select'
 import ConfigStorage from '@/storage/configStorage'
 import { useFlights, type FlightsFilters } from '@/lib/queries'
+import { loadColumnPrefs } from '@/storage/columnsStorage'
 
 const PAGE_SIZES = [10, 20, 50]
 
@@ -31,6 +32,18 @@ function FlightsListPage() {
     const [sorting, setSorting] = useState<SortingState>([{ id: 'date', desc: true }])
     const [pageSize, setPageSize] = useState(20)
     const [page, setPage] = useState(0)
+    const [columnPrefs, setColumnPrefs] = useState(() => loadColumnPrefs())
+
+    // Refresh prefs when returning to this page (e.g. after editing in Settings).
+    useEffect(() => {
+        const onFocus = () => setColumnPrefs(loadColumnPrefs())
+        window.addEventListener('focus', onFocus)
+        window.addEventListener('jetlog:columns-changed', onFocus as EventListener)
+        return () => {
+            window.removeEventListener('focus', onFocus)
+            window.removeEventListener('jetlog:columns-changed', onFocus as EventListener)
+        }
+    }, [])
 
     // Reset to first page whenever filters, sort, or page size change
     useEffect(() => {
@@ -74,6 +87,7 @@ function FlightsListPage() {
                     sorting={sorting}
                     setSorting={setSorting}
                     metric={metric}
+                    columnPrefs={columnPrefs}
                 />
             </Panel>
 
