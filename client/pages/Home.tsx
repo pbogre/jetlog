@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Plane } from 'lucide-react'
 
-import { useFlights, useStatistics } from '@/lib/queries'
+import { useCurrentUser, useFlights, useStatistics } from '@/lib/queries'
 
 const WorldMap = lazy(() =>
     import('@/components/map/WorldMap').then((m) => ({ default: m.WorldMap })),
@@ -41,7 +41,11 @@ function StatCell({ label, value, unit, delay = 0 }: StatCellProps) {
 
 function CountersStrip() {
     const metric = ConfigStorage.getSetting('metricUnits') !== 'false'
-    const { data: stats, isLoading } = useStatistics({ metric })
+    const { data: me } = useCurrentUser()
+    const { data: stats, isLoading } = useStatistics(
+        { metric, username: me?.username },
+        { enabled: !!me } as any,
+    )
 
     if (isLoading || !stats) {
         return (
@@ -107,10 +111,12 @@ function RecentFlightRow({ flight }: { flight: Flight }) {
 }
 
 function RecentFlights() {
+    const { data: me } = useCurrentUser()
     const { data: flights, isLoading } = useFlights({
         limit: 5,
         sort: 'date',
         order: 'DESC',
+        username: me?.username,
     })
 
     return (

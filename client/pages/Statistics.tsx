@@ -1,7 +1,13 @@
 import { useMemo, useState } from 'react'
 import { Filter, X } from 'lucide-react'
 
-import { useFlights, useStatistics, useUsernames, type StatsFilters } from '@/lib/queries'
+import {
+    useCurrentUser,
+    useFlights,
+    useStatistics,
+    useUsernames,
+    type StatsFilters,
+} from '@/lib/queries'
 import ConfigStorage from '@/storage/configStorage'
 import type { Flight } from '@/models'
 
@@ -44,9 +50,18 @@ interface FiltersSheetProps {
     onOpenChange: (o: boolean) => void
     filters: StatsFilters
     onApply: (f: StatsFilters) => void
+    isAdmin: boolean
+    selfUsername?: string
 }
 
-function FiltersSheet({ open, onOpenChange, filters, onApply }: FiltersSheetProps) {
+function FiltersSheet({
+    open,
+    onOpenChange,
+    filters,
+    onApply,
+    isAdmin,
+    selfUsername,
+}: FiltersSheetProps) {
     const { data: usernames } = useUsernames()
     const [draft, setDraft] = useState<StatsFilters>(filters)
 
@@ -69,22 +84,23 @@ function FiltersSheet({ open, onOpenChange, filters, onApply }: FiltersSheetProp
                         onChange={(e) => setDraft({ ...draft, end: e.target.value })}
                     />
                 </div>
-                <div>
-                    <Label>User</Label>
-                    <Select
-                        value={draft.username ?? ''}
-                        onChange={(e) =>
-                            setDraft({ ...draft, username: e.target.value || undefined })
-                        }
-                    >
-                        <option value="">Any user</option>
-                        {usernames?.map((u) => (
-                            <option key={u} value={u}>
-                                {u}
-                            </option>
-                        ))}
-                    </Select>
-                </div>
+                {isAdmin && (
+                    <div>
+                        <Label>User</Label>
+                        <Select
+                            value={draft.username ?? selfUsername ?? ''}
+                            onChange={(e) =>
+                                setDraft({ ...draft, username: e.target.value || undefined })
+                            }
+                        >
+                            {usernames?.map((u) => (
+                                <option key={u} value={u}>
+                                    {u === selfUsername ? `${u} (you)` : u}
+                                </option>
+                            ))}
+                        </Select>
+                    </div>
+                )}
                 <div className="flex gap-2 pt-4 border-t border-rule">
                     <Button
                         variant="outline"
@@ -145,14 +161,24 @@ function useTimeline(flights: Flight[] | undefined) {
 
 export default function Statistics() {
     const metric = ConfigStorage.getSetting('metricUnits') !== 'false'
+    const { data: me } = useCurrentUser()
     const [filters, setFilters] = useState<StatsFilters>({})
     const [filtersOpen, setFiltersOpen] = useState(false)
 
-    const { data: stats, isLoading } = useStatistics({ ...filters, metric })
-    const { data: flights } = useFlights({ ...filters, metric, limit: 5000 })
+    // Always lock to a single user. Admins can pick another via filters.
+    const effectiveUsername = filters.username ?? me?.username
+    const queryFilters: StatsFilters = { ...filters, username: effectiveUsername, metric }
+
+    const { data: stats, isLoading } = useStatistics(queryFilters, {
+        enabled: !!effectiveUsername,
+    } as any)
+    const { data: flights } = useFlights({ ...queryFilters, limit: 5000 })
     const timeline = useTimeline(flights)
 
-    const activeCount = Object.values(filters).filter((v) => v).length
+    const activeCount =
+        (filters.start ? 1 : 0) +
+        (filters.end ? 1 : 0) +
+        (filters.username && filters.username !== me?.username ? 1 : 0)
 
     return (
         <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
@@ -181,7 +207,7 @@ export default function Statistics() {
                             </button>
                         </Badge>
                     )}
-                    {filters.username && (
+                    {filters.username && filters.username !== me?.username && (
                         <Badge variant="accent" className="gap-1.5 pl-2 pr-1 py-1">
                             User {filters.username}
                             <button
@@ -274,6 +300,8 @@ export default function Statistics() {
                 onOpenChange={setFiltersOpen}
                 filters={filters}
                 onApply={setFilters}
+                isAdmin={!!me?.isAdmin}
+                selfUsername={me?.username}
             />
         </div>
     )
