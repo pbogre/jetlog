@@ -29,6 +29,7 @@ const tooltipStyle = {
     padding: '6px 8px',
 }
 const labelStyle = { color: INK, fontWeight: 600, textTransform: 'uppercase' as const }
+const itemStyle = { color: INK }
 
 interface FrequencyChartProps {
     title: string
@@ -79,6 +80,7 @@ export function FrequencyBarChart({ title, data, label = 'count' }: FrequencyCha
                                 cursor={{ fill: 'rgba(245,197,24,0.1)' }}
                                 contentStyle={tooltipStyle}
                                 labelStyle={labelStyle}
+                                itemStyle={itemStyle}
                                 separator=""
                                 formatter={(v: number) => [`${v} ${label}`, '']}
                             />
@@ -126,6 +128,7 @@ export function FrequencyDonut({ title, data }: FrequencyChartProps) {
                                 <Tooltip
                                     contentStyle={tooltipStyle}
                                     labelStyle={labelStyle}
+                                itemStyle={itemStyle}
                                     separator=" — "
                                     formatter={(v: number, n: string) => [
                                         `${v} (${Math.round((v / total) * 100)}%)`,
@@ -197,6 +200,7 @@ export function FlightsPerMonthChart({ title, data }: { title: string; data: Tim
                                 cursor={{ fill: 'rgba(245,197,24,0.12)' }}
                                 contentStyle={tooltipStyle}
                                 labelStyle={labelStyle}
+                                itemStyle={itemStyle}
                                 separator=""
                                 formatter={(v: number) => [`${v} flights`, '']}
                             />
@@ -243,6 +247,7 @@ export function CumulativeDistanceChart({ title, data, metric }: TimelineChartPr
                                 cursor={{ stroke: ACCENT }}
                                 contentStyle={tooltipStyle}
                                 labelStyle={labelStyle}
+                                itemStyle={itemStyle}
                                 separator=""
                                 formatter={(v: number) => [`${v.toLocaleString()} ${metric ? 'km' : 'mi'}`, '']}
                             />
