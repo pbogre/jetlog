@@ -22,6 +22,7 @@ export const FLIGHT_COLUMNS: FlightColumnDef[] = [
         id: 'date',
         label: 'Date',
         sortable: 'date',
+        required: true,
         defaultVisible: true,
         render: (f) => f.date || dash,
     },
