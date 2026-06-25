@@ -22,7 +22,10 @@ export function formatDate(date?: string | null): string {
     return date
 }
 
-export function airportCode(code?: { iata?: string; icao?: string } | null): string {
+export function airportCode(
+    code?: { iata?: string; icao?: string } | string | null,
+): string {
     if (!code) return '—'
+    if (typeof code === 'string') return code
     return code.iata || code.icao || '—'
 }

@@ -220,9 +220,9 @@ export default function NewFlight() {
             {/* Fetch by callsign — prominent at top */}
             {ENABLE_EXTERNAL_APIS && (
                 <Panel className="border-ink/20">
-                    <PanelBody className="!py-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 items-end">
-                        <div>
-                            <Label>Flight number</Label>
+                    <PanelBody className="!py-4">
+                        <Label>Flight number</Label>
+                        <div className="flex gap-2">
                             <Input
                                 placeholder="e.g. FR2460"
                                 value={shared.flightNumber}
@@ -230,25 +230,26 @@ export default function NewFlight() {
                                 onChange={(e) =>
                                     setShared_('flightNumber', e.target.value.toUpperCase())
                                 }
+                                className="flex-1"
                             />
-                            <p className="text-xs text-ink-muted font-mono mt-1.5">
-                                Enter a callsign and we'll pre-fill origin, destination & airline.
-                            </p>
+                            <Button
+                                type="button"
+                                variant="accent"
+                                onClick={attemptFetchByCallsign}
+                                disabled={!shared.flightNumber || fetching}
+                                className="h-10 shrink-0"
+                            >
+                                {fetching ? (
+                                    <Loader2 size={14} className="animate-spin" />
+                                ) : (
+                                    <Radio size={14} />
+                                )}
+                                {fetching ? 'Fetching…' : 'Fetch'}
+                            </Button>
                         </div>
-                        <Button
-                            type="button"
-                            variant="accent"
-                            size="lg"
-                            onClick={attemptFetchByCallsign}
-                            disabled={!shared.flightNumber || fetching}
-                        >
-                            {fetching ? (
-                                <Loader2 size={14} className="animate-spin" />
-                            ) : (
-                                <Radio size={14} />
-                            )}
-                            {fetching ? 'Fetching…' : 'Fetch'}
-                        </Button>
+                        <p className="text-xs text-ink-muted font-mono mt-1.5">
+                            Enter a callsign and we'll pre-fill origin, destination & airline.
+                        </p>
                     </PanelBody>
                 </Panel>
             )}

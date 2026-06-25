@@ -101,7 +101,7 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
         }
         try {
             await API.patch(
-                `/flights/${flightId}?timezones=${localAirportTime}`,
+                `/flights?id=${flightId}&timezones=${localAirportTime}`,
                 payload,
             )
             await qc.invalidateQueries({ queryKey: ['flight', flightId] })
@@ -223,6 +223,12 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                 </div>
             </Panel>
 
+            {/* Airports */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <AirportPanel title="Departure airport" airport={flight.origin} />
+                <AirportPanel title="Arrival airport" airport={flight.destination} />
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Panel>
                     <PanelHeader>
@@ -274,6 +280,40 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                 </Panel>
             )}
         </form>
+    )
+}
+
+function AirportPanel({ title, airport }: { title: string; airport: any }) {
+    if (!airport || typeof airport === 'string') {
+        return (
+            <Panel>
+                <PanelHeader>
+                    <PanelTitle>{title}</PanelTitle>
+                </PanelHeader>
+                <PanelBody className="text-sm font-mono text-ink-muted">
+                    {typeof airport === 'string' ? airport : 'No airport data'}
+                </PanelBody>
+            </Panel>
+        )
+    }
+    return (
+        <Panel>
+            <PanelHeader>
+                <PanelTitle>{title}</PanelTitle>
+                <span className="font-mono font-semibold tracking-board text-ink">
+                    {airport.iata || airport.icao}
+                </span>
+            </PanelHeader>
+            <PanelBody className="grid grid-cols-2 gap-3">
+                <DataBlock label="Name" value={airport.name || '—'} className="col-span-2" />
+                <DataBlock label="City" value={airport.municipality || '—'} />
+                <DataBlock label="Country" value={airport.country || '—'} />
+                <DataBlock label="Region" value={airport.region || '—'} />
+                <DataBlock label="Continent" value={airport.continent || '—'} />
+                <DataBlock label="ICAO / IATA" value={`${airport.icao || '—'} / ${airport.iata || '—'}`} />
+                <DataBlock label="Timezone" value={airport.timezone || '—'} />
+            </PanelBody>
+        </Panel>
     )
 }
 

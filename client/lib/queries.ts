@@ -6,15 +6,21 @@ import {
 } from '@tanstack/react-query'
 import API, { ENABLE_EXTERNAL_APIS } from '@/api'
 import type { Flight, Airport, Airline, Statistics, User, Coord, Trajectory } from '@/models'
+import { camelize } from './normalize'
 
 export { ENABLE_EXTERNAL_APIS }
+
+async function getJSON<T>(endpoint: string, params: Record<string, unknown> = {}): Promise<T> {
+    const data = await API.get(endpoint, params)
+    return camelize<T>(data)
+}
 
 // ---------- Users ----------
 
 export function useCurrentUser() {
     return useQuery<User>({
         queryKey: ['user', 'me'],
-        queryFn: () => API.get('/users/me'),
+        queryFn: () => getJSON<User>('/users/me'),
         staleTime: 5 * 60_000,
     })
 }
@@ -43,14 +49,14 @@ export interface FlightsFilters {
 export function useFlights(filters: FlightsFilters) {
     return useQuery<Flight[]>({
         queryKey: ['flights', filters],
-        queryFn: () => API.get('/flights', filters),
+        queryFn: () => getJSON<Flight[]>('/flights', filters as Record<string, unknown>),
     })
 }
 
 export function useFlight(id?: number) {
     return useQuery<Flight>({
         queryKey: ['flight', id],
-        queryFn: () => API.get('/flights', { id }),
+        queryFn: () => getJSON<Flight>('/flights', { id }),
         enabled: id !== undefined && id !== null,
     })
 }
@@ -58,27 +64,7 @@ export function useFlight(id?: number) {
 export function useDeleteFlight() {
     const qc = useQueryClient()
     return useMutation({
-        mutationFn: (id: number) => API.delete(`/flights/${id}`),
-        onSuccess: () => qc.invalidateQueries({ queryKey: ['flights'] }),
-    })
-}
-
-export function useUpdateFlight() {
-    const qc = useQueryClient()
-    return useMutation({
-        mutationFn: ({ id, data }: { id: number; data: Partial<Flight> }) =>
-            API.patch(`/flights/${id}`, data),
-        onSuccess: (_d, { id }) => {
-            qc.invalidateQueries({ queryKey: ['flights'] })
-            qc.invalidateQueries({ queryKey: ['flight', id] })
-        },
-    })
-}
-
-export function useCreateFlight() {
-    const qc = useQueryClient()
-    return useMutation({
-        mutationFn: (data: Partial<Flight>) => API.post('/flights', data),
+        mutationFn: (id: number) => API.delete(`/flights?id=${id}`),
         onSuccess: () => qc.invalidateQueries({ queryKey: ['flights'] }),
     })
 }
@@ -95,7 +81,7 @@ export interface StatsFilters {
 export function useStatistics(filters: StatsFilters = {}, options?: UseQueryOptions<Statistics>) {
     return useQuery<Statistics>({
         queryKey: ['statistics', filters],
-        queryFn: () => API.get('/statistics', filters),
+        queryFn: () => getJSON<Statistics>('/statistics', filters as Record<string, unknown>),
         ...options,
     })
 }
@@ -111,15 +97,25 @@ export function useWorldGeography(visited: boolean) {
 }
 
 export interface Decorations {
-    markers: Coord[]
     lines: Trajectory[]
+    markers: Coord[]
 }
 
 export function useDecorations(flightId?: number) {
     return useQuery<Decorations>({
         queryKey: ['geo', 'decorations', flightId],
-        queryFn: () =>
-            API.get('/geography/decorations', flightId ? { flight_id: flightId } : {}),
+        queryFn: async () => {
+            const raw = await API.get(
+                '/geography/decorations',
+                flightId ? { flight_id: flightId } : {},
+            )
+            // Backend returns a tuple: [lines, markers]
+            const [lines, markers] = Array.isArray(raw) ? raw : [[], []]
+            return {
+                lines: camelize<Trajectory[]>(lines ?? []),
+                markers: camelize<Coord[]>(markers ?? []),
+            }
+        },
         staleTime: 60_000,
     })
 }
@@ -127,17 +123,17 @@ export function useDecorations(flightId?: number) {
 // ---------- Airports / Airlines ----------
 
 export function searchAirports(q: string): Promise<Airport[]> {
-    return API.get('/airports', { q })
+    return getJSON<Airport[]>('/airports', { q })
 }
 
 export function searchAirlines(q: string): Promise<Airline[]> {
-    return API.get('/airlines', { q })
+    return getJSON<Airline[]>('/airlines', { q })
 }
 
 export function fetchAirport(icao: string): Promise<Airport> {
-    return API.get(`/airports/${icao}`)
+    return getJSON<Airport>(`/airports/${icao}`)
 }
 
 export function fetchAirline(icao: string): Promise<Airline> {
-    return API.get(`/airlines/${icao}`)
+    return getJSON<Airline>(`/airlines/${icao}`)
 }
