@@ -31,7 +31,7 @@ function FlightsListPage() {
     const enrichedFilters: FlightsFilters = {
         ...filters,
         sort: sorting[0]?.id as FlightsFilters['sort'],
-        order: sorting[0]?.desc ? 'descending' : 'ascending',
+        order: sorting[0]?.desc ? 'DESC' : 'ASC',
     }
 
     return (

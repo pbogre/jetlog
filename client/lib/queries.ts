@@ -32,7 +32,7 @@ export function useUsernames() {
 export interface FlightsFilters {
     limit?: number
     offset?: number
-    order?: 'ascending' | 'descending'
+    order?: 'ASC' | 'DESC'
     sort?: 'date' | 'duration' | 'distance' | 'seat'
     start?: string
     end?: string

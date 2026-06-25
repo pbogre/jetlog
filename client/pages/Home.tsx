@@ -110,7 +110,7 @@ function RecentFlights() {
     const { data: flights, isLoading } = useFlights({
         limit: 5,
         sort: 'date',
-        order: 'descending',
+        order: 'DESC',
     })
 
     return (
