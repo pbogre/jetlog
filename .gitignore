@@ -7,3 +7,7 @@ package-lock.json
 *.old
 
 data/*.db*
+
+# macOS duplicate copies
+* 2
+* 2.*

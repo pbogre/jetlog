@@ -13,7 +13,7 @@ interface FlightFiltersProps {
     onChange: (f: FlightsFilters) => void
 }
 
-const ACTIVE_KEYS: (keyof FlightsFilters)[] = ['start', 'end', 'username', 'limit', 'offset']
+const ACTIVE_KEYS: (keyof FlightsFilters)[] = ['start', 'end', 'username']
 
 export function FlightFiltersBar({ filters, onChange }: FlightFiltersProps) {
     const [open, setOpen] = useState(false)
@@ -115,36 +115,6 @@ export function FlightFiltersBar({ filters, onChange }: FlightFiltersProps) {
                                 </option>
                             ))}
                         </Select>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <Label>Limit</Label>
-                            <Input
-                                type="number"
-                                placeholder="50"
-                                value={draft.limit ?? ''}
-                                onChange={(e) =>
-                                    setDraft({
-                                        ...draft,
-                                        limit: e.target.value ? Number(e.target.value) : undefined,
-                                    })
-                                }
-                            />
-                        </div>
-                        <div>
-                            <Label>Offset</Label>
-                            <Input
-                                type="number"
-                                placeholder="0"
-                                value={draft.offset ?? ''}
-                                onChange={(e) =>
-                                    setDraft({
-                                        ...draft,
-                                        offset: e.target.value ? Number(e.target.value) : undefined,
-                                    })
-                                }
-                            />
-                        </div>
                     </div>
 
                     <div className="flex gap-2 pt-4 border-t border-rule">

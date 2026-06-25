@@ -129,6 +129,7 @@ interface SingleFlightMapProps {
 
 export function SingleFlightMap({ flightId, distance, className }: SingleFlightMapProps) {
     const { data: decor } = useDecorations(flightId)
+    const { data: world } = useWorldGeography(false)
     const lines = decor?.lines ?? []
     const markers = decor?.markers ?? []
 
@@ -158,6 +159,26 @@ export function SingleFlightMap({ flightId, distance, className }: SingleFlightM
                 projectionConfig={{ scale, rotate: [-cLon, -cLat, 0] }}
                 style={{ width: '100%', height: 'auto', display: 'block' }}
             >
+                {world && (
+                    <Geographies geography={world as any}>
+                        {({ geographies }) =>
+                            geographies.map((geo: any) => (
+                                <Geography
+                                    key={geo.rsmKey}
+                                    geography={geo}
+                                    stroke={COLORS.landStroke}
+                                    strokeWidth={0.3}
+                                    fill={COLORS.land}
+                                    style={{
+                                        default: { outline: 'none' },
+                                        hover: { outline: 'none', fill: COLORS.land },
+                                        pressed: { outline: 'none' },
+                                    }}
+                                />
+                            ))
+                        }
+                    </Geographies>
+                )}
                 {lines.map((line, i) => (
                     <Line
                         key={`l-${i}`}

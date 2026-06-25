@@ -10,22 +10,21 @@ import {
 } from '@tanstack/react-table'
 
 import type { Flight } from '@/models'
-import { useFlights, type FlightsFilters } from '@/lib/queries'
 import { Spinner } from '@/components/ui/Spinner'
 import { Badge } from '@/components/ui/Badge'
 import { formatDistance, formatDuration, formatTime, airportCode } from '@/lib/format'
 import { cn } from '@/lib/cn'
 
 interface FlightsTableProps {
-    filters: FlightsFilters
+    flights: Flight[] | undefined
+    isLoading: boolean
     sorting: SortingState
     setSorting: (s: SortingState) => void
     metric: boolean
 }
 
-export function FlightsTable({ filters, sorting, setSorting, metric }: FlightsTableProps) {
+export function FlightsTable({ flights, isLoading, sorting, setSorting, metric }: FlightsTableProps) {
     const navigate = useNavigate()
-    const { data: flights, isLoading } = useFlights({ ...filters, metric })
 
     const columns = useMemo<ColumnDef<Flight>[]>(
         () => [
