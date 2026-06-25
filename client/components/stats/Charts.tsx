@@ -79,6 +79,7 @@ export function FrequencyBarChart({ title, data, label = 'count' }: FrequencyCha
                                 cursor={{ fill: 'rgba(245,197,24,0.1)' }}
                                 contentStyle={tooltipStyle}
                                 labelStyle={labelStyle}
+                                separator=""
                                 formatter={(v: number) => [`${v} ${label}`, '']}
                             />
                             <Bar dataKey="value" fill={ACCENT} stroke={INK} strokeWidth={1} />
@@ -125,6 +126,7 @@ export function FrequencyDonut({ title, data }: FrequencyChartProps) {
                                 <Tooltip
                                     contentStyle={tooltipStyle}
                                     labelStyle={labelStyle}
+                                    separator=" — "
                                     formatter={(v: number, n: string) => [
                                         `${v} (${Math.round((v / total) * 100)}%)`,
                                         n,
@@ -195,6 +197,8 @@ export function FlightsPerMonthChart({ title, data }: { title: string; data: Tim
                                 cursor={{ fill: 'rgba(245,197,24,0.12)' }}
                                 contentStyle={tooltipStyle}
                                 labelStyle={labelStyle}
+                                separator=""
+                                formatter={(v: number) => [`${v} flights`, '']}
                             />
                             <Bar dataKey="flights" fill={ACCENT} stroke={INK} strokeWidth={1} />
                         </BarChart>
@@ -239,7 +243,8 @@ export function CumulativeDistanceChart({ title, data, metric }: TimelineChartPr
                                 cursor={{ stroke: ACCENT }}
                                 contentStyle={tooltipStyle}
                                 labelStyle={labelStyle}
-                                formatter={(v: number) => [v.toLocaleString(), '']}
+                                separator=""
+                                formatter={(v: number) => [`${v.toLocaleString()} ${metric ? 'km' : 'mi'}`, '']}
                             />
                             <Line
                                 type="monotone"
