@@ -1,8 +1,10 @@
 import { useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { Home, PlaneTakeoff, Plus, BarChart3, Settings as Cog, LogOut, X } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
+import { Home, PlaneTakeoff, Plus, BarChart3, Settings as Cog, LogOut, X, UserRound } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import TokenStorage from '@/storage/tokenStorage'
+import { useCurrentUser } from '@/lib/queries'
 
 interface NavSheetProps {
     open: boolean
@@ -20,6 +22,8 @@ const NAV_ITEMS = [
 export function NavSheet({ open, onClose }: NavSheetProps) {
     const location = useLocation()
     const navigate = useNavigate()
+    const qc = useQueryClient()
+    const { data: me } = useCurrentUser()
 
     useEffect(() => {
         if (!open) return
@@ -36,6 +40,7 @@ export function NavSheet({ open, onClose }: NavSheetProps) {
 
     const handleLogout = () => {
         TokenStorage.clearToken()
+        qc.clear()
         onClose()
         navigate('/login')
     }
@@ -92,10 +97,30 @@ export function NavSheet({ open, onClose }: NavSheetProps) {
                     })}
                 </nav>
 
-                <div className="border-t border-rule p-3">
+                <div className="border-t border-rule p-3 space-y-1">
+                    {me && (
+                        <div className="flex items-center gap-3 px-2 py-2 min-w-0">
+                            <div className="h-7 w-7 border border-ink bg-accent flex items-center justify-center shrink-0">
+                                <UserRound size={14} strokeWidth={2} />
+                            </div>
+                            <div className="min-w-0">
+                                <div className="board-label text-ink-muted leading-none">
+                                    Signed in as
+                                </div>
+                                <div className="font-mono text-sm text-ink truncate">
+                                    {me.username}
+                                    {me.isAdmin && (
+                                        <span className="ml-2 text-[10px] uppercase tracking-board text-accent-deep">
+                                            admin
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                     <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-2 py-3 text-ink-soft hover:text-danger transition-colors"
+                        className="w-full flex items-center gap-3 px-2 py-2.5 text-ink-soft hover:text-danger transition-colors"
                     >
                         <LogOut size={18} strokeWidth={1.75} />
                         <span className="font-mono uppercase tracking-board text-sm">Logout</span>

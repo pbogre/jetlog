@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import API from '@/api'
 import TokenStorage from '@/storage/tokenStorage'
@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/Switch'
 
 export default function Login() {
     const navigate = useNavigate()
+    const qc = useQueryClient()
     const [remember, setRemember] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -18,6 +19,7 @@ export default function Login() {
         mutationFn: (formData: FormData) => API.post('/auth/token', formData),
         onSuccess: (data) => {
             TokenStorage.storeToken(data.access_token, remember)
+            qc.clear()
             navigate('/')
         },
         onError: (err: any) => {
