@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-table'
 
 import type { Flight } from '@/models'
-import { useFlights, type FlightsFilters } from '@/api/queries'
+import { useFlights, type FlightsFilters } from '@/lib/queries'
 import { Spinner } from '@/components/ui/Spinner'
 import { Badge } from '@/components/ui/Badge'
 import { formatDistance, formatDuration, formatTime, airportCode } from '@/lib/format'

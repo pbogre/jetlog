@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { ComposableMap, ZoomableGroup, Geographies, Geography, Marker, Line } from 'react-simple-maps'
-import { useDecorations, useWorldGeography } from '@/api/queries'
+import { useDecorations, useWorldGeography } from '@/lib/queries'
 import ConfigStorage from '@/storage/configStorage'
 
 interface WorldMapProps {

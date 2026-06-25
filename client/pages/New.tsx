@@ -9,7 +9,7 @@ import {
     searchAirlines,
     useCurrentUser,
     useUsernames,
-} from '@/api/queries'
+} from '@/lib/queries'
 import type { Airline, Airport } from '@/models'
 import ConfigStorage from '@/storage/configStorage'
 

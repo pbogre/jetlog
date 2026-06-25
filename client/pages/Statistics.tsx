@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Filter, X } from 'lucide-react'
 
-import { useFlights, useStatistics, useUsernames, type StatsFilters } from '@/api/queries'
+import { useFlights, useStatistics, useUsernames, type StatsFilters } from '@/lib/queries'
 import ConfigStorage from '@/storage/configStorage'
 import type { Flight } from '@/models'
 

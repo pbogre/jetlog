@@ -2,7 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Plane } from 'lucide-react'
 
-import { useFlights, useStatistics } from '@/api/queries'
+import { useFlights, useStatistics } from '@/lib/queries'
 
 const WorldMap = lazy(() =>
     import('@/components/map/WorldMap').then((m) => ({ default: m.WorldMap })),

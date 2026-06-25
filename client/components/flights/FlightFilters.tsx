@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/Input'
 import { Label } from '@/components/ui/Label'
 import { Select } from '@/components/ui/Select'
 import { Badge } from '@/components/ui/Badge'
-import { useUsernames, type FlightsFilters } from '@/api/queries'
+import { useUsernames, type FlightsFilters } from '@/lib/queries'
 
 interface FlightFiltersProps {
     filters: FlightsFilters

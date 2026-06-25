@@ -10,7 +10,7 @@ import { FlightDetail } from '@/components/flights/FlightDetail'
 import { Panel } from '@/components/ui/Panel'
 import { Button } from '@/components/ui/Button'
 import ConfigStorage from '@/storage/configStorage'
-import type { FlightsFilters } from '@/api/queries'
+import type { FlightsFilters } from '@/lib/queries'
 
 export default function AllFlights() {
     const [searchParams] = useSearchParams()

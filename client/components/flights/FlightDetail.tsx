@@ -10,7 +10,7 @@ import {
     useDeleteFlight,
     searchAirports,
     searchAirlines,
-} from '@/api/queries'
+} from '@/lib/queries'
 import type { Airport, Airline, Flight } from '@/models'
 import ConfigStorage from '@/storage/configStorage'
 

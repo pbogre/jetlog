@@ -12,7 +12,7 @@ import {
 } from 'lucide-react'
 
 import API, { ENABLE_EXTERNAL_APIS } from '@/api'
-import { useCurrentUser, useUsernames } from '@/api/queries'
+import { useCurrentUser, useUsernames } from '@/lib/queries'
 import ConfigStorage, { type ConfigInterface } from '@/storage/configStorage'
 import TokenStorage from '@/storage/tokenStorage'
 import type { User } from '@/models'
