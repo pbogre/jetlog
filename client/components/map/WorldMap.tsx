@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { ComposableMap, ZoomableGroup, Geographies, Geography, Marker, Line } from 'react-simple-maps'
 import { useDecorations, useWorldGeography } from '@/lib/queries'
 import ConfigStorage from '@/storage/configStorage'
@@ -34,6 +34,10 @@ export function WorldMap({ flightId, className, interactive = true }: WorldMapPr
     const lines = decor?.lines ?? []
     const markers = decor?.markers ?? []
 
+    const [zoom, setZoom] = useState(1)
+    // Inverse-sqrt scaling keeps markers/lines visually constant as the user zooms.
+    const sf = 1 / Math.sqrt(zoom)
+
     const { initialZoom, center } = useMemo(() => {
         if (!restrict || markers.length < 2) {
             return { initialZoom: 1, center: [0, 0] as [number, number] }
@@ -62,6 +66,9 @@ export function WorldMap({ flightId, className, interactive = true }: WorldMapPr
                     maxZoom={interactive ? 10 : 1}
                     minZoom={1}
                     filterZoomEvent={() => interactive}
+                    onMove={({ zoom: z }) => {
+                        if (z !== zoom) setZoom(z)
+                    }}
                     translateExtent={[
                         [0, 0],
                         [MAP_W, MAP_H],
@@ -75,7 +82,7 @@ export function WorldMap({ flightId, className, interactive = true }: WorldMapPr
                                         key={geo.rsmKey}
                                         geography={geo}
                                         stroke={geo.properties.visited ? COLORS.visitedStroke : COLORS.landStroke}
-                                        strokeWidth={geo.properties.visited ? 0.5 : 0.3}
+                                        strokeWidth={(geo.properties.visited ? 0.5 : 0.3) * sf}
                                         fill={geo.properties.visited ? COLORS.visited : COLORS.land}
                                         style={{
                                             default: { outline: 'none' },
@@ -88,20 +95,23 @@ export function WorldMap({ flightId, className, interactive = true }: WorldMapPr
                         </Geographies>
                     )}
 
-                    {lines.map((line, i) => (
-                        <Line
-                            key={`l-${i}`}
-                            from={[line.first.longitude, line.first.latitude]}
-                            to={[line.second.longitude, line.second.latitude]}
-                            stroke={COLORS.line}
-                            strokeOpacity={0.55}
-                            strokeWidth={freqLine ? Math.min(0.6 + line.frequency * 0.25, 3) : 0.8}
-                            strokeLinecap="round"
-                        />
-                    ))}
+                    {lines.map((line, i) => {
+                        const w = freqLine ? Math.min(0.6 + line.frequency * 0.25, 3) : 0.8
+                        return (
+                            <Line
+                                key={`l-${i}`}
+                                from={[line.first.longitude, line.first.latitude]}
+                                to={[line.second.longitude, line.second.latitude]}
+                                stroke={COLORS.line}
+                                strokeOpacity={0.55}
+                                strokeWidth={w * sf}
+                                strokeLinecap="round"
+                            />
+                        )
+                    })}
 
                     {markers.map((marker, i) => {
-                        const r = freqMarker ? Math.min(2.5 + marker.frequency * 0.4, 6) : 3
+                        const r = (freqMarker ? Math.min(2.5 + marker.frequency * 0.4, 6) : 3) * sf
                         return (
                             <Marker key={`m-${i}`} coordinates={[marker.longitude, marker.latitude]}>
                                 <circle
@@ -110,7 +120,7 @@ export function WorldMap({ flightId, className, interactive = true }: WorldMapPr
                                     fillOpacity={0.55}
                                     stroke={COLORS.markerStroke}
                                     strokeOpacity={0.7}
-                                    strokeWidth={0.4}
+                                    strokeWidth={0.4 * sf}
                                 />
                             </Marker>
                         )
