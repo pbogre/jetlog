@@ -170,11 +170,73 @@ function useTimeline(flights: Flight[] | undefined) {
     }, [flights])
 }
 
+type RecentUnit = '' | 'days' | 'weeks' | 'months' | 'years'
+
+function computeRecentStart(amount: number, unit: RecentUnit): string | undefined {
+    if (!amount || !unit) return undefined
+    const d = new Date()
+    if (unit === 'days') d.setDate(d.getDate() - amount)
+    else if (unit === 'weeks') d.setDate(d.getDate() - amount * 7)
+    else if (unit === 'months') d.setMonth(d.getMonth() - amount)
+    else if (unit === 'years') d.setFullYear(d.getFullYear() - amount)
+    return d.toISOString().slice(0, 10)
+}
+
+function RecentSpanFilter({
+    amount,
+    unit,
+    onChange,
+}: {
+    amount: string
+    unit: RecentUnit
+    onChange: (amount: string, unit: RecentUnit) => void
+}) {
+    return (
+        <div className="flex items-center gap-2 flex-wrap">
+            <span className="board-label text-ink-muted shrink-0">Last</span>
+            <Input
+                type="number"
+                min={1}
+                placeholder="—"
+                value={amount}
+                onChange={(e) => onChange(e.target.value, unit)}
+                className="h-8 w-16 px-2 text-center"
+            />
+            <Select
+                value={unit}
+                onChange={(e) => onChange(amount, e.target.value as RecentUnit)}
+                className="h-8 w-auto min-w-[100px]"
+            >
+                <option value="">—</option>
+                <option value="days">days</option>
+                <option value="weeks">weeks</option>
+                <option value="months">months</option>
+                <option value="years">years</option>
+            </Select>
+            {(!amount || !unit) && (
+                <span className="text-xs font-mono text-ink-faint hidden sm:inline">
+                    all time
+                </span>
+            )}
+        </div>
+    )
+}
+
 export default function Statistics() {
     const metric = ConfigStorage.getSetting('metricUnits') !== 'false'
     const { data: me } = useCurrentUser()
     const [filters, setFilters] = useState<StatsFilters>({})
     const [filtersOpen, setFiltersOpen] = useState(false)
+    const [recentAmount, setRecentAmount] = useState('')
+    const [recentUnit, setRecentUnit] = useState<RecentUnit>('')
+
+    const setRecent = (amount: string, unit: RecentUnit) => {
+        setRecentAmount(amount)
+        setRecentUnit(unit)
+        const n = Number(amount)
+        const start = computeRecentStart(n, unit)
+        setFilters((f) => ({ ...f, start, end: start ? undefined : f.end }))
+    }
 
     // Always lock to a single user. Admins can pick another via filters.
     const effectiveUsername = filters.username ?? me?.username
@@ -194,7 +256,14 @@ export default function Statistics() {
     return (
         <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
             <div className="flex items-center justify-between gap-3 flex-wrap">
-                <h1 className="font-mono uppercase tracking-board text-base">Statistics</h1>
+                <div className="flex items-center gap-4 flex-wrap">
+                    <h1 className="font-mono uppercase tracking-board text-base">Statistics</h1>
+                    <RecentSpanFilter
+                        amount={recentAmount}
+                        unit={recentUnit}
+                        onChange={setRecent}
+                    />
+                </div>
                 <div className="flex items-center gap-2 flex-wrap">
                     {filters.start && (
                         <Badge variant="accent" className="gap-1.5 pl-2 pr-1 py-1">
