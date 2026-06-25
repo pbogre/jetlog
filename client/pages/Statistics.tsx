@@ -133,6 +133,17 @@ function FiltersSheet({
     )
 }
 
+const MONTH_ABBR = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+]
+
+function formatMonthLabel(yyyyMM: string): string {
+    const [year, month] = yyyyMM.split('-')
+    const mIdx = Math.max(0, Math.min(11, Number(month) - 1))
+    return `${MONTH_ABBR[mIdx]} '${year.slice(2)}`
+}
+
 function useTimeline(flights: Flight[] | undefined) {
     return useMemo(() => {
         if (!flights || flights.length === 0) return []
@@ -151,7 +162,7 @@ function useTimeline(flights: Flight[] | undefined) {
             const b = buckets.get(m)!
             cumulative += b.distance
             return {
-                label: m,
+                label: formatMonthLabel(m),
                 flights: b.flights,
                 cumulative,
             }
