@@ -1,180 +1,138 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import type { SortingState } from '@tanstack/react-table'
 
-import { Heading, Label, Input, Select, Dialog, Whisper } from '../components/Elements';
-import UserSelect from '../components/UserSelect';
-import SingleFlight from '../components/SingleFlight';
-import { Flight } from '../models'
+import { FlightsTable } from '@/components/flights/FlightsTable'
+import { FlightFiltersBar } from '@/components/flights/FlightFilters'
+import { FlightDetail } from '@/components/flights/FlightDetail'
+import { Panel } from '@/components/ui/Panel'
+import { Button } from '@/components/ui/Button'
+import { Select } from '@/components/ui/Select'
+import ConfigStorage from '@/storage/configStorage'
+import { useFlights, type FlightsFilters } from '@/lib/queries'
+import { loadColumnPrefs } from '@/storage/columnsStorage'
 
-import API from '../api'
-import { objectFromForm } from '../utils';
-import ConfigStorage from '../storage/configStorage';
+const PAGE_SIZES = [10, 20, 50]
 
-interface FlightsFilters {
-    limit?: number;
-    offset?: number;
-    order?: "DESC"|"ASC";
-    sort?: "date"|"seat"|"aircraft_side"|"ticket_class"|"duration"|"distance";
-    start?: string;
-    end?: string;
-    username?: string;
-}
 export default function AllFlights() {
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams] = useSearchParams()
+    const flightId = searchParams.get('id')
+
+    if (flightId) {
+        return <FlightDetail flightId={Number(flightId)} />
+    }
+
+    return <FlightsListPage />
+}
+
+function FlightsListPage() {
+    const metric = ConfigStorage.getSetting('metricUnits') !== 'false'
     const [filters, setFilters] = useState<FlightsFilters>({})
+    const [sorting, setSorting] = useState<SortingState>([{ id: 'date', desc: true }])
+    const [pageSize, setPageSize] = useState(20)
+    const [page, setPage] = useState(0)
+    const [columnPrefs, setColumnPrefs] = useState(() => loadColumnPrefs())
 
-    const flightID = searchParams.get("id");
-
-    const saveFilters = (event) => {
-        event.preventDefault();
-
-        const filters = objectFromForm(event);
-
-        if (filters === null) {
-            return;
-        }
-
-        setFilters(filters);
-        //event.target.reset();
-    }
-
-    if(flightID) {
-        return (
-            <SingleFlight flightID={flightID} />
-        );
-    }
-    else {
-        return (
-            <>
-                <Heading text="All Flights" />
-                <Dialog title="Filters"
-                        onSubmit={saveFilters}
-                        formBody={(
-                        <>
-                            <Label text="Limit" />
-                            <Input type="number" name="limit" />
-                            <br />
-                            <Label text="Offset" />
-                            <Input type="number" name="offset" />
-                            <br />
-                            <Label text="Order" />
-                            <Select name="order"
-                                    options={[
-                                { text: "Any", value: "" },
-                                { text: "Descending", value: "DESC" },
-                                { text: "Ascending", value: "ASC" }
-                            ]}/>
-                            <br />
-                            <Label text="Sort By" />
-                            <Select name="sort"
-                                    options={[
-                                { text: "Any", value: "" },
-                                { text: "Date", value: "date" },
-                                { text: "Seat", value: "seat" },
-                                { text: "Aircraft Side", value: "aircraft_side" },
-                                { text: "Ticket Class", value: "ticket_class" },
-                                { text: "Duration", value: "duration" },
-                                { text: "Distance", value: "distance" }
-                            ]}/>
-                            <br />
-                            <Label text="Start Date" />
-                            <Input type="date" name="start" />
-                            <br />
-                            <Label text="End Date" />
-                            <Input type="date" name="end" />
-                            <br />
-                            <Label text="User"/>
-                            <UserSelect />
-                        </>
-                        )}/>
-
-                <FlightsTable filters={filters} />
-            </>
-        );
-    }
-}
-
-function TableCell({ text }) {
-    return (
-        <td className="px-2 py-1 whitespace-nowrap border border-gray-300">
-            {text}
-        </td>
-    );
-}
-
-function TableHeading({ text }) {
-    return (
-        <th className="px-2 whitespace-nowrap border border-gray-300 bg-primary-300 font-semibold">
-            {text}
-        </th>
-    );
-}
-
-function FlightsTable({ filters }: { filters: FlightsFilters }) {
-    const [flights, setFlights] = useState<Flight[]>();
-    const navigate = useNavigate();
-    const metricUnits = ConfigStorage.getSetting("metricUnits");
-
+    // Refresh prefs when returning to this page (e.g. after editing in Settings).
     useEffect(() => {
-        API.get(`/flights?metric=${metricUnits}`, filters)
-        .then((data: Flight[]) => {
-            setFlights(data);
-        });
-    }, [filters]);
+        const onFocus = () => setColumnPrefs(loadColumnPrefs())
+        window.addEventListener('focus', onFocus)
+        window.addEventListener('jetlog:columns-changed', onFocus as EventListener)
+        return () => {
+            window.removeEventListener('focus', onFocus)
+            window.removeEventListener('jetlog:columns-changed', onFocus as EventListener)
+        }
+    }, [])
 
-    if(flights === undefined) {
-        return (
-            <p className="m-4">Loading...</p>
-        );
-    }
-    else if (flights.length === 0) {
-        return (
-            <p className="m-4">No flights!</p>
-        );
-    }
+    // Reset to first page whenever filters, sort, or page size change
+    useEffect(() => {
+        setPage(0)
+    }, [filters, sorting, pageSize])
 
-    const viewFlight = (flightID: number) => {
-        navigate(`/flights?id=${flightID}`);
+    // Fetch one extra to detect a next page without a count endpoint
+    const queryFilters: FlightsFilters = {
+        ...filters,
+        metric,
+        sort: sorting[0]?.id as FlightsFilters['sort'],
+        order: sorting[0]?.desc ? 'DESC' : 'ASC',
+        limit: pageSize + 1,
+        offset: page * pageSize,
     }
+    const { data: rawFlights, isLoading, isFetching } = useFlights(queryFilters)
+
+    const hasNext = (rawFlights?.length ?? 0) > pageSize
+    const pageFlights = rawFlights?.slice(0, pageSize)
+    const showingCount = pageFlights?.length ?? 0
+    const start = showingCount > 0 ? page * pageSize + 1 : 0
+    const end = page * pageSize + showingCount
 
     return (
-    <>
-        <div className="overflow-x-auto">
-        <table className="table-auto w-full">
-            <tr>
-                <TableHeading text="Date"/>
-                <TableHeading text="Origin"/>
-                <TableHeading text="Destination"/>
-                <TableHeading text="Departure Time"/>
-                <TableHeading text="Arrival Time"/>
-                <TableHeading text="Duration"/>
-                <TableHeading text="Distance"/>
-                <TableHeading text="Seat"/>
-                <TableHeading text="Class"/>
-                <TableHeading text="Airplane"/>
-                <TableHeading text="Airline"/>
-            </tr>
-            { flights.map((flight: Flight) => (
-            <tr className="cursor-pointer even:bg-gray-100 hover:bg-gray-200 duration-75" 
-                onClick={() => viewFlight(flight.id)}>
-                <TableCell text={flight.date}/>
-                <TableCell text={flight.origin.municipality + ' (' + (flight.origin.iata || flight.origin.icao) + ')'}/>
-                <TableCell text={flight.destination.municipality + ' (' + (flight.destination.iata || flight.destination.icao) + ')'} />
-                <TableCell text={flight.departureTime || ""}/>
-                <TableCell text={flight.arrivalTime || ""}/>
-                <TableCell text={flight.duration ? flight.duration + " min" : ""}/>
-                <TableCell text={flight.distance ? flight.distance.toLocaleString() + (metricUnits === "false" ? " mi" : " km") : ""}/>
-                <TableCell text={flight.seat || ""}/>
-                <TableCell text={flight.ticketClass || ""} />
-                <TableCell text={flight.airplane || ""}/>
-                <TableCell text={flight.airline?.name || ""}/>
-            </tr>
-            ))}
-        </table>
+        <div className="max-w-7xl mx-auto p-4 md:p-6">
+            <div className="flex items-center justify-between mb-4">
+                <h1 className="font-mono uppercase tracking-board text-base">All flights</h1>
+                <Button asChild variant="accent" size="sm">
+                    <Link to="/new">
+                        <Plus size={13} /> New flight
+                    </Link>
+                </Button>
+            </div>
+
+            <FlightFiltersBar filters={filters} onChange={setFilters} />
+
+            <Panel className="overflow-hidden">
+                <FlightsTable
+                    flights={pageFlights}
+                    isLoading={isLoading}
+                    sorting={sorting}
+                    setSorting={setSorting}
+                    metric={metric}
+                    columnPrefs={columnPrefs}
+                />
+            </Panel>
+
+            <div className="flex items-center justify-between gap-3 mt-3 flex-wrap">
+                <div className="flex items-center gap-2">
+                    <label className="board-label text-ink-muted">Per page</label>
+                    <Select
+                        value={pageSize}
+                        onChange={(e) => setPageSize(Number(e.target.value))}
+                        className="h-8 w-auto min-w-[68px]"
+                    >
+                        {PAGE_SIZES.map((s) => (
+                            <option key={s} value={s}>
+                                {s}
+                            </option>
+                        ))}
+                    </Select>
+                </div>
+
+                <p className="text-xs font-mono text-ink-muted tabular-nums">
+                    {showingCount > 0 ? `Showing ${start}–${end}` : 'No results'}
+                </p>
+
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((p) => Math.max(0, p - 1))}
+                        disabled={page === 0 || isFetching}
+                    >
+                        <ChevronLeft size={13} /> Prev
+                    </Button>
+                    <span className="board-label text-ink-muted tabular-nums px-2">
+                        Page {page + 1}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setPage((p) => p + 1)}
+                        disabled={!hasNext || isFetching}
+                    >
+                        Next <ChevronRight size={13} />
+                    </Button>
+                </div>
+            </div>
         </div>
-
-        <Whisper text={`Showing at most ${filters.limit || 50} flights. Adjust filters for more.`} />
-
-    </>
-    );
+    )
 }

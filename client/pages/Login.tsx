@@ -1,55 +1,102 @@
-import React, {useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import API from '../api';
-import TokenStorage from '../storage/tokenStorage';
-import {Heading, Checkbox, Input, Button} from '../components/Elements'
+import API from '@/api'
+import TokenStorage from '@/storage/tokenStorage'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Label } from '@/components/ui/Label'
+import { Switch } from '@/components/ui/Switch'
 
 export default function Login() {
-    const navigate = useNavigate();
-    const [remember, setRemember] = useState<boolean>(false);
-    const [failedLogin, setFailedLogin] = useState<boolean>(false);
+    const navigate = useNavigate()
+    const qc = useQueryClient()
+    const [remember, setRemember] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-
-        API.post("/auth/token", formData)
-        .then((data) => {
-            const token = data.access_token;
-            TokenStorage.storeToken(token, remember);
-
-            navigate("/");
-        })
-        .catch((err) => {
-            if (err.response.status === 401) {
-                setFailedLogin(true);
+    const login = useMutation({
+        mutationFn: (formData: FormData) => API.post('/auth/token', formData),
+        onSuccess: (data) => {
+            TokenStorage.storeToken(data.access_token, remember)
+            qc.clear()
+            navigate('/')
+        },
+        onError: (err: any) => {
+            if (err?.response?.status === 401) {
+                setError('Incorrect username or password')
+            } else {
+                setError('Unable to log in. Please try again.')
             }
-        });
+        },
+    })
+
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        setError(null)
+        login.mutate(new FormData(event.currentTarget))
     }
 
     return (
-    <div className="h-full flex items-center">
-        <div className="container mx-auto max-w-xs text-center">
-            <Heading text="Jetlog" />
-            <form onSubmit={handleSubmit}>
-                { failedLogin ?
-                    <p className="mb-3 text-red-600">Incorrect username or password</p>
-                    : <></>
-                }
-                <Input type="text" name="username" placeholder="username" required/>
-                <Input type="password" name="password" placeholder="password" required/>
+        <div className="min-h-full flex items-center justify-center px-4 py-10">
+            <div className="w-full max-w-sm">
+                <h1 className="font-mono font-bold uppercase tracking-board text-2xl text-center mb-8">
+                    Jet<span className="text-accent-deep">log</span>
+                </h1>
 
-                <p className="inline mb-2">Remember me</p>
-                <Checkbox name="remember" onChange={(e) => setRemember(e.target.checked)}/>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                        <Label htmlFor="username">Username</Label>
+                        <Input
+                            id="username"
+                            name="username"
+                            type="text"
+                            autoComplete="username"
+                            autoFocus
+                            required
+                        />
+                    </div>
 
-                <br />
+                    <div>
+                        <Label htmlFor="password">Password</Label>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            autoComplete="current-password"
+                            required
+                        />
+                    </div>
 
-                <button className="py-1 px-2 my-2 w-2/3 
-                cursor-pointer bg-primary-500 text-white text-lg
-                font-bold hover:bg-primary-400" type="submit">Login</button>
-            </form>
+                    <label
+                        htmlFor="remember"
+                        className="flex items-center gap-2 cursor-pointer board-label pt-1"
+                    >
+                        <Switch
+                            id="remember"
+                            checked={remember}
+                            onCheckedChange={setRemember}
+                        />
+                        Remember me
+                    </label>
+
+                    {error && (
+                        <div className="border border-danger bg-danger-soft/40 text-danger px-3 py-2 text-xs font-mono">
+                            {error}
+                        </div>
+                    )}
+
+                    <Button
+                        type="submit"
+                        variant="accent"
+                        size="lg"
+                        className="w-full"
+                        disabled={login.isPending}
+                    >
+                        {login.isPending ? 'Signing in…' : 'Sign in'}
+                    </Button>
+                </form>
+            </div>
         </div>
-    </div>
-    );
+    )
 }

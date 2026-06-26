@@ -5,3 +5,9 @@ __pycache__
 package-lock.json
 .parcel-cache
 *.old
+
+data/*.db*
+
+# macOS duplicate copies
+* 2
+* 2.*
