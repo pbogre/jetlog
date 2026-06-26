@@ -30,7 +30,6 @@ A self-hostable personal flight tracker and viewer
 - 👥 Support for multiple users
 - 💾 Ability to import and export your data
 
-Visit the [usage wiki](https://github.com/pbogre/jetlog/wiki/Usage) for details on all the features of Jetlog
 
 ## Getting Started
 
