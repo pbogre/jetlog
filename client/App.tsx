@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
 import { BASE_URL } from './api'
+import { ToastProvider } from './components/Toast'
 
 import Login from './pages/Login'
 import Home from './pages/Home'
@@ -23,7 +24,8 @@ function Loading() {
 
 export function App() {
     return (
-        <BrowserRouter basename={BASE_URL}>
+        <ToastProvider>
+            <BrowserRouter basename={BASE_URL}>
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route element={<AppShell />}>
@@ -56,5 +58,6 @@ export function App() {
                 </Route>
             </Routes>
         </BrowserRouter>
+        </ToastProvider>
     )
 }
