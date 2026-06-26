@@ -62,11 +62,6 @@ const PREFS: PrefDef[] = [
         label: 'Frequency-based flight lines',
         description: 'Scale flight path thickness by trip frequency.',
     },
-    {
-        key: 'restrictWorldMap',
-        label: 'Restrict map to visited areas',
-        description: 'Auto-zoom the world map to your visited region.',
-    },
 ]
 
 export default function Settings() {

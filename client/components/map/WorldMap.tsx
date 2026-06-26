@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { ComposableMap, ZoomableGroup, Geographies, Geography, Marker, Line } from 'react-simple-maps'
 import { useDecorations, useWorldGeography } from '@/lib/queries'
 import ConfigStorage from '@/storage/configStorage'
@@ -26,7 +26,6 @@ export function WorldMap({ flightId, className, interactive = true }: WorldMapPr
     const showVisited = ConfigStorage.getSetting('showVisitedCountries') === 'true'
     const freqMarker = ConfigStorage.getSetting('frequencyBasedMarker') === 'true'
     const freqLine = ConfigStorage.getSetting('frequencyBasedLine') === 'true'
-    const restrict = ConfigStorage.getSetting('restrictWorldMap') === 'true'
 
     const { data: world } = useWorldGeography(showVisited)
     const { data: decor } = useDecorations(flightId)
@@ -38,31 +37,10 @@ export function WorldMap({ flightId, className, interactive = true }: WorldMapPr
     // Inverse-sqrt scaling keeps markers/lines visually constant as the user zooms.
     const sf = 1 / Math.sqrt(zoom)
 
-    const { initialZoom, center } = useMemo(() => {
-        if (!restrict || markers.length < 2) {
-            return { initialZoom: 1, center: [0, 0] as [number, number] }
-        }
-        const lats = markers.map((m) => m.latitude)
-        const lons = markers.map((m) => m.longitude)
-        const south = Math.min(...lats)
-        const north = Math.max(...lats)
-        const west = Math.min(...lons)
-        const east = Math.max(...lons)
-        const maxSpan = Math.max(east - west, north - south)
-        const z = Math.min(150 / maxSpan, 3)
-        if (z < 1) return { initialZoom: 1, center: [0, 0] as [number, number] }
-        return {
-            initialZoom: z,
-            center: [(west + east) / 2, (south + north) / 2] as [number, number],
-        }
-    }, [markers, restrict])
-
     return (
         <div className={className}>
             <ComposableMap width={MAP_W} height={MAP_H} style={{ width: '100%', height: 'auto', display: 'block' }}>
                 <ZoomableGroup
-                    zoom={initialZoom}
-                    center={center}
                     maxZoom={interactive ? 10 : 1}
                     minZoom={1}
                     filterZoomEvent={() => interactive}
@@ -86,7 +64,7 @@ export function WorldMap({ flightId, className, interactive = true }: WorldMapPr
                                         fill={geo.properties.visited ? COLORS.visited : COLORS.land}
                                         style={{
                                             default: { outline: 'none' },
-                                            hover: { outline: 'none', fill: geo.properties.visited ? '#FBE680' : '#F0EBDC' },
+                                            hover: { outline: 'none', fill: geo.properties.visited ? COLORS.visited : COLORS.land },
                                             pressed: { outline: 'none' },
                                         }}
                                     />
