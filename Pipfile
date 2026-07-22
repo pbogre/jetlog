@@ -12,6 +12,7 @@ python-multipart = "0.0.9"
 pyjwt = "2.9.0"
 argon2-cffi = "23.1.0"
 pytz = "*"
+sqlalchemy = "2.0.32"
 
 [requires]
 python_version = "3.11"
