@@ -70,8 +70,9 @@ async def get_world_geojson(visited: bool = False, user: User = Depends(get_curr
         visited_countries = [ r[0] for r in res ]
 
         for feature in geojson.get("features", []):
-            country_name = feature.get("properties", {}).get("name_en")
-            feature["properties"]["visited"] = country_name in visited_countries
+            country_name_subunit = feature.get("properties", {}).get("name_en")
+            country_name_en = feature.get("properties", {}).get("subunit")
+            feature["properties"]["visited"] = (country_name_en in visited_countries) or (country_name_subunit in visited_countries)
 
     return geojson
 
