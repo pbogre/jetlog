@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { App } from './App'
 import TokenStorage from './storage/tokenStorage'
 import './style.css'
+import './fonts.css'
 
 TokenStorage.loadStoredToken()
 

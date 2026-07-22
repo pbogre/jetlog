@@ -1,0 +1,28 @@
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('public/fonts/jetbrains-mono-v24-latin/jetbrains-mono-v24-latin-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('public/fonts/jetbrains-mono-v24-latin/jetbrains-mono-v24-latin-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('public/fonts/jetbrains-mono-v24-latin/jetbrains-mono-v24-latin-600.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('public/fonts/jetbrains-mono-v24-latin/jetbrains-mono-v24-latin-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
