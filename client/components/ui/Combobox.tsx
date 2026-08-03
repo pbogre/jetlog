@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import * as Popover from '@radix-ui/react-popover'
 import { ChevronDown, Search } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 
 export interface ComboboxOption<T = unknown> {
@@ -22,7 +23,7 @@ interface ComboboxProps<T> {
 }
 
 export function Combobox<T>({
-    placeholder = 'Search...',
+    placeholder,
     onSearch,
     onSelect,
     displayValue,
@@ -30,6 +31,7 @@ export function Combobox<T>({
     minChars = 2,
     className,
 }: ComboboxProps<T>) {
+    const { t } = useTranslation()
     const [open, setOpen] = useState(false)
     const [query, setQuery] = useState('')
     const [options, setOptions] = useState<ComboboxOption<T>[]>([])
@@ -69,8 +71,8 @@ export function Combobox<T>({
                         className,
                     )}
                 >
-                    <span className={cn(displayValue ? 'text-ink truncate' : 'text-ink-faint')}>
-                        {displayValue || placeholder}
+                <span className={cn(displayValue ? 'text-ink truncate' : 'text-ink-faint')}>
+                    {displayValue || placeholder || t('common.search')}
                     </span>
                     <ChevronDown size={14} className="text-ink-muted shrink-0" />
                 </button>
@@ -87,21 +89,25 @@ export function Combobox<T>({
                             autoFocus
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder={placeholder}
+                            placeholder={placeholder || t('common.search')}
                             className="flex-1 bg-transparent font-mono text-sm focus:outline-none"
                         />
                     </div>
                     <div className="max-h-64 overflow-y-auto">
                         {query.length < minChars && (
                             <p className="px-3 py-3 text-xs text-ink-muted">
-                                Type at least {minChars} characters
+                                {t('common.minChars', { count: minChars })}
                             </p>
                         )}
                         {loading && (
-                            <p className="px-3 py-3 text-xs text-ink-muted">Searching...</p>
+                            <p className="px-3 py-3 text-xs text-ink-muted">
+                                {t('common.searching')}
+                            </p>
                         )}
                         {!loading && query.length >= minChars && options.length === 0 && (
-                            <p className="px-3 py-3 text-xs text-ink-muted">No results</p>
+                            <p className="px-3 py-3 text-xs text-ink-muted">
+                                {t('common.noResults')}
+                            </p>
                         )}
                         {options.map((opt) => (
                             <button

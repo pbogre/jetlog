@@ -1,28 +1,31 @@
 import { useState } from 'react'
 import { Link, Outlet, useLocation } from 'react-router-dom'
 import { Menu } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { NavSheet } from './NavSheet'
 import { BoardClock } from './BoardClock'
-
-const TITLES: Record<string, string> = {
-    '/': 'Dashboard',
-    '/flights': 'Flights',
-    '/new': 'New Flight',
-    '/statistics': 'Statistics',
-    '/settings': 'Settings',
-}
-
-function pageTitle(pathname: string) {
-    if (TITLES[pathname]) return TITLES[pathname]
-    const match = Object.keys(TITLES)
-        .filter((p) => p !== '/')
-        .find((p) => pathname.startsWith(p))
-    return match ? TITLES[match] : 'Jetlog'
-}
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function AppShell() {
     const [menuOpen, setMenuOpen] = useState(false)
     const location = useLocation()
+    const { t } = useTranslation()
+
+    const titles: Record<string, string> = {
+        '/': t('nav.dashboard'),
+        '/flights': t('nav.flights'),
+        '/new': t('nav.newFlight'),
+        '/statistics': t('nav.statistics'),
+        '/settings': t('nav.settings'),
+    }
+
+    const pageTitle = (pathname: string) => {
+        if (titles[pathname]) return titles[pathname]
+        const match = Object.keys(titles)
+            .filter((p) => p !== '/')
+            .find((p) => pathname.startsWith(p))
+        return match ? titles[match] : 'Jetlog'
+    }
 
     return (
         <div className="min-h-full flex flex-col">
@@ -42,10 +45,11 @@ export function AppShell() {
                     </div>
 
                     <div className="flex items-center gap-4">
+                        <LanguageSwitcher />
                         <BoardClock />
                         <button
                             onClick={() => setMenuOpen(true)}
-                            aria-label="Open menu"
+                            aria-label={t('common.openMenu')}
                             className="p-1.5 -mr-1.5 text-ink hover:text-accent-deep"
                         >
                             <Menu size={22} strokeWidth={1.75} />

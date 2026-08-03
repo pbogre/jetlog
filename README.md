@@ -43,6 +43,7 @@ services:
     environment:
         JETLOG_PORT: 3000 # optional, default is 3000
         SECRET_KEY: yourLongAndRandomStringOfCharacters123!
+        DEFAULT_LANGUAGE: en # optional default UI language: en, zh-CN, zh-TW, ja, ko, fr, de, es
     restart: unless-stopped
     ports:
       - 3000:3000

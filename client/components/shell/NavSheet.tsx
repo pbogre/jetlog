@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { Home, PlaneTakeoff, Plus, BarChart3, Settings as Cog, LogOut, X, UserRound } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 import TokenStorage from '@/storage/tokenStorage'
 import { useCurrentUser } from '@/lib/queries'
@@ -11,19 +12,20 @@ interface NavSheetProps {
     onClose: () => void
 }
 
-const NAV_ITEMS = [
-    { to: '/', label: 'Home', icon: Home },
-    { to: '/flights', label: 'Flights', icon: PlaneTakeoff },
-    { to: '/new', label: 'New Flight', icon: Plus },
-    { to: '/statistics', label: 'Statistics', icon: BarChart3 },
-    { to: '/settings', label: 'Settings', icon: Cog },
-]
-
 export function NavSheet({ open, onClose }: NavSheetProps) {
     const location = useLocation()
     const navigate = useNavigate()
     const qc = useQueryClient()
     const { data: me } = useCurrentUser()
+    const { t } = useTranslation()
+
+    const NAV_ITEMS = [
+        { to: '/', label: t('nav.home'), icon: Home },
+        { to: '/flights', label: t('nav.flights'), icon: PlaneTakeoff },
+        { to: '/new', label: t('nav.newFlight'), icon: Plus },
+        { to: '/statistics', label: t('nav.statistics'), icon: BarChart3 },
+        { to: '/settings', label: t('nav.settings'), icon: Cog },
+    ]
 
     useEffect(() => {
         if (!open) return
@@ -56,14 +58,14 @@ export function NavSheet({ open, onClose }: NavSheetProps) {
             />
             <aside
                 role="dialog"
-                aria-label="Navigation"
+                aria-label={t('common.navigation')}
                 className="absolute right-0 top-0 h-full w-[86%] max-w-[360px] bg-paper border-l border-rule shadow-paper animate-slide-in-right flex flex-col"
             >
                 <div className="flex items-center justify-between px-5 h-14 border-b border-rule">
-                    <span className="board-label">Menu</span>
+                    <span className="board-label">{t('common.menu')}</span>
                     <button
                         onClick={onClose}
-                        aria-label="Close menu"
+                        aria-label={t('common.closeMenu')}
                         className="p-1 -mr-1 hover:text-accent-deep"
                     >
                         <X size={20} />
@@ -105,13 +107,13 @@ export function NavSheet({ open, onClose }: NavSheetProps) {
                             </div>
                             <div className="min-w-0">
                                 <div className="board-label text-ink-muted leading-none">
-                                    Signed in as
+                                    {t('common.signedInAs')}
                                 </div>
                                 <div className="font-mono text-sm text-ink truncate">
                                     {me.username}
                                     {me.isAdmin && (
                                         <span className="ml-2 text-[10px] uppercase tracking-board text-accent-deep">
-                                            admin
+                                            {t('common.admin')}
                                         </span>
                                     )}
                                 </div>
@@ -123,7 +125,9 @@ export function NavSheet({ open, onClose }: NavSheetProps) {
                         className="w-full flex items-center gap-3 px-2 py-2.5 text-ink-soft hover:text-danger transition-colors"
                     >
                         <LogOut size={18} strokeWidth={1.75} />
-                        <span className="font-mono uppercase tracking-board text-sm">Logout</span>
+                        <span className="font-mono uppercase tracking-board text-sm">
+                            {t('common.logout')}
+                        </span>
                     </button>
                 </div>
             </aside>

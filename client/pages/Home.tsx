@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Plane } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import { useCurrentUser, useFlights, useStatistics } from '@/lib/queries'
 
@@ -41,6 +42,7 @@ function StatCell({ label, value, unit, delay = 0 }: StatCellProps) {
 
 function CountersStrip() {
     const metric = ConfigStorage.getSetting('metricUnits') !== 'false'
+    const { t } = useTranslation()
     const { data: me } = useCurrentUser()
     const { data: stats, isLoading } = useStatistics(
         { metric, username: me?.username },
@@ -58,21 +60,21 @@ function CountersStrip() {
     return (
         <Panel className="overflow-x-auto">
             <div className="flex divide-x divide-rule min-w-max">
-                <StatCell label="Flights" value={formatNumber(stats.totalFlights)} delay={0} />
-                <StatCell label="Airports" value={formatNumber(stats.totalUniqueAirports)} delay={80} />
+                <StatCell label={t('home.flights')} value={formatNumber(stats.totalFlights)} delay={0} />
+                <StatCell label={t('home.airports')} value={formatNumber(stats.totalUniqueAirports)} delay={80} />
                 <StatCell
-                    label="Hours"
+                    label={t('home.hours')}
                     value={formatNumber(Math.round(stats.totalDuration / 60))}
                     delay={160}
                 />
                 <StatCell
-                    label="Distance"
+                    label={t('home.distance')}
                     value={formatNumber(stats.totalDistance)}
-                    unit={metric ? 'km' : 'mi'}
+                    unit={metric ? t('home.km') : t('home.mi')}
                     delay={240}
                 />
                 <StatCell
-                    label="Countries"
+                    label={t('home.countries')}
                     value={formatNumber(stats.visitedCountries)}
                     delay={320}
                 />
@@ -112,6 +114,7 @@ function RecentFlightRow({ flight }: { flight: Flight }) {
 
 function RecentFlights() {
     const { data: me } = useCurrentUser()
+    const { t } = useTranslation()
     const { data: flights, isLoading } = useFlights({
         limit: 5,
         sort: 'date',
@@ -122,12 +125,12 @@ function RecentFlights() {
     return (
         <Panel>
             <PanelHeader>
-                <PanelTitle>Recent flights</PanelTitle>
+                <PanelTitle>{t('home.recentFlights')}</PanelTitle>
                 <Link
                     to="/flights"
                     className="board-label text-ink-muted hover:text-ink flex items-center gap-1"
                 >
-                    All flights <ArrowRight size={12} />
+                    {t('home.allFlights')} <ArrowRight size={12} />
                 </Link>
             </PanelHeader>
             {isLoading ? (
@@ -143,7 +146,11 @@ function RecentFlights() {
             ) : (
                 <PanelBody className="text-center text-ink-muted text-sm py-10">
                     <Plane className="mx-auto mb-2 text-ink-faint" size={28} strokeWidth={1.5} />
-                    No flights yet. <Link to="/new" className="text-accent-deep underline">Add your first flight</Link>.
+                    {t('home.noFlights')}{' '}
+                    <Link to="/new" className="text-accent-deep underline">
+                        {t('home.addFirstFlight')}
+                    </Link>
+                    .
                 </PanelBody>
             )}
         </Panel>
@@ -151,15 +158,17 @@ function RecentFlights() {
 }
 
 export default function Home() {
+    const { t } = useTranslation()
+
     return (
         <div className="p-4 md:p-6 space-y-4 md:space-y-6 max-w-7xl mx-auto">
             <CountersStrip />
 
             <Panel>
                 <PanelHeader>
-                    <PanelTitle>World map</PanelTitle>
+                    <PanelTitle>{t('home.worldMap')}</PanelTitle>
                     <span className="board-label text-ink-muted hidden sm:inline">
-                        Visited airports & routes
+                        {t('home.mapSubtitle')}
                     </span>
                 </PanelHeader>
                 <Suspense

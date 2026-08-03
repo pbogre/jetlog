@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
 import API from '@/api'
 import TokenStorage from '@/storage/tokenStorage'
@@ -12,6 +13,7 @@ import { Switch } from '@/components/ui/Switch'
 export default function Login() {
     const navigate = useNavigate()
     const qc = useQueryClient()
+    const { t } = useTranslation()
     const [remember, setRemember] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -24,9 +26,9 @@ export default function Login() {
         },
         onError: (err: any) => {
             if (err?.response?.status === 401) {
-                setError('Incorrect username or password')
+                setError(t('login.incorrect'))
             } else {
-                setError('Unable to log in. Please try again.')
+                setError(t('login.unable'))
             }
         },
     })
@@ -46,7 +48,7 @@ export default function Login() {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <Label htmlFor="username">Username</Label>
+                        <Label htmlFor="username">{t('login.username')}</Label>
                         <Input
                             id="username"
                             name="username"
@@ -58,7 +60,7 @@ export default function Login() {
                     </div>
 
                     <div>
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password">{t('login.password')}</Label>
                         <Input
                             id="password"
                             name="password"
@@ -77,7 +79,7 @@ export default function Login() {
                             checked={remember}
                             onCheckedChange={setRemember}
                         />
-                        Remember me
+                        {t('login.rememberMe')}
                     </label>
 
                     {error && (
@@ -93,7 +95,7 @@ export default function Login() {
                         className="w-full"
                         disabled={login.isPending}
                     >
-                        {login.isPending ? 'Signing in…' : 'Sign in'}
+                        {login.isPending ? t('login.signingIn') : t('login.signIn')}
                     </Button>
                 </form>
             </div>

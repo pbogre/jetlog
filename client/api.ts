@@ -3,10 +3,15 @@ import TokenStorage from './storage/tokenStorage';
 import { showToast } from './components/Toast';
 
 const config = await fetch('./config').then((response) => response.json())
-                                      .catch(() => ({ BASE_URL: '/', ENABLE_EXTERNAL_APIS: true }));
+                                      .catch(() => ({
+                                          BASE_URL: '/',
+                                          ENABLE_EXTERNAL_APIS: true,
+                                          DEFAULT_LANGUAGE: undefined,
+                                      }));
 
 export const BASE_URL = config.BASE_URL == '/' ? '' : config.BASE_URL;
 export const ENABLE_EXTERNAL_APIS = config.ENABLE_EXTERNAL_APIS;
+export const DEFAULT_LANGUAGE: string | undefined = config.DEFAULT_LANGUAGE ?? undefined;
 
 // TODO improve this because there's a lot of repetition (get, post, delete are pretty much exactly the same)
 // perhaps one method for each endpoint? i.e. API.getFlights(), ...

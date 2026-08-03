@@ -4,6 +4,9 @@ dist
 __pycache__
 package-lock.json
 .parcel-cache
+.pnpm-store/
+pnpm-lock.yaml
+.pytest_cache/
 *.old
 
 data/*.db*

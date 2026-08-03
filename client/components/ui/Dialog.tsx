@@ -1,6 +1,7 @@
 import * as RDialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 
 interface DialogProps {
@@ -13,6 +14,8 @@ interface DialogProps {
 }
 
 export function Dialog({ open, onOpenChange, title, description, children, className }: DialogProps) {
+    const { t } = useTranslation()
+
     return (
         <RDialog.Root open={open} onOpenChange={onOpenChange}>
             <RDialog.Portal>
@@ -29,7 +32,7 @@ export function Dialog({ open, onOpenChange, title, description, children, class
                     <div className="flex items-center justify-between gap-4 px-4 h-11 border-b border-rule">
                         <RDialog.Title className="board-label text-ink">{title}</RDialog.Title>
                         <RDialog.Close
-                            aria-label="Close"
+                            aria-label={t('common.close')}
                             className="p-1 -mr-1 hover:text-accent-deep"
                         >
                             <X size={18} />

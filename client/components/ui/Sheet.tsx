@@ -1,6 +1,7 @@
 import * as RDialog from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import { cn } from '@/lib/cn'
 
 interface SheetProps {
@@ -13,6 +14,7 @@ interface SheetProps {
 }
 
 export function Sheet({ open, onOpenChange, title, side = 'right', children, className }: SheetProps) {
+    const { t } = useTranslation()
     const sideClasses =
         side === 'right'
             ? 'right-0 top-0 h-full w-[92%] max-w-md border-l animate-slide-in-right'
@@ -31,7 +33,7 @@ export function Sheet({ open, onOpenChange, title, side = 'right', children, cla
                 >
                     <div className="flex items-center justify-between gap-4 px-4 h-12 border-b border-rule shrink-0">
                         <RDialog.Title className="board-label text-ink">{title}</RDialog.Title>
-                        <RDialog.Close aria-label="Close" className="p-1 -mr-1 hover:text-accent-deep">
+                        <RDialog.Close aria-label={t('common.close')} className="p-1 -mr-1 hover:text-accent-deep">
                             <X size={18} />
                         </RDialog.Close>
                     </div>

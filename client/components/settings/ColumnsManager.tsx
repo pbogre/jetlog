@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
     DndContext,
     closestCenter,
@@ -35,6 +36,7 @@ function emitChanged() {
 
 export function ColumnsManager() {
     const [prefs, setPrefs] = useState<ColumnPref[]>(() => loadColumnPrefs())
+    const { t } = useTranslation()
 
     const update = (next: ColumnPref[]) => {
         setPrefs(next)
@@ -85,15 +87,14 @@ export function ColumnsManager() {
             <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div>
                     <p className="board-label text-ink-muted">
-                        {visibleCount} of {prefs.length} columns visible
+                        {t('columns.visibleOf', { visible: visibleCount, total: prefs.length })}
                     </p>
                     <p className="text-xs text-ink-muted font-mono mt-0.5">
-                        Drag rows to reorder · toggle to show/hide · origin and
-                        destination are required.
+                        {t('columns.hint')}
                     </p>
                 </div>
                 <Button variant="outline" size="sm" onClick={resetAll}>
-                    <RotateCcw size={13} /> Reset
+                    <RotateCcw size={13} /> {t('common.reset')}
                 </Button>
             </div>
 
@@ -127,6 +128,7 @@ interface ColumnRowProps {
 }
 
 function ColumnRow({ pref, onToggle }: ColumnRowProps) {
+    const { t } = useTranslation()
     const def = COLUMN_INDEX[pref.id]
     const {
         attributes,
@@ -155,14 +157,14 @@ function ColumnRow({ pref, onToggle }: ColumnRowProps) {
                 type="button"
                 {...attributes}
                 {...listeners}
-                aria-label="Drag to reorder"
+                aria-label={t('columns.dragToReorder')}
                 className="cursor-grab active:cursor-grabbing text-ink-faint hover:text-ink touch-none"
             >
                 <GripVertical size={16} />
             </button>
             <div className="flex-1 min-w-0">
                 <div className="font-mono text-sm text-ink truncate">
-                    {def?.label ?? pref.id}
+                    {def?.label ? def.label(t) : pref.id}
                 </div>
                 <div className="text-[10px] font-mono uppercase tracking-board text-ink-faint">
                     {pref.id}
@@ -170,10 +172,10 @@ function ColumnRow({ pref, onToggle }: ColumnRowProps) {
             </div>
             {required ? (
                 <span
-                    title="Required column"
+                    title={t('columns.requiredColumn')}
                     className="flex items-center gap-1 board-label text-ink-muted"
                 >
-                    <Lock size={12} /> Required
+                    <Lock size={12} /> {t('columns.required')}
                 </span>
             ) : pref.visible ? (
                 <Eye size={14} className="text-ink-muted" />
@@ -184,7 +186,9 @@ function ColumnRow({ pref, onToggle }: ColumnRowProps) {
                 checked={pref.visible}
                 onCheckedChange={onToggle}
                 disabled={required}
-                aria-label={`Show ${def?.label ?? pref.id}`}
+                aria-label={t('columns.showColumn', {
+                    label: def?.label ? def.label(t) : pref.id,
+                })}
             />
         </div>
     )

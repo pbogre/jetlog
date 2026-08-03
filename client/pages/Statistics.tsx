@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Filter, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import {
     useCurrentUser,
@@ -64,12 +65,13 @@ function FiltersSheet({
 }: FiltersSheetProps) {
     const { data: usernames } = useUsernames()
     const [draft, setDraft] = useState<StatsFilters>(filters)
+    const { t } = useTranslation()
 
     return (
-        <Sheet open={open} onOpenChange={onOpenChange} title="Filter statistics">
+        <Sheet open={open} onOpenChange={onOpenChange} title={t('statistics.filter')}>
             <div className="space-y-4">
                 <div>
-                    <Label>Start date</Label>
+                    <Label>{t('allFlights.startDate')}</Label>
                     <Input
                         type="date"
                         value={draft.start ?? ''}
@@ -77,7 +79,7 @@ function FiltersSheet({
                     />
                 </div>
                 <div>
-                    <Label>End date</Label>
+                    <Label>{t('allFlights.endDate')}</Label>
                     <Input
                         type="date"
                         value={draft.end ?? ''}
@@ -86,7 +88,7 @@ function FiltersSheet({
                 </div>
                 {isAdmin && (
                     <div>
-                        <Label>User</Label>
+                        <Label>{t('allFlights.user')}</Label>
                         <Select
                             value={draft.username ?? selfUsername ?? ''}
                             onChange={(e) =>
@@ -95,7 +97,7 @@ function FiltersSheet({
                         >
                             {usernames?.map((u) => (
                                 <option key={u} value={u}>
-                                    {u === selfUsername ? `${u} (you)` : u}
+                                    {u === selfUsername ? `${u} ${t('newFlight.you')}` : u}
                                 </option>
                             ))}
                         </Select>
@@ -111,7 +113,7 @@ function FiltersSheet({
                             onOpenChange(false)
                         }}
                     >
-                        Clear
+                        {t('allFlights.clearAll')}
                     </Button>
                     <Button
                         variant="accent"
@@ -125,7 +127,7 @@ function FiltersSheet({
                             onOpenChange(false)
                         }}
                     >
-                        Apply
+                        {t('allFlights.apply')}
                     </Button>
                 </div>
             </div>
@@ -191,9 +193,11 @@ function RecentSpanFilter({
     unit: RecentUnit
     onChange: (amount: string, unit: RecentUnit) => void
 }) {
+    const { t } = useTranslation()
+
     return (
         <div className="flex items-center gap-2 flex-wrap">
-            <span className="board-label text-ink-muted shrink-0">Last</span>
+            <span className="board-label text-ink-muted shrink-0">{t('statistics.last')}</span>
             <Input
                 type="number"
                 min={1}
@@ -208,14 +212,14 @@ function RecentSpanFilter({
                 className="h-8 w-auto min-w-[100px]"
             >
                 <option value="">—</option>
-                <option value="days">days</option>
-                <option value="weeks">weeks</option>
-                <option value="months">months</option>
-                <option value="years">years</option>
+                <option value="days">{t('statistics.days')}</option>
+                <option value="weeks">{t('statistics.weeks')}</option>
+                <option value="months">{t('statistics.months')}</option>
+                <option value="years">{t('statistics.years')}</option>
             </Select>
             {(!amount || !unit) && (
                 <span className="text-xs font-mono text-ink-faint hidden sm:inline">
-                    all time
+                    {t('statistics.allTime')}
                 </span>
             )}
         </div>
@@ -225,6 +229,7 @@ function RecentSpanFilter({
 export default function Statistics() {
     const metric = ConfigStorage.getSetting('metricUnits') !== 'false'
     const { data: me } = useCurrentUser()
+    const { t } = useTranslation()
     const [filters, setFilters] = useState<StatsFilters>({})
     const [filtersOpen, setFiltersOpen] = useState(false)
     const [recentAmount, setRecentAmount] = useState('')
@@ -257,7 +262,7 @@ export default function Statistics() {
         <div className="max-w-7xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
             <div className="flex items-center justify-between gap-3 flex-wrap">
                 <div className="flex items-center gap-4 flex-wrap">
-                    <h1 className="font-mono uppercase tracking-board text-base">Statistics</h1>
+                    <h1 className="font-mono uppercase tracking-board text-base">{t('statistics.title')}</h1>
                     <RecentSpanFilter
                         amount={recentAmount}
                         unit={recentUnit}
@@ -267,10 +272,10 @@ export default function Statistics() {
                 <div className="flex items-center gap-2 flex-wrap">
                     {filters.start && (
                         <Badge variant="accent" className="gap-1.5 pl-2 pr-1 py-1">
-                            From {filters.start}
+                            {t('allFlights.from', { date: filters.start })}
                             <button
                                 onClick={() => setFilters({ ...filters, start: undefined })}
-                                aria-label="Remove"
+                                aria-label={t('common.remove')}
                             >
                                 <X size={11} />
                             </button>
@@ -278,10 +283,10 @@ export default function Statistics() {
                     )}
                     {filters.end && (
                         <Badge variant="accent" className="gap-1.5 pl-2 pr-1 py-1">
-                            To {filters.end}
+                            {t('allFlights.to', { date: filters.end })}
                             <button
                                 onClick={() => setFilters({ ...filters, end: undefined })}
-                                aria-label="Remove"
+                                aria-label={t('common.remove')}
                             >
                                 <X size={11} />
                             </button>
@@ -289,10 +294,10 @@ export default function Statistics() {
                     )}
                     {filters.username && filters.username !== me?.username && (
                         <Badge variant="accent" className="gap-1.5 pl-2 pr-1 py-1">
-                            User {filters.username}
+                            {t('allFlights.userFilter', { username: filters.username })}
                             <button
                                 onClick={() => setFilters({ ...filters, username: undefined })}
-                                aria-label="Remove"
+                                aria-label={t('common.remove')}
                             >
                                 <X size={11} />
                             </button>
@@ -300,7 +305,7 @@ export default function Statistics() {
                     )}
                     <Button variant="outline" size="sm" onClick={() => setFiltersOpen(true)}>
                         <Filter size={13} />
-                        Filters
+                        {t('allFlights.filters')}
                         {activeCount > 0 && (
                             <span className="ml-1 bg-accent text-ink px-1.5 text-[10px] font-bold">
                                 {activeCount}
@@ -319,28 +324,28 @@ export default function Statistics() {
                     {/* Top counters */}
                     <Panel className="overflow-x-auto">
                         <div className="flex divide-x divide-rule min-w-max">
-                            <StatCell label="Flights" value={formatNum(stats.totalFlights)} delay={0} />
-                            <StatCell label="Airports" value={formatNum(stats.totalUniqueAirports)} delay={80} />
+                            <StatCell label={t('statistics.flights')} value={formatNum(stats.totalFlights)} delay={0} />
+                            <StatCell label={t('statistics.airports')} value={formatNum(stats.totalUniqueAirports)} delay={80} />
                             <StatCell
-                                label="Hours"
+                                label={t('statistics.hours')}
                                 value={formatNum(Math.round(stats.totalDuration / 60))}
                                 delay={160}
                             />
                             <StatCell
-                                label="Distance"
+                                label={t('statistics.distance')}
                                 value={formatNum(stats.totalDistance)}
-                                unit={metric ? 'km' : 'mi'}
+                                unit={metric ? t('statistics.km') : t('statistics.mi')}
                                 delay={240}
                             />
-                            <StatCell label="Countries" value={formatNum(stats.visitedCountries)} delay={320} />
-                            <StatCell label="Day range" value={formatNum(stats.daysRange)} unit="days" delay={400} />
+                            <StatCell label={t('statistics.countries')} value={formatNum(stats.visitedCountries)} delay={320} />
+                            <StatCell label={t('statistics.dayRange')} value={formatNum(stats.daysRange)} unit={t('statistics.days')} delay={400} />
                         </div>
                     </Panel>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-                        <FlightsPerMonthChart title="Flights per month" data={timeline} />
+                        <FlightsPerMonthChart title={t('statistics.flightsPerMonth')} data={timeline} />
                         <CumulativeDistanceChart
-                            title="Cumulative distance"
+                            title={t('statistics.cumulativeDistance')}
                             data={timeline}
                             metric={metric}
                         />
@@ -348,29 +353,29 @@ export default function Statistics() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                         <FrequencyBarChart
-                            title="Most visited airports"
+                            title={t('statistics.mostVisitedAirports')}
                             data={stats.mostVisitedAirports as any}
-                            label="visits"
+                            label={t('statistics.visits')}
                         />
                         <FrequencyBarChart
-                            title="Most common airlines"
+                            title={t('statistics.mostCommonAirlines')}
                             data={stats.mostCommonAirlines as any}
-                            label="flights"
+                            label={t('statistics.flights')}
                         />
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
                         <FrequencyDonut
-                            title="Ticket class"
+                            title={t('statistics.ticketClass')}
                             data={stats.ticketClassFrequency as any}
                         />
-                        <FrequencyDonut title="Seat" data={stats.seatFrequency as any} />
+                        <FrequencyDonut title={t('statistics.seat')} data={stats.seatFrequency as any} />
                     </div>
 
                     <FrequencyBarChart
-                        title="Most common countries"
+                        title={t('statistics.mostCommonCountries')}
                         data={stats.mostCommonCountries as any}
-                        label="flights"
+                        label={t('statistics.flights')}
                     />
                 </>
             )}

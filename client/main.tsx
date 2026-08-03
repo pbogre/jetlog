@@ -5,6 +5,7 @@ import { App } from './App'
 import TokenStorage from './storage/tokenStorage'
 import './style.css'
 import './fonts.css'
+import './i18n'
 
 TokenStorage.loadStoredToken()
 

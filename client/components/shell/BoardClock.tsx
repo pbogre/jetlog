@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export function BoardClock() {
     const [now, setNow] = useState(() => new Date())
+    const { t } = useTranslation()
 
     useEffect(() => {
         const t = window.setInterval(() => setNow(new Date()), 1000)
@@ -14,7 +16,7 @@ export function BoardClock() {
 
     return (
         <div className="hidden md:flex items-baseline gap-2">
-            <span className="board-label">UTC</span>
+            <span className="board-label">{t('common.utc')}</span>
             <span className="board-value text-sm tracking-board">
                 {hh}:{mm}
                 <span className="text-ink-faint">:{ss}</span>

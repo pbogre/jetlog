@@ -12,6 +12,7 @@ import {
     XAxis,
     YAxis,
 } from 'recharts'
+import { useTranslation } from 'react-i18next'
 
 import { Panel, PanelHeader, PanelTitle, PanelBody } from '@/components/ui/Panel'
 
@@ -38,6 +39,7 @@ interface FrequencyChartProps {
 }
 
 export function FrequencyBarChart({ title, data, label = 'count' }: FrequencyChartProps) {
+    const { t } = useTranslation()
     const entries = Object.entries(data ?? {})
         .map(([name, value]) => ({ name, value }))
         .slice(0, 8)
@@ -50,7 +52,7 @@ export function FrequencyBarChart({ title, data, label = 'count' }: FrequencyCha
             <PanelBody className="pt-2">
                 {entries.length === 0 ? (
                     <p className="text-center text-ink-muted text-sm py-8 font-mono">
-                        No data
+                        {t('common.noData')}
                     </p>
                 ) : (
                     <ResponsiveContainer width="100%" height={Math.max(220, entries.length * 32)}>
@@ -94,6 +96,7 @@ export function FrequencyBarChart({ title, data, label = 'count' }: FrequencyCha
 }
 
 export function FrequencyDonut({ title, data }: FrequencyChartProps) {
+    const { t } = useTranslation()
     const entries = Object.entries(data ?? {}).map(([name, value]) => ({ name, value }))
     const total = entries.reduce((sum, e) => sum + e.value, 0)
 
@@ -105,7 +108,7 @@ export function FrequencyDonut({ title, data }: FrequencyChartProps) {
             <PanelBody>
                 {entries.length === 0 ? (
                     <p className="text-center text-ink-muted text-sm py-8 font-mono">
-                        No data
+                        {t('common.noData')}
                     </p>
                 ) : (
                     <div className="flex items-center gap-6">
@@ -170,6 +173,8 @@ interface TimelineChartProps {
 }
 
 export function FlightsPerMonthChart({ title, data }: { title: string; data: TimelinePoint[] }) {
+    const { t } = useTranslation()
+
     return (
         <Panel>
             <PanelHeader>
@@ -177,7 +182,9 @@ export function FlightsPerMonthChart({ title, data }: { title: string; data: Tim
             </PanelHeader>
             <PanelBody>
                 {data.length === 0 ? (
-                    <p className="text-center text-ink-muted text-sm py-8 font-mono">No data</p>
+                    <p className="text-center text-ink-muted text-sm py-8 font-mono">
+                        {t('common.noData')}
+                    </p>
                 ) : (
                     <ResponsiveContainer width="100%" height={240}>
                         <BarChart data={data} margin={{ top: 8, right: 12, left: -16, bottom: 0 }}>
@@ -202,7 +209,7 @@ export function FlightsPerMonthChart({ title, data }: { title: string; data: Tim
                                 labelStyle={labelStyle}
                                 itemStyle={itemStyle}
                                 separator=""
-                                formatter={(v: number) => [`${v} flights`, '']}
+                                formatter={(v: number) => [`${v} ${t('statistics.flights')}`, '']}
                             />
                             <Bar dataKey="flights" fill={ACCENT} stroke={INK} strokeWidth={1} />
                         </BarChart>
@@ -214,15 +221,21 @@ export function FlightsPerMonthChart({ title, data }: { title: string; data: Tim
 }
 
 export function CumulativeDistanceChart({ title, data, metric }: TimelineChartProps) {
+    const { t } = useTranslation()
+
     return (
         <Panel>
             <PanelHeader>
                 <PanelTitle>{title}</PanelTitle>
-                <span className="board-label text-ink-muted">{metric ? 'km' : 'mi'}</span>
+                <span className="board-label text-ink-muted">
+                    {metric ? t('statistics.km') : t('statistics.mi')}
+                </span>
             </PanelHeader>
             <PanelBody>
                 {data.length === 0 ? (
-                    <p className="text-center text-ink-muted text-sm py-8 font-mono">No data</p>
+                    <p className="text-center text-ink-muted text-sm py-8 font-mono">
+                        {t('common.noData')}
+                    </p>
                 ) : (
                     <ResponsiveContainer width="100%" height={240}>
                         <LineChart data={data} margin={{ top: 8, right: 12, left: -8, bottom: 0 }}>

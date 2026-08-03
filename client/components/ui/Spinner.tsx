@@ -1,6 +1,9 @@
 import { cn } from '@/lib/cn'
+import { useTranslation } from 'react-i18next'
 
 export function Spinner({ className }: { className?: string }) {
+    const { t } = useTranslation()
+
     return (
         <span
             className={cn(
@@ -8,7 +11,7 @@ export function Spinner({ className }: { className?: string }) {
                 className,
             )}
             role="status"
-            aria-label="Loading"
+            aria-label={t('common.loading')}
         />
     )
 }
