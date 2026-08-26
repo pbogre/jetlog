@@ -104,15 +104,9 @@ async def add_many_flights(flights: list[FlightModel], timezones: bool = True, u
     return creator_flight_id
 
 @router.post("", status_code=201)
-async def add_flight(flight: FlightModel, timezones: bool = True, user: User = Depends(get_current_user)) -> int:
-    # only admins may add flights for other users
-    if flight.username != user.username and not user.is_admin:
-        raise HTTPException(status_code=403, detail="Only admins can add flights for other users")
-
-    if not (flight.date and flight.origin and flight.destination):
-        raise HTTPException(status_code=404,
-                            detail="Insufficient flight data. Date, Origin, and Destination are required")
-
+async def complete_flight_metrics(flight: FlightModel, timezones: bool = True) -> FlightModel:
+    # compute distance/duration the same way new flights are created,
+    # so overwriting a flight does not wipe derived metrics
     # if distance not given, calculate it
     if not flight.distance:
         flight.distance = await spherical_distance(flight.origin, flight.destination)
@@ -129,6 +123,20 @@ async def add_flight(flight: FlightModel, timezones: bool = True, user: User = D
             arrival = to_utc(arrival, flight.destination)
 
         flight.duration = duration(departure, arrival)
+
+    return flight
+
+@router.post("", status_code=201)
+async def add_flight(flight: FlightModel, timezones: bool = True, user: User = Depends(get_current_user)) -> int:
+    # only admins may add flights for other users
+    if flight.username != user.username and not user.is_admin:
+        raise HTTPException(status_code=403, detail="Only admins can add flights for other users")
+
+    if not (flight.date and flight.origin and flight.destination):
+        raise HTTPException(status_code=404,
+                            detail="Insufficient flight data. Date, Origin, and Destination are required")
+
+    await complete_flight_metrics(flight, timezones)
 
     columns = FlightModel.get_attributes(ignore=["id"])
 

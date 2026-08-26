@@ -1,8 +1,7 @@
 from server.database import database
-from server.models import User
+from server.models import CustomModel, User
 from server.auth.users import get_current_user
 
-from models import CustomModel
 from fastapi import APIRouter, Depends
 from pathlib import Path
 import json

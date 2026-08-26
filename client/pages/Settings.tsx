@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import {
@@ -29,6 +29,37 @@ import { Dialog } from '@/components/ui/Dialog'
 import { Badge } from '@/components/ui/Badge'
 import { DataBlock } from '@/components/ui/DataBlock'
 import { Spinner } from '@/components/ui/Spinner'
+import { showToast } from '@/components/Toast'
+import {
+    ImportConflictsDialog,
+    type ConflictAction,
+    type ImportConflict,
+} from '@/components/settings/ImportConflictsDialog'
+
+interface ImportPreviewRow {
+    index: number
+    status: 'new' | 'identical' | 'mergeable' | 'conflict'
+    flight: Record<string, unknown>
+    match_id: number | null
+    ambiguous: boolean
+    conflicts: string[]
+    gaps: string[]
+    existing: Record<string, unknown> | null
+}
+
+interface ImportPreview {
+    rows: ImportPreviewRow[]
+    counts: Record<string, number>
+    failed: number
+}
+
+interface ImportTotals {
+    imported: number
+    merged: number
+    overwritten: number
+    ignored: number
+    failed: number
+}
 
 interface PrefDef {
     key: keyof ConfigInterface
@@ -162,6 +193,75 @@ function DataPanel() {
     const navigate = useNavigate()
     const [importing, setImporting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [pendingConflicts, setPendingConflicts] = useState<ImportConflict[] | null>(null)
+
+    const filesRef = useRef<Array<[string, File]>>([])
+    const previewRef = useRef<ImportPreview | null>(null)
+    const totalsRef = useRef<ImportTotals>({
+        imported: 0,
+        merged: 0,
+        overwritten: 0,
+        ignored: 0,
+        failed: 0,
+    })
+
+    const applyPreview = async (preview: ImportPreview, decisions: Record<number, ConflictAction>) => {
+        const result = await API.post('/importing/apply', {
+            rows: preview.rows.map((row) => ({
+                index: row.index,
+                flight: row.flight,
+                match_id: row.match_id ?? null,
+                action:
+                    decisions[row.index] ??
+                    (row.status === 'new' ? 'insert' : row.status === 'mergeable' ? 'merge' : 'ignore'),
+            })),
+        })
+        const totals = totalsRef.current
+        totals.imported += result.imported ?? 0
+        totals.merged += result.merged ?? 0
+        totals.overwritten += result.overwritten ?? 0
+        totals.ignored += result.ignored ?? 0
+        totals.failed += result.failed ?? 0
+    }
+
+    const finishImport = () => {
+        const totals = totalsRef.current
+        showToast(
+            `Import complete: ${totals.imported} added, ${totals.merged} merged, ` +
+                `${totals.overwritten} overwritten, ${totals.ignored} skipped, ${totals.failed} failed`,
+            'success',
+        )
+        setImporting(false)
+        navigate('/')
+    }
+
+    const processNextFile = async () => {
+        const next = filesRef.current.shift()
+        if (!next) {
+            finishImport()
+            return
+        }
+
+        const [type, file] = next
+        try {
+            const fd = new FormData()
+            fd.append('file', file)
+            const preview: ImportPreview = await API.post(`/importing?csv_type=${type}`, fd)
+
+            const conflicts = preview.rows.filter((row) => row.status === 'conflict')
+            if (conflicts.length > 0) {
+                previewRef.current = preview
+                setPendingConflicts(conflicts)
+                return
+            }
+
+            await applyPreview(preview, {})
+            processNextFile()
+        } catch {
+            setImporting(false)
+            setPendingConflicts(null)
+        }
+    }
 
     const handleImport = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -169,22 +269,41 @@ function DataPanel() {
         const formData = new FormData(e.currentTarget)
         const entries = Array.from(formData.entries()).filter(
             ([, v]) => v instanceof Blob && (v as Blob).size > 0,
-        )
+        ) as Array<[string, File]>
         if (entries.length === 0) {
             setError('Please choose at least one file.')
             return
         }
+
         setImporting(true)
+        filesRef.current = [...entries]
+        totalsRef.current = { imported: 0, merged: 0, overwritten: 0, ignored: 0, failed: 0 }
+        processNextFile()
+    }
+
+    const handleConflictsConfirmed = async (decisions: Record<number, ConflictAction>) => {
+        const preview = previewRef.current
+        setPendingConflicts(null)
+        previewRef.current = null
+        if (!preview) {
+            setImporting(false)
+            return
+        }
+
         try {
-            for (const [type, file] of entries) {
-                const fd = new FormData()
-                fd.append('file', file as Blob)
-                await API.post(`/importing?csv_type=${type}`, fd)
-            }
-            navigate('/')
-        } finally {
+            await applyPreview(preview, decisions)
+            processNextFile()
+        } catch {
             setImporting(false)
         }
+    }
+
+    const handleConflictsCancelled = () => {
+        setPendingConflicts(null)
+        previewRef.current = null
+        filesRef.current = []
+        setImporting(false)
+        setError('Import cancelled.')
     }
 
     return (
@@ -217,6 +336,13 @@ function DataPanel() {
                     </form>
                 </PanelBody>
             </Panel>
+
+            <ImportConflictsDialog
+                open={pendingConflicts !== null}
+                conflicts={pendingConflicts ?? []}
+                onClose={handleConflictsCancelled}
+                onConfirm={handleConflictsConfirmed}
+            />
 
             <Panel>
                 <PanelHeader>

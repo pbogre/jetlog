@@ -7,6 +7,7 @@ package-lock.json
 *.old
 
 data/*.db*
+.pnpm-store/
 
 # macOS duplicate copies
 * 2
