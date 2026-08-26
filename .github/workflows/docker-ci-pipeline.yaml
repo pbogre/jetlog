@@ -37,13 +37,19 @@ jobs:
           CLEAN_VERSION="${GITHUB_REF_NAME#v}"
           echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
 
+      - name: Set PR tag
+        if: github.event_name == 'pull_request'
+        id: pr_tag
+        run: |
+          echo "pr_tag=pr-${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ secrets.DOCKERHUB_USERNAME }}/jetlog
+          images: ${{ github.repository_owner }}/jetlog
           tags: |
-            ${{ github.event_name == 'pull_request' && 'pr-${{ github.event.pull_request.number }}' || '' }}
+            ${{ steps.pr_tag.outputs.pr_tag || '' }}
             ${{ github.event_name == 'push' && 'experimental' || '' }}
             ${{ github.event_name == 'release' && 'latest' || '' }}
             ${{ github.event_name == 'release' && steps.version.outputs.version || '' }}
