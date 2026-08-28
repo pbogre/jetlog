@@ -1,7 +1,7 @@
 from server.routers import flights, airports, airlines, statistics, geography, importing, exporting
-from server.auth import users, auth
+from server.auth import users, auth, tokens
 from server.environment import ENABLE_EXTERNAL_APIS
-from fastapi import FastAPI, Depends, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pathlib import Path
@@ -20,18 +20,17 @@ tags_metadata=[
 app = FastAPI(openapi_tags=tags_metadata)
 build_path = Path(__file__).parent.parent / 'dist'
 
-auth_dependency = [Depends(users.get_current_user)]
-
-app.include_router(flights.router, prefix="/api", dependencies=auth_dependency)
-app.include_router(airports.router, prefix="/api", dependencies=auth_dependency)
-app.include_router(airlines.router, prefix="/api", dependencies=auth_dependency)
-app.include_router(statistics.router, prefix="/api", dependencies=auth_dependency)
-app.include_router(geography.router, prefix="/api", dependencies=auth_dependency)
-app.include_router(importing.router, prefix="/api", dependencies=auth_dependency)
-app.include_router(exporting.router, prefix="/api", dependencies=auth_dependency)
+app.include_router(flights.router, prefix="/api")
+app.include_router(airports.router, prefix="/api")
+app.include_router(airlines.router, prefix="/api")
+app.include_router(statistics.router, prefix="/api")
+app.include_router(geography.router, prefix="/api")
+app.include_router(importing.router, prefix="/api")
+app.include_router(exporting.router, prefix="/api")
 
 app.include_router(users.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
+app.include_router(tokens.router, prefix="/api")
 
 @app.get("/config")
 async def get_config(request: Request):

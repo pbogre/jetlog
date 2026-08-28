@@ -1,11 +1,14 @@
 from server.database import database
 from server.models import AirportModel
-from fastapi import APIRouter, HTTPException
+from server.auth.context import METADATA_READ
+from server.auth.dependencies import require_scope
+from fastapi import APIRouter, Depends, HTTPException
 
 router = APIRouter(
     prefix="/airports",
     tags=["airports"],
-    redirect_slashes=True
+    redirect_slashes=True,
+    dependencies=[Depends(require_scope(METADATA_READ))]
 )
 
 @router.get("", status_code=200)

@@ -14,6 +14,7 @@ A self-hostable personal flight tracker and viewer
 
 - [Features](#features)
 - [Getting Started](#getting-started)
+- [API Tokens](#api-tokens)
 - [Importing & Exporting](#importing--exporting)
 - [Privacy Notice](#privacy-notice)
 - [Contributing](#contributing)
@@ -53,6 +54,24 @@ Make sure that you change the password after the first login!
 
 For details about troubleshooting, environment variables, and more installation options
 such as running Jetlog under a path prefix, have a look at the [installation wiki](https://github.com/pbogre/jetlog/wiki/Installation)
+
+## API Tokens
+
+Personal API tokens for scripts and mobile clients can be created and revoked under
+**Settings → Account → API tokens**. The token secret is shown only once. Send it as
+a bearer token when calling the existing API:
+
+```sh
+curl -H "Authorization: Bearer jl_pat_your_token_here" \
+  https://your-jetlog.example/api/flights
+```
+
+`metadata:read` grants access to airport, airline, username, and current-user data.
+`flights:read` grants access to flights, maps, statistics, and exports.
+`flights:create` grants flight creation and import without edit access, while
+`flights:write` grants update and deletion of existing flights. The scopes are
+independent, and personal tokens never grant user-administration or maintenance-job
+access.
 
 ## Importing & Exporting
 

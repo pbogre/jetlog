@@ -5,7 +5,18 @@ import {
     type UseQueryOptions,
 } from '@tanstack/react-query'
 import API, { ENABLE_EXTERNAL_APIS } from '@/api'
-import type { Flight, Airport, Airline, Statistics, User, Coord, Trajectory } from '@/models'
+import type {
+    ApiToken,
+    ApiTokenScope,
+    CreatedApiToken,
+    Flight,
+    Airport,
+    Airline,
+    Statistics,
+    User,
+    Coord,
+    Trajectory,
+} from '@/models'
 import { camelize } from './normalize'
 
 export { ENABLE_EXTERNAL_APIS }
@@ -30,6 +41,40 @@ export function useUsernames() {
         queryKey: ['users'],
         queryFn: () => API.get('/users'),
         staleTime: 60_000,
+    })
+}
+
+// ---------- API tokens ----------
+
+export interface CreateApiTokenInput {
+    name: string
+    scopes: ApiTokenScope[]
+    expiresInDays: 30 | 90 | 365 | null
+}
+
+export function useApiTokens(activeOnly: boolean) {
+    return useQuery<ApiToken[]>({
+        queryKey: ['api-tokens', { activeOnly }],
+        queryFn: () => getJSON<ApiToken[]>('/tokens', { active_only: activeOnly }),
+    })
+}
+
+export function useCreateApiToken() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async (input: CreateApiTokenInput) => {
+            const data = await API.post('/tokens', input)
+            return camelize<CreatedApiToken>(data)
+        },
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['api-tokens'] }),
+    })
+}
+
+export function useRevokeApiToken() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (id: number) => API.delete(`/tokens/${id}`),
+        onSuccess: () => qc.invalidateQueries({ queryKey: ['api-tokens'] }),
     })
 }
 

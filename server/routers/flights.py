@@ -1,7 +1,8 @@
 from server.database import database
 from server.environment import ENABLE_EXTERNAL_APIS
 from server.models import AirlineModel, AirportModel, ClassType, CustomModel, FlightModel, AircraftSide, FlightPurpose, SeatType, User
-from server.auth.users import get_current_user
+from server.auth.context import FLIGHTS_CREATE, FLIGHTS_READ, FLIGHTS_WRITE
+from server.auth.dependencies import require_primary_auth, require_scope
 
 from fastapi import APIRouter, Depends, HTTPException
 from enum import Enum
@@ -91,7 +92,11 @@ def duration(departure: datetime.datetime, arrival: datetime.datetime) -> int:
     return delta_minutes
 
 @router.post("/many", status_code=201)
-async def add_many_flights(flights: list[FlightModel], timezones: bool = True, user: User = Depends(get_current_user)) -> int:
+async def add_many_flights(
+    flights: list[FlightModel],
+    timezones: bool = True,
+    user: User = Depends(require_scope(FLIGHTS_CREATE))
+) -> int:
     creator_flight_id = -1
     for flight in flights:
         if flight.username != user.username and not user.is_admin:
@@ -104,7 +109,11 @@ async def add_many_flights(flights: list[FlightModel], timezones: bool = True, u
     return creator_flight_id
 
 @router.post("", status_code=201)
-async def add_flight(flight: FlightModel, timezones: bool = True, user: User = Depends(get_current_user)) -> int:
+async def add_flight(
+    flight: FlightModel,
+    timezones: bool = True,
+    user: User = Depends(require_scope(FLIGHTS_CREATE))
+) -> int:
     # only admins may add flights for other users
     if flight.username != user.username and not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can add flights for other users")
@@ -171,7 +180,7 @@ class FlightPatchModel(CustomModel):
 async def update_flight(id: int,
                         new_flight: FlightPatchModel,
                         timezones: bool = True,
-                        user: User = Depends(get_current_user)) -> int:
+                        user: User = Depends(require_scope(FLIGHTS_WRITE))) -> int:
     await check_flight_authorization(id, user)
 
     if new_flight.empty():
@@ -180,7 +189,7 @@ async def update_flight(id: int,
     # if airports changed, update distance (unless specified)
     if new_flight.origin or new_flight.destination and not new_flight.distance:
         # first must have both airports
-        original_flight = await get_flights(id=id)
+        original_flight = await get_flights(id=id, user=user)
         assert type(original_flight) == FlightModel
 
         new_origin = new_flight.origin if new_flight.origin else original_flight.origin
@@ -191,7 +200,7 @@ async def update_flight(id: int,
     # if arrival / departure date or arrival date changed, update duration (unless specified)
     if not new_flight.duration:
         if new_flight.date or new_flight.departure_time or new_flight.arrival_date or new_flight.arrival_time:
-            original_flight = await get_flights(id=id)
+            original_flight = await get_flights(id=id, user=user)
             assert type(original_flight) == FlightModel
 
             new_departure_date = new_flight.date if new_flight.date else original_flight.date
@@ -230,7 +239,10 @@ async def update_flight(id: int,
     return new_id
 
 @router.delete("", status_code=200)
-async def delete_flight(id: int, user: User = Depends(get_current_user)) -> int:
+async def delete_flight(
+    id: int,
+    user: User = Depends(require_scope(FLIGHTS_WRITE))
+) -> int:
     await check_flight_authorization(id, user)
 
     deleted_id = database.execute_query("DELETE FROM flights WHERE id = ? RETURNING id;", [id])[0]
@@ -248,7 +260,7 @@ async def get_flights(id: int|None = None,
                       origin: str|None = None,
                       destination: str|None = None,
                       username: str|None = None,
-                      user: User = Depends(get_current_user)) -> list[FlightModel]|FlightModel:
+                      user: User = Depends(require_scope(FLIGHTS_READ))) -> list[FlightModel]|FlightModel:
 
     username_filter = None if id else username if username else user.username
 
@@ -321,7 +333,9 @@ async def get_flights(id: int|None = None,
     return [ FlightModel.model_validate(flight) for flight in flights ]
 
 @router.post("/connections", status_code=200)
-async def compute_connections(user: User = Depends(get_current_user)) -> dict:
+async def compute_connections(
+    user: User = Depends(require_primary_auth)
+) -> dict:
     query = """
         WITH plausible AS (
             SELECT f.id  AS flight_id, c.id AS conn_id
@@ -363,7 +377,9 @@ async def compute_connections(user: User = Depends(get_current_user)) -> dict:
     return { "amountSkipped": res[0], "amountUpdated": res[1] }
 
 @router.post("/airlines_from_callsigns", status_code=200)
-async def fetch_airlines_from_callsigns(user: User = Depends(get_current_user)) -> dict:
+async def fetch_airlines_from_callsigns(
+    user: User = Depends(require_primary_auth)
+) -> dict:
     if not ENABLE_EXTERNAL_APIS:
         raise HTTPException(status_code=400, detail="This endpoint relies on the use of an external API, which you have opted out of.")
     import requests

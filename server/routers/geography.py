@@ -1,6 +1,7 @@
 from server.database import database
 from server.models import User
-from server.auth.users import get_current_user
+from server.auth.context import FLIGHTS_READ
+from server.auth.dependencies import require_scope
 
 from models import CustomModel
 from fastapi import APIRouter, Depends
@@ -33,7 +34,10 @@ class Trajectory(CustomModel):
         return self.first == other.second and self.second == other.first
 
 @router.get("/world", status_code=200)
-async def get_world_geojson(visited: bool = False, user: User = Depends(get_current_user)) -> object:
+async def get_world_geojson(
+    visited: bool = False,
+    user: User = Depends(require_scope(FLIGHTS_READ))
+) -> object:
     geojson_path = Path(__file__).parent.parent.parent / 'data' / 'world.geo.json'
     geojson_content = geojson_path.read_text()
     geojson = json.loads(geojson_content)
@@ -77,7 +81,10 @@ async def get_world_geojson(visited: bool = False, user: User = Depends(get_curr
     return geojson
 
 @router.get("/decorations", status_code=200)
-async def get_flights_decorations(flight_id: int|None = None, user: User = Depends(get_current_user)) -> tuple[list[Trajectory], list[Coord]]:
+async def get_flights_decorations(
+    flight_id: int|None = None,
+    user: User = Depends(require_scope(FLIGHTS_READ))
+) -> tuple[list[Trajectory], list[Coord]]:
     flight_filter = f" AND f.id = {flight_id}" if flight_id != None else ""
 
     query = f"""

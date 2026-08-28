@@ -27,3 +27,14 @@ def get_user(username: str) -> User|None:
 
     user = User.from_database(result[0])
     return User.model_validate(user)
+
+def get_user_by_id(user_id: int) -> User|None:
+    from server.database import database
+
+    result = database.execute_read_query("SELECT * FROM users WHERE id = ?;", [user_id])
+
+    if not result:
+        return None
+
+    user = User.from_database(result[0])
+    return User.model_validate(user)

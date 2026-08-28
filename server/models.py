@@ -89,6 +89,18 @@ class User(CustomModel):
     last_login:    datetime.datetime|None
     created_on:    datetime.datetime
 
+class ApiTokenRecord(CustomModel):
+    id:           int
+    user_id:      int
+    name:         str
+    token_hash:   str
+    token_prefix: str
+    scopes:       str
+    expires_at:   datetime.datetime|None
+    last_used_at: datetime.datetime|None
+    created_at:   datetime.datetime
+    revoked_at:   datetime.datetime|None
+
 class SeatType(str, Enum):
     WINDOW = "window"
     MIDDLE = "middle"

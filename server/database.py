@@ -3,11 +3,12 @@ import os.path
 from pathlib import Path
 from fastapi import HTTPException
 
-from server.models import FlightModel, User
+from server.models import ApiTokenRecord, FlightModel, User
 from server.environment import DATA_PATH
 
 class Database():
     connection: sqlite3.Connection
+    db_path: str
     tables = {
         "flights": {
             "pragma": """
@@ -48,6 +49,23 @@ class Database():
                     created_on    DATETIME NOT NULL DEFAULT current_timestamp
                 )""",
             "model": User
+        },
+        "api_tokens": {
+            "pragma": """
+                (
+                    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id      INTEGER NOT NULL,
+                    name         VARCHAR(255) NOT NULL,
+                    token_hash   VARCHAR(64) NOT NULL UNIQUE,
+                    token_prefix VARCHAR(12) NOT NULL,
+                    scopes       TEXT NOT NULL,
+                    expires_at   DATETIME,
+                    last_used_at DATETIME,
+                    created_at   DATETIME NOT NULL DEFAULT current_timestamp,
+                    revoked_at   DATETIME,
+                    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+                )""",
+            "model": ApiTokenRecord
         }
     }
 
@@ -55,9 +73,10 @@ class Database():
         print("Initializing database connection")
 
         db_path = os.path.join(db_dir, "jetlog.db")
+        self.db_path = db_path
 
         if os.path.isfile(db_path):
-            self.connection = sqlite3.connect(db_path)
+            self.connection = sqlite3.connect(db_path, check_same_thread=False)
             self.connection.execute("PRAGMA foreign_keys = ON;")
 
             # update airports and airlines tables
@@ -97,7 +116,8 @@ class Database():
             print("Database file not found, creating it...")
 
             try:
-                self.connection = sqlite3.connect(db_path)
+                self.connection = sqlite3.connect(db_path, check_same_thread=False)
+                self.connection.execute("PRAGMA foreign_keys = ON;")
             except:
                 print(f"Could not create database. Please check your volume's ownership")
                 exit()
@@ -109,6 +129,7 @@ class Database():
                 os.remove(db_path)
                 exit()
 
+        self.initialize_indexes()
         print("Database initialization complete")
  
     def initialize_tables(self):
@@ -118,6 +139,12 @@ class Database():
 
         self.create_first_user()
         self.update_tables(drop_old=False)
+
+    def initialize_indexes(self):
+        self.execute_query("""
+            CREATE INDEX IF NOT EXISTS idx_api_tokens_user_status
+            ON api_tokens (user_id, revoked_at, expires_at);
+        """)
 
     def create_first_user(self):
         from server.auth.utils import hash_password
@@ -207,5 +234,17 @@ class Database():
 
         except sqlite3.Error as err:
             raise HTTPException(status_code=500, detail="SQL error: " + str(err))
+
+    def update_api_token_last_used(self, token_id: int) -> None:
+        """Update token audit metadata from a background thread safely."""
+        try:
+            with sqlite3.connect(self.db_path, timeout=5) as connection:
+                connection.execute(
+                    "UPDATE api_tokens SET last_used_at = current_timestamp WHERE id = ?;",
+                    [token_id]
+                )
+                connection.commit()
+        except sqlite3.Error as err:
+            print(f"Could not update API token last_used_at: {err}")
 
 database = Database(DATA_PATH)

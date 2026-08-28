@@ -6,6 +6,28 @@ export class User {
     createdOn: string;
 }
 
+export type ApiTokenScope =
+    | 'metadata:read'
+    | 'flights:read'
+    | 'flights:create'
+    | 'flights:write'
+export type ApiTokenStatus = 'active' | 'expired' | 'revoked'
+
+export interface ApiToken {
+    id: number
+    name: string
+    scopes: ApiTokenScope[]
+    expiresAt: string | null
+    lastUsedAt: string | null
+    createdAt: string
+    revokedAt: string | null
+    status: ApiTokenStatus
+}
+
+export interface CreatedApiToken extends ApiToken {
+    token: string
+}
+
 export class Flight {
     id: number;
     username: string;

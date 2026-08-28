@@ -2,7 +2,8 @@ from server.models import FlightModel, FlightPurpose, SeatType, ClassType, User
 from server.routers.flights import add_flight
 from server.internal.airport_utils import get_icao_from_iata
 from server.internal.flight_utils import flight_already_exists
-from server.auth.users import get_current_user
+from server.auth.context import FLIGHTS_CREATE
+from server.auth.dependencies import require_scope
 
 from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from enum import Enum
@@ -24,7 +25,7 @@ class CSVType(str, Enum):
 @router.post("", status_code=202)
 async def import_CSV(csv_type: CSVType,
                      file: UploadFile,
-                     user: User = Depends(get_current_user)):
+                     user: User = Depends(require_scope(FLIGHTS_CREATE))):
     imported_flights: list[FlightModel] = []
     fail_count = 0
 

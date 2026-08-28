@@ -1,6 +1,7 @@
 from server.models import AirportModel, FlightModel, User
 from server.routers.flights import get_flights
-from server.auth.users import get_current_user
+from server.auth.context import FLIGHTS_READ
+from server.auth.dependencies import require_scope
 
 from fastapi import APIRouter, Depends
 from fastapi.responses import FileResponse
@@ -22,7 +23,9 @@ def stringify_airport(airport: AirportModel) -> str:
     return f"{code} - {airport.municipality}/{airport.country}"
 
 @router.post("/csv", status_code=200)
-async def export_to_CSV(user: User = Depends(get_current_user)) -> FileResponse:
+async def export_to_CSV(
+    user: User = Depends(require_scope(FLIGHTS_READ))
+) -> FileResponse:
     import csv
 
     flights = await get_flights(limit=-1, user=user)
@@ -44,7 +47,9 @@ async def export_to_CSV(user: User = Depends(get_current_user)) -> FileResponse:
                         filename="jetlog.csv")
 
 @router.post("/ical", status_code=200)
-async def export_to_iCal(user: User = Depends(get_current_user)) -> FileResponse:
+async def export_to_iCal(
+    user: User = Depends(require_scope(FLIGHTS_READ))
+) -> FileResponse:
     flights = await get_flights(limit=-1, user=user)
     assert type(flights) == list # make linter happy
 

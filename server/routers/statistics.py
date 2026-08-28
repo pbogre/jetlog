@@ -1,6 +1,7 @@
 from server.database import database
 from server.models import StatisticsModel, User
-from server.auth.users import get_current_user
+from server.auth.context import FLIGHTS_READ
+from server.auth.dependencies import require_scope
 
 
 from fastapi import APIRouter, Depends
@@ -17,7 +18,7 @@ async def get_statistics(metric: bool = True,
                          start: datetime.date|None = None,
                          end: datetime.date|None = None,
                          username: str|None = None,
-                         user: User = Depends(get_current_user)) -> StatisticsModel:
+                         user: User = Depends(require_scope(FLIGHTS_READ))) -> StatisticsModel:
 
     user_filter = f"WHERE f.username = '{user.username}'"
     if username:

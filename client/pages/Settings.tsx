@@ -9,13 +9,21 @@ import {
     Download,
     Plus,
     PlayCircle,
+    KeyRound,
+    Copy,
 } from 'lucide-react'
 
 import API, { ENABLE_EXTERNAL_APIS } from '@/api'
-import { useCurrentUser, useUsernames } from '@/lib/queries'
+import {
+    useApiTokens,
+    useCreateApiToken,
+    useCurrentUser,
+    useRevokeApiToken,
+    useUsernames,
+} from '@/lib/queries'
 import ConfigStorage, { type ConfigInterface } from '@/storage/configStorage'
 import TokenStorage from '@/storage/tokenStorage'
-import type { User } from '@/models'
+import type { ApiTokenScope, CreatedApiToken, User } from '@/models'
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/Tabs'
 import { ColumnsManager } from '@/components/settings/ColumnsManager'
@@ -260,41 +268,45 @@ function AccountPanel({ me }: { me?: User }) {
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Panel>
-                <PanelHeader>
-                    <PanelTitle>Your account</PanelTitle>
-                    {me.isAdmin && <Badge variant="accent">Admin</Badge>}
-                </PanelHeader>
-                <PanelBody className="grid grid-cols-2 gap-4">
-                    <DataBlock label="Username" value={me.username} />
-                    <DataBlock label="Admin" value={me.isAdmin ? 'Yes' : 'No'} />
-                    <DataBlock label="Last login" value={me.lastLogin || '—'} />
-                    <DataBlock label="Created" value={me.createdOn || '—'} />
-                </PanelBody>
-            </Panel>
+        <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <Panel>
+                    <PanelHeader>
+                        <PanelTitle>Your account</PanelTitle>
+                        {me.isAdmin && <Badge variant="accent">Admin</Badge>}
+                    </PanelHeader>
+                    <PanelBody className="grid grid-cols-2 gap-4">
+                        <DataBlock label="Username" value={me.username} />
+                        <DataBlock label="Admin" value={me.isAdmin ? 'Yes' : 'No'} />
+                        <DataBlock label="Last login" value={me.lastLogin || '—'} />
+                        <DataBlock label="Created" value={me.createdOn || '—'} />
+                    </PanelBody>
+                </Panel>
 
-            <Panel>
-                <PanelHeader>
-                    <PanelTitle>Actions</PanelTitle>
-                </PanelHeader>
-                <PanelBody className="space-y-2">
-                    <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={() => setEditOpen(true)}
-                    >
-                        <Pencil size={13} /> Edit account
-                    </Button>
-                    <Button
-                        variant="danger"
-                        className="w-full justify-start"
-                        onClick={logout}
-                    >
-                        <LogOut size={13} /> Log out
-                    </Button>
-                </PanelBody>
-            </Panel>
+                <Panel>
+                    <PanelHeader>
+                        <PanelTitle>Actions</PanelTitle>
+                    </PanelHeader>
+                    <PanelBody className="space-y-2">
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={() => setEditOpen(true)}
+                        >
+                            <Pencil size={13} /> Edit account
+                        </Button>
+                        <Button
+                            variant="danger"
+                            className="w-full justify-start"
+                            onClick={logout}
+                        >
+                            <LogOut size={13} /> Log out
+                        </Button>
+                    </PanelBody>
+                </Panel>
+            </div>
+
+            <ApiTokensPanel />
 
             <EditUserDialog
                 open={editOpen}
@@ -303,6 +315,336 @@ function AccountPanel({ me }: { me?: User }) {
                 isSelf
             />
         </div>
+    )
+}
+
+export function ApiTokensPanel() {
+    const [activeOnly, setActiveOnly] = useState(true)
+    const [createOpen, setCreateOpen] = useState(false)
+    const [createdToken, setCreatedToken] = useState<CreatedApiToken | null>(null)
+    const [expiration, setExpiration] = useState('90')
+    const [formError, setFormError] = useState<string | null>(null)
+    const [copied, setCopied] = useState(false)
+    const [copyError, setCopyError] = useState<string | null>(null)
+    const { data: tokens, isLoading } = useApiTokens(activeOnly)
+    const createToken = useCreateApiToken()
+    const revokeToken = useRevokeApiToken()
+
+    const formatTimestamp = (value?: string | null) => {
+        if (!value) return '—'
+        return new Date(value).toLocaleString()
+    }
+
+    const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault()
+        setFormError(null)
+        const form = new FormData(event.currentTarget)
+        const scopes = form.getAll('scopes') as ApiTokenScope[]
+        if (scopes.length === 0) {
+            setFormError('Select at least one scope.')
+            return
+        }
+
+        const result = await createToken.mutateAsync({
+            name: String(form.get('name') || ''),
+            scopes,
+            expiresInDays:
+                expiration === 'never'
+                    ? null
+                    : (Number(expiration) as 30 | 90 | 365),
+        })
+        setCreateOpen(false)
+        setCreatedToken(result)
+        setCopied(false)
+    }
+
+    const handleCopy = async () => {
+        if (!createdToken) return
+        setCopyError(null)
+        try {
+            if (!navigator.clipboard) throw new Error('Clipboard API unavailable')
+            await navigator.clipboard.writeText(createdToken.token)
+            setCopied(true)
+        } catch {
+            setCopied(false)
+            setCopyError('Copy failed. Select the token and copy it manually.')
+        }
+    }
+
+    const handleRevoke = async (tokenId: number, name: string) => {
+        if (!confirm(`Revoke API token "${name}"? This cannot be undone.`)) return
+        await revokeToken.mutateAsync(tokenId)
+    }
+
+    return (
+        <Panel>
+            <PanelHeader className="h-auto min-h-11 py-2 flex-wrap">
+                <div className="flex items-center gap-2">
+                    <KeyRound size={15} />
+                    <PanelTitle>API tokens</PanelTitle>
+                </div>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        <Label className="mb-0" htmlFor="active-tokens-only">
+                            Active only
+                        </Label>
+                        <Switch
+                            id="active-tokens-only"
+                            checked={activeOnly}
+                            onCheckedChange={setActiveOnly}
+                        />
+                    </div>
+                    <Button
+                        variant="accent"
+                        size="sm"
+                        onClick={() => {
+                            setFormError(null)
+                            setExpiration('90')
+                            setCreateOpen(true)
+                        }}
+                    >
+                        <Plus size={13} /> Create token
+                    </Button>
+                </div>
+            </PanelHeader>
+            <PanelBody className="space-y-3">
+                <p className="text-xs text-ink-muted font-mono">
+                    Use personal access tokens for scripts and mobile clients. Token secrets
+                    are shown only once.
+                </p>
+
+                {isLoading ? (
+                    <div className="flex justify-center py-8"><Spinner /></div>
+                ) : !tokens || tokens.length === 0 ? (
+                    <p className="py-8 text-center text-sm text-ink-muted font-mono">
+                        {activeOnly ? 'No active API tokens.' : 'No API token history.'}
+                    </p>
+                ) : (
+                    <div className="grid gap-3">
+                        {tokens.map((token) => (
+                            <div
+                                key={token.id}
+                                className="border border-rule p-3 space-y-3"
+                            >
+                                <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                        <div className="font-mono font-semibold truncate">
+                                            {token.name}
+                                        </div>
+                                    </div>
+                                    <Badge
+                                        variant={
+                                            token.status === 'active'
+                                                ? 'ok'
+                                                : token.status === 'revoked'
+                                                  ? 'danger'
+                                                  : 'muted'
+                                        }
+                                    >
+                                        {token.status}
+                                    </Badge>
+                                </div>
+                                <div className="flex flex-wrap gap-1.5">
+                                    {token.scopes.map((scope) => (
+                                        <Badge key={scope}>{scope}</Badge>
+                                    ))}
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                    <DataBlock
+                                        label="Created"
+                                        value={formatTimestamp(token.createdAt)}
+                                    />
+                                    <DataBlock
+                                        label="Last used"
+                                        value={formatTimestamp(token.lastUsedAt)}
+                                    />
+                                    <DataBlock
+                                        label="Expires"
+                                        value={
+                                            token.expiresAt
+                                                ? formatTimestamp(token.expiresAt)
+                                                : 'Never'
+                                        }
+                                    />
+                                </div>
+                                {token.status === 'active' && (
+                                    <div className="flex justify-end pt-2 border-t border-rule">
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            disabled={revokeToken.isPending}
+                                            onClick={() => handleRevoke(token.id, token.name)}
+                                        >
+                                            <Trash2 size={13} /> Revoke
+                                        </Button>
+                                    </div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </PanelBody>
+
+            <Dialog
+                open={createOpen}
+                onOpenChange={setCreateOpen}
+                title="Create API token"
+                description="Choose the minimum access this client needs."
+            >
+                <form onSubmit={handleCreate} className="space-y-4">
+                    <div>
+                        <Label required htmlFor="api-token-name">Token name</Label>
+                        <Input
+                            id="api-token-name"
+                            name="name"
+                            maxLength={255}
+                            placeholder="Mobile App - iPhone"
+                            required
+                        />
+                    </div>
+                    <fieldset className="space-y-2">
+                        <legend className="board-label mb-1.5">
+                            Scopes <span className="text-danger">*</span>
+                        </legend>
+                        <label className="flex items-start gap-2 text-sm font-mono">
+                            <input type="checkbox" name="scopes" value="metadata:read" />
+                            <span>
+                                <strong>Read metadata</strong>
+                                <span className="block text-xs text-ink-muted">
+                                    Airports, airlines, usernames, and the current user.
+                                </span>
+                            </span>
+                        </label>
+                        <label className="flex items-start gap-2 text-sm font-mono">
+                            <input type="checkbox" name="scopes" value="flights:read" />
+                            <span>
+                                <strong>Read flights</strong>
+                                <span className="block text-xs text-ink-muted">
+                                    Flights, maps, statistics, and exports.
+                                </span>
+                            </span>
+                        </label>
+                        <label className="flex items-start gap-2 text-sm font-mono">
+                            <input type="checkbox" name="scopes" value="flights:create" />
+                            <span>
+                                <strong>Create flights</strong>
+                                <span className="block text-xs text-ink-muted">
+                                    Create and import logbook entries without editing them.
+                                </span>
+                            </span>
+                        </label>
+                        <label className="flex items-start gap-2 text-sm font-mono">
+                            <input type="checkbox" name="scopes" value="flights:write" />
+                            <span>
+                                <strong>Edit flights</strong>
+                                <span className="block text-xs text-ink-muted">
+                                    Update and delete existing logbook entries.
+                                </span>
+                            </span>
+                        </label>
+                    </fieldset>
+                    <div>
+                        <Label required htmlFor="api-token-expiration">Expiration</Label>
+                        <Select
+                            id="api-token-expiration"
+                            value={expiration}
+                            onChange={(event) => setExpiration(event.target.value)}
+                        >
+                            <option value="30">30 days</option>
+                            <option value="90">90 days</option>
+                            <option value="365">1 year</option>
+                            <option value="never">Never</option>
+                        </Select>
+                        {expiration === 'never' && (
+                            <p className="mt-1 text-xs text-danger font-mono">
+                                Non-expiring tokens remain valid until explicitly revoked.
+                            </p>
+                        )}
+                    </div>
+                    {formError && (
+                        <p className="text-xs text-danger font-mono">{formError}</p>
+                    )}
+                    <div className="flex justify-end gap-2 pt-3 border-t border-rule">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCreateOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            variant="accent"
+                            size="sm"
+                            disabled={createToken.isPending}
+                        >
+                            {createToken.isPending ? 'Generating…' : 'Generate token'}
+                        </Button>
+                    </div>
+                </form>
+            </Dialog>
+
+            <Dialog
+                open={createdToken !== null}
+                onOpenChange={(open) => {
+                    if (!open) {
+                        setCreatedToken(null)
+                        setCopied(false)
+                        setCopyError(null)
+                    }
+                }}
+                title="Save your API token"
+                description="Save this token now. You will not be able to see it again."
+            >
+                {createdToken && (
+                    <div className="space-y-4">
+                        <div>
+                            <Label>Token</Label>
+                            <div className="flex gap-2">
+                                <Input
+                                    readOnly
+                                    value={createdToken.token}
+                                    aria-label="New API token"
+                                    onFocus={(event) => event.currentTarget.select()}
+                                />
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="icon"
+                                    aria-label="Copy API token"
+                                    onClick={handleCopy}
+                                >
+                                    <Copy size={15} />
+                                </Button>
+                            </div>
+                            {copied && (
+                                <p className="mt-1 text-xs text-ok font-mono">Copied.</p>
+                            )}
+                            {copyError && (
+                                <p className="mt-1 text-xs text-danger font-mono">
+                                    {copyError}
+                                </p>
+                            )}
+                        </div>
+                        <div className="flex justify-end pt-3 border-t border-rule">
+                            <Button
+                                type="button"
+                                variant="accent"
+                                size="sm"
+                                onClick={() => {
+                                    setCreatedToken(null)
+                                    setCopied(false)
+                                    setCopyError(null)
+                                }}
+                            >
+                                I have saved it
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </Dialog>
+        </Panel>
     )
 }
 

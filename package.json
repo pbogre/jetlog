@@ -5,6 +5,8 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
         "preview": "vite preview"
     },
     "dependencies": {
@@ -40,6 +42,9 @@
         }
     },
     "devDependencies": {
+        "@testing-library/jest-dom": "^6.6.3",
+        "@testing-library/react": "^16.1.0",
+        "@testing-library/user-event": "^14.5.2",
         "@types/react": "^18.3.3",
         "@types/react-dom": "^18.3.0",
         "@types/react-simple-maps": "^3.0.6",
@@ -48,7 +53,9 @@
         "postcss": "^8.4.47",
         "tailwindcss": "^3.4.13",
         "typescript": "^5.6.2",
-        "vite": "^5.4.8"
+        "vite": "^5.4.8",
+        "vitest": "^2.1.9",
+        "jsdom": "^25.0.1"
     },
     "allowScripts": {
         "esbuild@0.21.5": true

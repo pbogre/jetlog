@@ -1,11 +1,16 @@
+import datetime
+
 from server.models import CustomModel, User
 from server.database import database
-from server.auth.utils import hash_password, get_user, oauth2_scheme
-from server.environment import SECRET_KEY, AUTH_HEADER
+from server.auth.context import METADATA_READ
+from server.auth.dependencies import (
+    require_primary_auth,
+    require_scope,
+)
+from server.auth.utils import hash_password, get_user
 
 
-import jwt
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 
 router = APIRouter(
     prefix="/users",
@@ -18,54 +23,34 @@ class UserPatch(CustomModel):
     password: str|None = None
     is_admin: bool|None = None
 
-ALGORITHM = "HS256"
+class UserPublic(CustomModel):
+    id:         int
+    username:   str
+    is_admin:   bool
+    last_login: datetime.datetime|None
+    created_on: datetime.datetime
 
-# user auth via header
-async def get_user_from_auth_header(request: Request) -> User:
-    header_username = request.headers.get(AUTH_HEADER)
+    @classmethod
+    def from_user(cls, user: User) -> "UserPublic":
+        return cls(
+            id=user.id,
+            username=user.username,
+            is_admin=user.is_admin,
+            last_login=user.last_login,
+            created_on=user.created_on
+        )
 
-    if not header_username:
-        raise HTTPException(status_code=401, detail="Missing authentication header")
-
-    user = get_user(header_username)
-
-    if not user:
-        raise HTTPException(status_code=403, detail="Username supplied in header does not exist, please have your instance admin create this user.")
-
-    return user
-
-async def get_user_from_token(token: str = Depends(oauth2_scheme)) -> User:
-    credentials_exception = HTTPException(
-        status_code=401,
-        headers={"WWW-Authenticate": "Bearer"},
-        detail="Invalid token"
-    )
-
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-
-        if username == None:
-            raise credentials_exception
-    except jwt.InvalidTokenError:
-        raise credentials_exception
-
-    user = get_user(username)
-
-    if user == None:
-        raise credentials_exception
-
-    return user
-
-@router.get("/me")
-async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)) -> User:
-    if AUTH_HEADER != None and AUTH_HEADER in request.headers:
-        return await get_user_from_auth_header(request)
-
-    return await get_user_from_token(token)
+@router.get("/me", response_model=UserPublic)
+async def get_me(
+    user: User = Depends(require_scope(METADATA_READ))
+) -> UserPublic:
+    return UserPublic.from_user(user)
 
 @router.post("", status_code=201)
-async def create_user(new_user: UserPatch, user: User = Depends(get_current_user)):
+async def create_user(
+    new_user: UserPatch,
+    user: User = Depends(require_primary_auth)
+):
     if not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can create new users")
     if not new_user.username or not new_user.password:
@@ -80,14 +65,17 @@ async def create_user(new_user: UserPatch, user: User = Depends(get_current_user
     )
 
 @router.get("")
-async def get_users(_: User = Depends(get_current_user)) -> list[str]:
+async def get_users(_: User = Depends(require_scope(METADATA_READ))) -> list[str]:
     res = database.execute_read_query("SELECT username FROM users;")
     usernames = [ entry[0] for entry in res ]
 
     return usernames
 
-@router.get("/{username}/details")
-async def get_user_details(username: str, user: User = Depends(get_current_user)) -> User:
+@router.get("/{username}/details", response_model=UserPublic)
+async def get_user_details(
+    username: str,
+    user: User = Depends(require_primary_auth)
+) -> UserPublic:
     if user.username != username and not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can get other users' details")
 
@@ -95,10 +83,14 @@ async def get_user_details(username: str, user: User = Depends(get_current_user)
     if found_user == None:
         raise HTTPException(status_code=404, detail=f"User '{username}' not found")
 
-    return found_user
+    return UserPublic.from_user(found_user)
 
 @router.patch("/{username}", status_code=200)
-async def update_user(username: str, new_user: UserPatch, user: User = Depends(get_current_user)):
+async def update_user(
+    username: str,
+    new_user: UserPatch,
+    user: User = Depends(require_primary_auth)
+):
     if user.username != username and not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can edit other users")
     if new_user.is_admin and not user.is_admin:
@@ -135,7 +127,10 @@ async def update_user(username: str, new_user: UserPatch, user: User = Depends(g
         )
 
 @router.delete("/{username}", status_code=200)
-async def delete_user(username: str, user: User = Depends(get_current_user)):
+async def delete_user(
+    username: str,
+    user: User = Depends(require_primary_auth)
+):
     if not user.is_admin:
         raise HTTPException(status_code=403, detail="Only admins can delete users")
     if username == user.username:
