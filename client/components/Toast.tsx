@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export type ToastType = 'success' | 'error' | 'info';
 
@@ -38,6 +39,8 @@ interface ToastItemProps {
 }
 
 function ToastItem({ toast, onRemove }: ToastItemProps) {
+    const { t } = useTranslation();
+
     useEffect(() => {
         const timer = setTimeout(() => {
             onRemove(toast.id);
@@ -67,7 +70,7 @@ function ToastItem({ toast, onRemove }: ToastItemProps) {
             <button
                 onClick={() => onRemove(toast.id)}
                 className="text-white hover:text-gray-200 font-bold text-lg leading-none ml-2"
-                aria-label="Close"
+                aria-label={t('common.close')}
             >
                 &times;
             </button>

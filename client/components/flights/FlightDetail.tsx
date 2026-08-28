@@ -2,6 +2,7 @@ import { useState, type FormEvent, lazy, Suspense } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Pencil, Trash2, X, Check } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 
 import API from '@/api'
 import {
@@ -40,6 +41,7 @@ const PURPOSES = ['', 'leisure', 'business', 'crew', 'other']
 
 export function FlightDetail({ flightId }: FlightDetailProps) {
     const navigate = useNavigate()
+    const { t } = useTranslation()
     const metric = ConfigStorage.getSetting('metricUnits') !== 'false'
     const localAirportTime = ConfigStorage.getSetting('localAirportTime') === 'true'
     const { data: flight, isLoading } = useFlight(flightId)
@@ -113,7 +115,7 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
     }
 
     const handleDelete = () => {
-        if (!confirm('Delete this flight?')) return
+        if (!confirm(t('flightDetail.deleteConfirm'))) return
         deleteMut.mutate(flightId, {
             onSuccess: () => navigate('/flights'),
         })
@@ -127,13 +129,13 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                     to="/flights"
                     className="board-label flex items-center gap-1.5 text-ink-muted hover:text-ink"
                 >
-                    <ArrowLeft size={14} /> All flights
+                    <ArrowLeft size={14} /> {t('flightDetail.allFlights')}
                 </Link>
                 <div className="flex items-center gap-2">
                     {isOwner && !editing && (
                         <>
                             <Button type="button" variant="outline" size="sm" onClick={enterEdit}>
-                                <Pencil size={13} /> Edit
+                                <Pencil size={13} /> {t('common.edit')}
                             </Button>
                             <Button
                                 type="button"
@@ -142,7 +144,7 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                                 onClick={handleDelete}
                                 disabled={deleteMut.isPending}
                             >
-                                <Trash2 size={13} /> Delete
+                                <Trash2 size={13} /> {t('common.delete')}
                             </Button>
                         </>
                     )}
@@ -154,7 +156,7 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                                 size="sm"
                                 onClick={() => setEditing(false)}
                             >
-                                <X size={13} /> Cancel
+                                <X size={13} /> {t('common.cancel')}
                             </Button>
                             <Button
                                 type="submit"
@@ -162,7 +164,7 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                                 size="sm"
                                 disabled={saving}
                             >
-                                <Check size={13} /> {saving ? 'Saving…' : 'Save'}
+                                <Check size={13} /> {saving ? t('common.saving') : t('common.save')}
                             </Button>
                         </>
                     )}
@@ -196,17 +198,17 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-5 pt-4 border-t border-rule">
                         <DataBlock
-                            label="Departure"
+                            label={t('newFlight.departure')}
                             value={formatTime(flight.departureTime)}
                             sub={flight.origin?.timezone}
                         />
                         <DataBlock
-                            label="Arrival"
+                            label={t('newFlight.arrival')}
                             value={formatTime(flight.arrivalTime)}
                             sub={flight.arrivalDate || flight.destination?.timezone}
                         />
                         <DataBlock
-                            label="Airline"
+                            label={t('newFlight.airline')}
                             value={
                                 flight.airline
                                     ? flight.airline.iata || flight.airline.icao
@@ -215,7 +217,7 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                             sub={flight.airline?.name}
                         />
                         <DataBlock
-                            label="Aircraft"
+                            label={t('newFlight.airplane')}
                             value={flight.airplane || '—'}
                             sub={flight.tailNumber || undefined}
                         />
@@ -225,14 +227,14 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
 
             {/* Airports */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <AirportPanel title="Departure airport" airport={flight.origin} />
-                <AirportPanel title="Arrival airport" airport={flight.destination} />
+                <AirportPanel title={t('flightDetail.departureAirport')} airport={flight.origin} />
+                <AirportPanel title={t('flightDetail.arrivalAirport')} airport={flight.destination} />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Panel>
                     <PanelHeader>
-                        <PanelTitle>Route</PanelTitle>
+                        <PanelTitle>{t('newFlight.route')}</PanelTitle>
                     </PanelHeader>
                     {flight.distance ? (
                         <Suspense
@@ -249,13 +251,17 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
                             />
                         </Suspense>
                     ) : (
-                        <PanelBody className="text-center text-ink-muted text-sm">No route data</PanelBody>
+                        <PanelBody className="text-center text-ink-muted text-sm">
+                            {t('flightDetail.noRouteData')}
+                        </PanelBody>
                     )}
                 </Panel>
 
                 <Panel>
                     <PanelHeader>
-                        <PanelTitle>{editing ? 'Edit details' : 'Details'}</PanelTitle>
+                        <PanelTitle>
+                            {editing ? t('flightDetail.editDetails') : t('flightDetail.details')}
+                        </PanelTitle>
                     </PanelHeader>
                     <PanelBody className="space-y-3">
                         {editing ? (
@@ -270,7 +276,7 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
             {flight.notes && !editing && (
                 <Panel>
                     <PanelHeader>
-                        <PanelTitle>Notes</PanelTitle>
+                        <PanelTitle>{t('newFlight.notes')}</PanelTitle>
                     </PanelHeader>
                     <PanelBody>
                         <p className="font-mono text-sm whitespace-pre-line text-ink-soft">
@@ -284,6 +290,8 @@ export function FlightDetail({ flightId }: FlightDetailProps) {
 }
 
 function AirportPanel({ title, airport }: { title: string; airport: any }) {
+    const { t } = useTranslation()
+
     if (!airport || typeof airport === 'string') {
         return (
             <Panel>
@@ -291,7 +299,7 @@ function AirportPanel({ title, airport }: { title: string; airport: any }) {
                     <PanelTitle>{title}</PanelTitle>
                 </PanelHeader>
                 <PanelBody className="text-sm font-mono text-ink-muted">
-                    {typeof airport === 'string' ? airport : 'No airport data'}
+                    {typeof airport === 'string' ? airport : t('flightDetail.noAirportData')}
                 </PanelBody>
             </Panel>
         )
@@ -305,39 +313,41 @@ function AirportPanel({ title, airport }: { title: string; airport: any }) {
                 </span>
             </PanelHeader>
             <PanelBody className="grid grid-cols-2 gap-3">
-                <DataBlock label="Name" value={airport.name || '—'} className="col-span-2" />
-                <DataBlock label="City" value={airport.municipality || '—'} />
-                <DataBlock label="Country" value={airport.country || '—'} />
-                <DataBlock label="Region" value={airport.region || '—'} />
-                <DataBlock label="Continent" value={airport.continent || '—'} />
-                <DataBlock label="ICAO / IATA" value={`${airport.icao || '—'} / ${airport.iata || '—'}`} />
-                <DataBlock label="Timezone" value={airport.timezone || '—'} />
+                <DataBlock label={t('flightDetail.name')} value={airport.name || '—'} className="col-span-2" />
+                <DataBlock label={t('flightDetail.city')} value={airport.municipality || '—'} />
+                <DataBlock label={t('flightDetail.country')} value={airport.country || '—'} />
+                <DataBlock label={t('flightDetail.region')} value={airport.region || '—'} />
+                <DataBlock label={t('flightDetail.continent')} value={airport.continent || '—'} />
+                <DataBlock label={t('flightDetail.icaoIata')} value={`${airport.icao || '—'} / ${airport.iata || '—'}`} />
+                <DataBlock label={t('flightDetail.timezone')} value={airport.timezone || '—'} />
             </PanelBody>
         </Panel>
     )
 }
 
 function ReadFields({ flight }: { flight: Flight }) {
+    const { t } = useTranslation()
+
     return (
         <div className="grid grid-cols-2 gap-3">
-            <DataBlock label="Seat" value={flight.seat || '—'} valueClassName="capitalize" />
+            <DataBlock label={t('newFlight.seat')} value={flight.seat || '—'} valueClassName="capitalize" />
             <DataBlock
-                label="Side"
+                label={t('newFlight.side')}
                 value={flight.aircraftSide || '—'}
                 valueClassName="capitalize"
             />
-            <DataBlock label="Class" value={flight.ticketClass || '—'} valueClassName="capitalize" />
-            <DataBlock label="Purpose" value={flight.purpose || '—'} valueClassName="capitalize" />
-            <DataBlock label="Tail number" value={flight.tailNumber || '—'} />
-            <DataBlock label="Flight number" value={flight.flightNumber || '—'} />
+            <DataBlock label={t('newFlight.class')} value={flight.ticketClass || '—'} valueClassName="capitalize" />
+            <DataBlock label={t('newFlight.purpose')} value={flight.purpose || '—'} valueClassName="capitalize" />
+            <DataBlock label={t('newFlight.tailNumber')} value={flight.tailNumber || '—'} />
+            <DataBlock label={t('newFlight.flightNumber')} value={flight.flightNumber || '—'} />
             {flight.connection && (
                 <div className="col-span-2">
-                    <span className="board-label">Connection</span>
+                    <span className="board-label">{t('flightDetail.connection')}</span>
                     <Link
                         to={`/flights?id=${flight.connection}`}
                         className="block font-mono text-sm text-accent-deep underline mt-1"
                     >
-                        Linked flight #{flight.connection}
+                        {t('flightDetail.linkedFlight', { id: flight.connection })}
                     </Link>
                 </div>
             )}
@@ -351,6 +361,7 @@ interface EditFieldsProps {
 }
 
 function EditFields({ draft, setDraft }: EditFieldsProps) {
+    const { t } = useTranslation()
     const set = <K extends keyof Flight>(k: K, v: Flight[K] | undefined) =>
         setDraft({ ...draft, [k]: v as any })
 
@@ -375,7 +386,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="col-span-2">
-                <Label>Date</Label>
+                <Label>{t('newFlight.date')}</Label>
                 <Input
                     type="date"
                     value={draft.date ?? ''}
@@ -384,7 +395,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
             </div>
 
             <div>
-                <Label>Origin</Label>
+                <Label>{t('newFlight.origin')}</Label>
                 <Combobox<Airport>
                     displayValue={
                         draft.origin
@@ -396,7 +407,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
                 />
             </div>
             <div>
-                <Label>Destination</Label>
+                <Label>{t('newFlight.destination')}</Label>
                 <Combobox<Airport>
                     displayValue={
                         draft.destination
@@ -409,7 +420,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
             </div>
 
             <div>
-                <Label>Departure time</Label>
+                <Label>{t('flightDetail.departureTime')}</Label>
                 <Input
                     type="time"
                     value={draft.departureTime ?? ''}
@@ -417,7 +428,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
                 />
             </div>
             <div>
-                <Label>Arrival time</Label>
+                <Label>{t('flightDetail.arrivalTime')}</Label>
                 <Input
                     type="time"
                     value={draft.arrivalTime ?? ''}
@@ -426,7 +437,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
             </div>
 
             <div>
-                <Label>Arrival date</Label>
+                <Label>{t('newFlight.arrivalDate')}</Label>
                 <Input
                     type="date"
                     value={draft.arrivalDate ?? ''}
@@ -434,7 +445,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
                 />
             </div>
             <div>
-                <Label>Duration (min)</Label>
+                <Label>{t('flightDetail.durationMin')}</Label>
                 <Input
                     type="number"
                     value={draft.duration ?? ''}
@@ -445,7 +456,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
             </div>
 
             <div>
-                <Label>Distance</Label>
+                <Label>{t('flightDetail.distance')}</Label>
                 <Input
                     type="number"
                     value={draft.distance ?? ''}
@@ -455,7 +466,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
                 />
             </div>
             <div>
-                <Label>Airline</Label>
+                <Label>{t('newFlight.airline')}</Label>
                 <Combobox<Airline>
                     displayValue={
                         draft.airline
@@ -468,7 +479,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
             </div>
 
             <div>
-                <Label>Seat</Label>
+                <Label>{t('newFlight.seat')}</Label>
                 <Select value={draft.seat ?? ''} onChange={(e) => set('seat', e.target.value)}>
                     {SEAT_OPTIONS.map((o) => (
                         <option key={o} value={o}>
@@ -478,7 +489,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
                 </Select>
             </div>
             <div>
-                <Label>Side</Label>
+                <Label>{t('newFlight.side')}</Label>
                 <Select
                     value={draft.aircraftSide ?? ''}
                     onChange={(e) => set('aircraftSide', e.target.value)}
@@ -492,7 +503,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
             </div>
 
             <div>
-                <Label>Class</Label>
+                <Label>{t('newFlight.class')}</Label>
                 <Select
                     value={draft.ticketClass ?? ''}
                     onChange={(e) => set('ticketClass', e.target.value)}
@@ -505,7 +516,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
                 </Select>
             </div>
             <div>
-                <Label>Purpose</Label>
+                <Label>{t('newFlight.purpose')}</Label>
                 <Select value={draft.purpose ?? ''} onChange={(e) => set('purpose', e.target.value)}>
                     {PURPOSES.map((o) => (
                         <option key={o} value={o}>
@@ -516,14 +527,14 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
             </div>
 
             <div>
-                <Label>Airplane</Label>
+                <Label>{t('newFlight.airplane')}</Label>
                 <Input
                     value={draft.airplane ?? ''}
                     onChange={(e) => set('airplane', e.target.value)}
                 />
             </div>
             <div>
-                <Label>Tail number</Label>
+                <Label>{t('newFlight.tailNumber')}</Label>
                 <Input
                     value={draft.tailNumber ?? ''}
                     onChange={(e) => set('tailNumber', e.target.value)}
@@ -531,7 +542,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
             </div>
 
             <div className="col-span-2">
-                <Label>Flight number</Label>
+                <Label>{t('newFlight.flightNumber')}</Label>
                 <Input
                     value={draft.flightNumber ?? ''}
                     onChange={(e) => set('flightNumber', e.target.value)}
@@ -539,7 +550,7 @@ function EditFields({ draft, setDraft }: EditFieldsProps) {
             </div>
 
             <div className="col-span-2">
-                <Label>Notes</Label>
+                <Label>{t('newFlight.notes')}</Label>
                 <textarea
                     rows={3}
                     value={draft.notes ?? ''}

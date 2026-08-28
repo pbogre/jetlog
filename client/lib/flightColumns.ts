@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import type { TFunction } from 'i18next'
 import type { Flight } from '@/models'
 import { formatDistance, formatDuration, formatTime, airportCode } from '@/lib/format'
 
@@ -6,7 +7,8 @@ export type FlightSortKey = 'date' | 'duration' | 'distance' | 'seat'
 
 export interface FlightColumnDef {
     id: string
-    label: string
+    /** Column header label; receives the i18n `t` function so it translates live. */
+    label: (t: TFunction) => string
     sortable?: FlightSortKey
     required?: boolean
     defaultVisible: boolean
@@ -20,7 +22,7 @@ const dash = '—'
 export const FLIGHT_COLUMNS: FlightColumnDef[] = [
     {
         id: 'date',
-        label: 'Date',
+        label: (t) => t('columns.date'),
         sortable: 'date',
         required: true,
         defaultVisible: true,
@@ -28,39 +30,39 @@ export const FLIGHT_COLUMNS: FlightColumnDef[] = [
     },
     {
         id: 'origin',
-        label: 'Origin',
+        label: (t) => t('columns.origin'),
         required: true,
         defaultVisible: true,
         render: (f) => airportCode(f.origin),
     },
     {
         id: 'destination',
-        label: 'Destination',
+        label: (t) => t('columns.destination'),
         required: true,
         defaultVisible: true,
         render: (f) => airportCode(f.destination),
     },
     {
         id: 'departureTime',
-        label: 'Departure',
+        label: (t) => t('columns.departure'),
         defaultVisible: true,
         render: (f) => formatTime(f.departureTime),
     },
     {
         id: 'arrivalTime',
-        label: 'Arrival',
+        label: (t) => t('columns.arrival'),
         defaultVisible: true,
         render: (f) => formatTime(f.arrivalTime),
     },
     {
         id: 'arrivalDate',
-        label: 'Arrival date',
+        label: (t) => t('columns.arrivalDate'),
         defaultVisible: false,
         render: (f) => f.arrivalDate || dash,
     },
     {
         id: 'duration',
-        label: 'Duration',
+        label: (t) => t('columns.duration'),
         sortable: 'duration',
         defaultVisible: true,
         numeric: true,
@@ -68,7 +70,7 @@ export const FLIGHT_COLUMNS: FlightColumnDef[] = [
     },
     {
         id: 'distance',
-        label: 'Distance',
+        label: (t) => t('columns.distance'),
         sortable: 'distance',
         defaultVisible: true,
         numeric: true,
@@ -76,75 +78,75 @@ export const FLIGHT_COLUMNS: FlightColumnDef[] = [
     },
     {
         id: 'seat',
-        label: 'Seat',
+        label: (t) => t('columns.seat'),
         sortable: 'seat',
         defaultVisible: true,
         render: (f) => f.seat || dash,
     },
     {
         id: 'aircraftSide',
-        label: 'Side',
+        label: (t) => t('columns.side'),
         defaultVisible: false,
         render: (f) => f.aircraftSide || dash,
     },
     {
         id: 'ticketClass',
-        label: 'Class',
+        label: (t) => t('columns.class'),
         defaultVisible: true,
         render: (f) => f.ticketClass || dash,
     },
     {
         id: 'purpose',
-        label: 'Purpose',
+        label: (t) => t('columns.purpose'),
         defaultVisible: false,
         render: (f) => f.purpose || dash,
     },
     {
         id: 'airline',
-        label: 'Airline',
+        label: (t) => t('columns.airline'),
         defaultVisible: true,
         render: (f) => (f.airline ? f.airline.iata || f.airline.icao : dash),
     },
     {
         id: 'airplane',
-        label: 'Airplane',
+        label: (t) => t('columns.airplane'),
         defaultVisible: false,
         render: (f) => f.airplane || dash,
     },
     {
         id: 'tailNumber',
-        label: 'Tail number',
+        label: (t) => t('columns.tailNumber'),
         defaultVisible: false,
         render: (f) => f.tailNumber || dash,
     },
     {
         id: 'flightNumber',
-        label: 'Flight number',
+        label: (t) => t('columns.flightNumber'),
         defaultVisible: false,
         render: (f) => f.flightNumber || dash,
     },
     {
         id: 'username',
-        label: 'User',
+        label: (t) => t('columns.user'),
         defaultVisible: false,
         render: (f) => f.username || dash,
     },
     {
         id: 'notes',
-        label: 'Notes',
+        label: (t) => t('columns.notes'),
         defaultVisible: false,
         render: (f) => f.notes || dash,
     },
     {
         id: 'connection',
-        label: 'Connection',
+        label: (t) => t('columns.connection'),
         defaultVisible: false,
         numeric: true,
         render: (f) => (f.connection ? `#${f.connection}` : dash),
     },
     {
         id: 'id',
-        label: 'Flight ID',
+        label: (t) => t('columns.flightId'),
         defaultVisible: false,
         numeric: true,
         render: (f) => `#${f.id}`,

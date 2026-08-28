@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useTranslation } from 'react-i18next'
 import {
     LogOut,
     Trash2,
@@ -32,55 +33,56 @@ import { Spinner } from '@/components/ui/Spinner'
 
 interface PrefDef {
     key: keyof ConfigInterface
-    label: string
-    description: string
+    labelKey: string
+    descriptionKey: string
 }
 
 const PREFS: PrefDef[] = [
     {
         key: 'metricUnits',
-        label: 'Metric units',
-        description: 'Use kilometers instead of miles for distance.',
+        labelKey: 'settings.metricUnits',
+        descriptionKey: 'settings.metricUnitsDesc',
     },
     {
         key: 'localAirportTime',
-        label: 'Local airport timezone',
-        description: 'Compute flight duration using each airport\'s local time.',
+        labelKey: 'settings.localAirportTime',
+        descriptionKey: 'settings.localAirportTimeDesc',
     },
     {
         key: 'showVisitedCountries',
-        label: 'Highlight visited countries',
-        description: 'Fill visited countries on the world map.',
+        labelKey: 'settings.showVisitedCountries',
+        descriptionKey: 'settings.showVisitedCountriesDesc',
     },
     {
         key: 'frequencyBasedMarker',
-        label: 'Frequency-based markers',
-        description: 'Scale airport markers on the map by visit count.',
+        labelKey: 'settings.frequencyBasedMarker',
+        descriptionKey: 'settings.frequencyBasedMarkerDesc',
     },
     {
         key: 'frequencyBasedLine',
-        label: 'Frequency-based flight lines',
-        description: 'Scale flight path thickness by trip frequency.',
+        labelKey: 'settings.frequencyBasedLine',
+        descriptionKey: 'settings.frequencyBasedLineDesc',
     },
 ]
 
 export default function Settings() {
     const { data: me } = useCurrentUser()
+    const { t } = useTranslation()
 
     return (
         <div className="max-w-5xl mx-auto p-4 md:p-6">
-            <h1 className="font-mono uppercase tracking-board text-base mb-4">Settings</h1>
+            <h1 className="font-mono uppercase tracking-board text-base mb-4">{t('settings.title')}</h1>
 
             <Tabs defaultValue="preferences">
                 <TabsList>
-                    <TabsTrigger value="preferences">Preferences</TabsTrigger>
-                    <TabsTrigger value="table">Flights table</TabsTrigger>
-                    <TabsTrigger value="data">Import / Export</TabsTrigger>
-                    <TabsTrigger value="account">Account</TabsTrigger>
+                    <TabsTrigger value="preferences">{t('settings.tabPreferences')}</TabsTrigger>
+                    <TabsTrigger value="table">{t('settings.tabTable')}</TabsTrigger>
+                    <TabsTrigger value="data">{t('settings.tabData')}</TabsTrigger>
+                    <TabsTrigger value="account">{t('settings.tabAccount')}</TabsTrigger>
                     {me?.isAdmin && (
                         <>
-                            <TabsTrigger value="users">Users</TabsTrigger>
-                            <TabsTrigger value="jobs">Jobs</TabsTrigger>
+                            <TabsTrigger value="users">{t('settings.tabUsers')}</TabsTrigger>
+                            <TabsTrigger value="jobs">{t('settings.tabJobs')}</TabsTrigger>
                         </>
                     )}
                 </TabsList>
@@ -91,7 +93,7 @@ export default function Settings() {
                 <TabsContent value="table">
                     <Panel>
                         <PanelHeader>
-                            <PanelTitle>Columns on All Flights</PanelTitle>
+                            <PanelTitle>{t('settings.columnsOnAllFlights')}</PanelTitle>
                         </PanelHeader>
                         <PanelBody>
                             <ColumnsManager />
@@ -123,6 +125,7 @@ export default function Settings() {
 
 function PreferencesPanel() {
     const [opts, setOpts] = useState<ConfigInterface>(() => ConfigStorage.getAllSettings())
+    const { t } = useTranslation()
 
     const toggle = (key: keyof ConfigInterface, value: boolean) => {
         const v = value.toString()
@@ -139,15 +142,15 @@ function PreferencesPanel() {
                         className="flex items-start justify-between gap-4 px-4 py-4"
                     >
                         <div className="min-w-0">
-                            <Label className="mb-0.5">{p.label}</Label>
+                            <Label className="mb-0.5">{t(p.labelKey)}</Label>
                             <p className="text-xs text-ink-muted font-mono">
-                                {p.description}
+                                {t(p.descriptionKey)}
                             </p>
                         </div>
                         <Switch
                             checked={opts[p.key] === 'true'}
                             onCheckedChange={(v) => toggle(p.key, v)}
-                            aria-label={p.label}
+                            aria-label={t(p.labelKey)}
                         />
                     </div>
                 ))}
@@ -162,6 +165,7 @@ function DataPanel() {
     const navigate = useNavigate()
     const [importing, setImporting] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const { t } = useTranslation()
 
     const handleImport = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -171,7 +175,7 @@ function DataPanel() {
             ([, v]) => v instanceof Blob && (v as Blob).size > 0,
         )
         if (entries.length === 0) {
-            setError('Please choose at least one file.')
+            setError(t('settings.pleaseChooseFile'))
             return
         }
         setImporting(true)
@@ -191,20 +195,20 @@ function DataPanel() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Panel>
                 <PanelHeader>
-                    <PanelTitle>Import flights</PanelTitle>
+                    <PanelTitle>{t('settings.importFlights')}</PanelTitle>
                 </PanelHeader>
                 <PanelBody>
                     <form onSubmit={handleImport} className="space-y-4">
                         <div>
-                            <Label>MyFlightRadar24</Label>
+                            <Label>{t('settings.myFlightradar24')}</Label>
                             <Input type="file" name="myflightradar24" accept=".csv" />
                         </div>
                         <div>
-                            <Label>Flighty</Label>
+                            <Label>{t('settings.flighty')}</Label>
                             <Input type="file" name="flighty" accept=".csv" />
                         </div>
                         <div>
-                            <Label>Custom CSV</Label>
+                            <Label>{t('settings.customCsv')}</Label>
                             <Input type="file" name="custom" accept=".csv" />
                         </div>
                         {error && (
@@ -212,7 +216,7 @@ function DataPanel() {
                         )}
                         <Button type="submit" variant="accent" disabled={importing}>
                             <Upload size={13} />
-                            {importing ? 'Importing…' : 'Import'}
+                            {importing ? t('settings.importing') : t('settings.import')}
                         </Button>
                     </form>
                 </PanelBody>
@@ -220,11 +224,11 @@ function DataPanel() {
 
             <Panel>
                 <PanelHeader>
-                    <PanelTitle>Export flights</PanelTitle>
+                    <PanelTitle>{t('settings.exportFlights')}</PanelTitle>
                 </PanelHeader>
                 <PanelBody className="space-y-3">
                     <p className="text-xs text-ink-muted font-mono">
-                        Download all your logged flights in one of the formats below.
+                        {t('settings.exportDescription')}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-2">
                         <Button
@@ -232,14 +236,14 @@ function DataPanel() {
                             onClick={() => API.post('/exporting/csv', {}, true)}
                             className="flex-1"
                         >
-                            <Download size={13} /> Export CSV
+                            <Download size={13} /> {t('settings.exportCsv')}
                         </Button>
                         <Button
                             variant="outline"
                             onClick={() => API.post('/exporting/ical', {}, true)}
                             className="flex-1"
                         >
-                            <Download size={13} /> Export iCal
+                            <Download size={13} /> {t('settings.exportIcal')}
                         </Button>
                     </div>
                 </PanelBody>
@@ -252,6 +256,7 @@ function DataPanel() {
 
 function AccountPanel({ me }: { me?: User }) {
     const [editOpen, setEditOpen] = useState(false)
+    const { t } = useTranslation()
     if (!me) return <Spinner />
 
     const logout = () => {
@@ -263,20 +268,20 @@ function AccountPanel({ me }: { me?: User }) {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Panel>
                 <PanelHeader>
-                    <PanelTitle>Your account</PanelTitle>
-                    {me.isAdmin && <Badge variant="accent">Admin</Badge>}
+                    <PanelTitle>{t('settings.yourAccount')}</PanelTitle>
+                    {me.isAdmin && <Badge variant="accent">{t('common.admin')}</Badge>}
                 </PanelHeader>
                 <PanelBody className="grid grid-cols-2 gap-4">
-                    <DataBlock label="Username" value={me.username} />
-                    <DataBlock label="Admin" value={me.isAdmin ? 'Yes' : 'No'} />
-                    <DataBlock label="Last login" value={me.lastLogin || '—'} />
-                    <DataBlock label="Created" value={me.createdOn || '—'} />
+                    <DataBlock label={t('settings.username')} value={me.username} />
+                    <DataBlock label={t('common.admin')} value={me.isAdmin ? t('common.yes') : t('common.no')} />
+                    <DataBlock label={t('settings.lastLogin')} value={me.lastLogin || '—'} />
+                    <DataBlock label={t('settings.created')} value={me.createdOn || '—'} />
                 </PanelBody>
             </Panel>
 
             <Panel>
                 <PanelHeader>
-                    <PanelTitle>Actions</PanelTitle>
+                    <PanelTitle>{t('settings.actions')}</PanelTitle>
                 </PanelHeader>
                 <PanelBody className="space-y-2">
                     <Button
@@ -284,14 +289,14 @@ function AccountPanel({ me }: { me?: User }) {
                         className="w-full justify-start"
                         onClick={() => setEditOpen(true)}
                     >
-                        <Pencil size={13} /> Edit account
+                        <Pencil size={13} /> {t('settings.editAccount')}
                     </Button>
                     <Button
                         variant="danger"
                         className="w-full justify-start"
                         onClick={logout}
                     >
-                        <LogOut size={13} /> Log out
+                        <LogOut size={13} /> {t('settings.logOut')}
                     </Button>
                 </PanelBody>
             </Panel>
@@ -324,15 +329,16 @@ function UsersPanel({ me }: { me: User }) {
     const { data: usernames } = useUsernames()
     const { data: users, isLoading } = useAllUserDetails(usernames, me.username)
     const [createOpen, setCreateOpen] = useState(false)
+    const { t } = useTranslation()
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
                 <p className="board-label text-ink-muted">
-                    {users?.length ?? 0} other users
+                    {t('settings.otherUsers', { count: users?.length ?? 0 })}
                 </p>
                 <Button variant="accent" size="sm" onClick={() => setCreateOpen(true)}>
-                    <Plus size={13} /> New user
+                    <Plus size={13} /> {t('settings.newUser')}
                 </Button>
             </div>
 
@@ -343,7 +349,7 @@ function UsersPanel({ me }: { me: User }) {
             ) : !users || users.length === 0 ? (
                 <Panel>
                     <PanelBody className="text-center text-ink-muted text-sm py-10 font-mono">
-                        No other users.
+                        {t('settings.noOtherUsers')}
                     </PanelBody>
                 </Panel>
             ) : (
@@ -362,9 +368,10 @@ function UsersPanel({ me }: { me: User }) {
 function UserCard({ user }: { user: User }) {
     const qc = useQueryClient()
     const [editOpen, setEditOpen] = useState(false)
+    const { t } = useTranslation()
 
     const handleDelete = async () => {
-        if (!confirm(`Delete user "${user.username}" and all their flights?`)) return
+        if (!confirm(t('settings.deleteUserConfirm', { username: user.username }))) return
         await API.delete(`/users/${user.username}`)
         qc.invalidateQueries({ queryKey: ['users'] })
     }
@@ -373,12 +380,12 @@ function UserCard({ user }: { user: User }) {
         <Panel>
             <PanelHeader>
                 <PanelTitle>{user.username}</PanelTitle>
-                {user.isAdmin && <Badge variant="accent">Admin</Badge>}
+                {user.isAdmin && <Badge variant="accent">{t('common.admin')}</Badge>}
             </PanelHeader>
             <PanelBody className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
-                    <DataBlock label="Last login" value={user.lastLogin || '—'} />
-                    <DataBlock label="Created" value={user.createdOn || '—'} />
+                    <DataBlock label={t('settings.lastLogin')} value={user.lastLogin || '—'} />
+                    <DataBlock label={t('settings.created')} value={user.createdOn || '—'} />
                 </div>
                 <div className="flex gap-2 pt-2 border-t border-rule">
                     <Button
@@ -387,7 +394,7 @@ function UserCard({ user }: { user: User }) {
                         className="flex-1"
                         onClick={() => setEditOpen(true)}
                     >
-                        <Pencil size={13} /> Edit
+                        <Pencil size={13} /> {t('common.edit')}
                     </Button>
                     <Button
                         variant="danger"
@@ -395,7 +402,7 @@ function UserCard({ user }: { user: User }) {
                         className="flex-1"
                         onClick={handleDelete}
                     >
-                        <Trash2 size={13} /> Delete
+                        <Trash2 size={13} /> {t('common.delete')}
                     </Button>
                 </div>
             </PanelBody>
@@ -412,6 +419,8 @@ interface EditUserDialogProps {
 }
 
 function EditUserDialog({ user, open, onOpenChange, isSelf }: EditUserDialogProps) {
+    const { t } = useTranslation()
+
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const fd = Object.fromEntries(new FormData(e.currentTarget))
@@ -430,24 +439,24 @@ function EditUserDialog({ user, open, onOpenChange, isSelf }: EditUserDialogProp
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange} title={`Edit ${user.username}`}>
+        <Dialog open={open} onOpenChange={onOpenChange} title={t('settings.editUser', { username: user.username })}>
             <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
-                    <Label>New username</Label>
+                    <Label>{t('settings.newUsername')}</Label>
                     <Input name="username" placeholder={user.username} />
                 </div>
                 {!isSelf && (
                     <div>
-                        <Label>Admin</Label>
+                        <Label>{t('common.admin')}</Label>
                         <Select name="isAdmin" defaultValue={user.isAdmin.toString()}>
-                            <option value="false">No</option>
-                            <option value="true">Yes</option>
+                            <option value="false">{t('common.no')}</option>
+                            <option value="true">{t('common.yes')}</option>
                         </Select>
                     </div>
                 )}
                 <div>
-                    <Label>New password</Label>
-                    <Input name="password" type="password" placeholder="Leave blank to keep current" />
+                    <Label>{t('settings.newPassword')}</Label>
+                    <Input name="password" type="password" placeholder={t('settings.leaveBlank')} />
                 </div>
                 <div className="flex justify-end gap-2 pt-3 border-t border-rule">
                     <Button
@@ -456,10 +465,10 @@ function EditUserDialog({ user, open, onOpenChange, isSelf }: EditUserDialogProp
                         size="sm"
                         onClick={() => onOpenChange(false)}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button type="submit" variant="accent" size="sm">
-                        Save
+                        {t('common.save')}
                     </Button>
                 </div>
             </form>
@@ -475,6 +484,7 @@ function CreateUserDialog({
     onOpenChange: (o: boolean) => void
 }) {
     const qc = useQueryClient()
+    const { t } = useTranslation()
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const data = Object.fromEntries(new FormData(e.currentTarget))
@@ -484,21 +494,21 @@ function CreateUserDialog({
     }
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange} title="Create user">
+        <Dialog open={open} onOpenChange={onOpenChange} title={t('settings.createUser')}>
             <form onSubmit={handleSubmit} className="space-y-3">
                 <div>
-                    <Label required>Username</Label>
+                    <Label required>{t('settings.username')}</Label>
                     <Input name="username" required />
                 </div>
                 <div>
-                    <Label required>Admin</Label>
+                    <Label required>{t('common.admin')}</Label>
                     <Select name="isAdmin" defaultValue="false">
-                        <option value="false">No</option>
-                        <option value="true">Yes</option>
+                        <option value="false">{t('common.no')}</option>
+                        <option value="true">{t('common.yes')}</option>
                     </Select>
                 </div>
                 <div>
-                    <Label required>Password</Label>
+                    <Label required>{t('login.password')}</Label>
                     <Input name="password" type="password" required />
                 </div>
                 <div className="flex justify-end gap-2 pt-3 border-t border-rule">
@@ -508,10 +518,10 @@ function CreateUserDialog({
                         size="sm"
                         onClick={() => onOpenChange(false)}
                     >
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button type="submit" variant="accent" size="sm">
-                        Create
+                        {t('common.create')}
                     </Button>
                 </div>
             </form>
@@ -524,6 +534,7 @@ function CreateUserDialog({
 function JobsPanel() {
     const [running, setRunning] = useState<string | null>(null)
     const [result, setResult] = useState<string | null>(null)
+    const { t } = useTranslation()
 
     const run = async (job: 'connections' | 'airlines', label: string) => {
         setRunning(label)
@@ -535,9 +546,11 @@ function JobsPanel() {
                     : '/flights/airlines_from_callsigns'
             const data = await API.post(endpoint, {})
             setResult(
-                `${label}: ${data?.amountUpdated ?? 0} updated, ${
-                    data?.amountSkipped ?? 0
-                } skipped`,
+                t('settings.jobResult', {
+                    label,
+                    updated: data?.amountUpdated ?? 0,
+                    skipped: data?.amountSkipped ?? 0,
+                }),
             )
         } finally {
             setRunning(null)
@@ -547,22 +560,22 @@ function JobsPanel() {
     return (
         <Panel>
             <PanelHeader>
-                <PanelTitle>Maintenance jobs</PanelTitle>
+                <PanelTitle>{t('settings.maintenanceJobs')}</PanelTitle>
             </PanelHeader>
             <PanelBody className="space-y-3">
                 <JobRow
-                    label="Compute flight connections"
-                    description="Find return/onward connections between existing flights."
-                    onRun={() => run('connections', 'Connections')}
-                    running={running === 'Connections'}
+                    label={t('settings.computeConnections')}
+                    description={t('settings.computeConnectionsDesc')}
+                    onRun={() => run('connections', t('settings.connections'))}
+                    running={running === t('settings.connections')}
                     disabled={!!running}
                 />
                 {ENABLE_EXTERNAL_APIS && (
                     <JobRow
-                        label="Fetch missing airlines"
-                        description="Look up airlines for flights with a callsign but no airline."
-                        onRun={() => run('airlines', 'Airlines')}
-                        running={running === 'Airlines'}
+                        label={t('settings.fetchMissingAirlines')}
+                        description={t('settings.fetchMissingAirlinesDesc')}
+                        onRun={() => run('airlines', t('settings.airlines'))}
+                        running={running === t('settings.airlines')}
                         disabled={!!running}
                     />
                 )}
@@ -584,6 +597,8 @@ interface JobRowProps {
     disabled: boolean
 }
 function JobRow({ label, description, onRun, running, disabled }: JobRowProps) {
+    const { t } = useTranslation()
+
     return (
         <div className="flex items-start justify-between gap-4 py-3 border-b border-rule last:border-b-0">
             <div className="min-w-0 flex-1">
@@ -597,7 +612,7 @@ function JobRow({ label, description, onRun, running, disabled }: JobRowProps) {
                 disabled={disabled}
             >
                 <PlayCircle size={13} />
-                {running ? 'Running…' : 'Run'}
+                {running ? t('common.running') : t('common.run')}
             </Button>
         </div>
     )

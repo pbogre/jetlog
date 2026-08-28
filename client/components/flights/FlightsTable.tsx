@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowRight, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { SortingState } from '@tanstack/react-table'
 
 import type { Flight } from '@/models'
@@ -33,6 +34,7 @@ export function FlightsTable({
     columnPrefs,
 }: FlightsTableProps) {
     const navigate = useNavigate()
+    const { t } = useTranslation()
 
     const visibleColumns = useMemo<FlightColumnDef[]>(() => {
         // Use prefs order, fall back to registry order for unknowns.
@@ -62,7 +64,7 @@ export function FlightsTable({
     if (!flights || flights.length === 0) {
         return (
             <div className="text-center text-ink-muted text-sm font-mono py-16">
-                No flights found.
+                {t('allFlights.noFlightsFound')}
             </div>
         )
     }
@@ -98,7 +100,7 @@ export function FlightsTable({
                                                 col.numeric && 'justify-end w-full',
                                             )}
                                         >
-                                            {col.label}
+                                            {col.label(t)}
                                             {sortable && sortedDesc === undefined && (
                                                 <ArrowUpDown size={11} className="opacity-40" />
                                             )}

@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { Plane, Radio, Loader2 } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 import API, { ENABLE_EXTERNAL_APIS } from '@/api'
 import {
@@ -57,6 +58,7 @@ interface SharedFields {
 export default function NewFlight() {
     const navigate = useNavigate()
     const qc = useQueryClient()
+    const { t } = useTranslation()
     const localAirportTime = ConfigStorage.getSetting('localAirportTime') === 'true'
 
     const { data: me } = useCurrentUser()
@@ -135,7 +137,7 @@ export default function NewFlight() {
             )
             const route = data?.response?.flightroute
             if (!route) {
-                setError('No route found for that flight number.')
+                setError(t('newFlight.noRoute'))
                 return
             }
             const [origin, destination, airline] = await Promise.all([
@@ -145,7 +147,7 @@ export default function NewFlight() {
             ])
             setShared((s) => ({ ...s, origin, destination, airline }))
         } catch {
-            setError('Failed to fetch flight info.')
+            setError(t('newFlight.fetchFailed'))
         } finally {
             setFetching(false)
         }
@@ -156,12 +158,12 @@ export default function NewFlight() {
         setError(null)
 
         if (!shared.origin || !shared.destination) {
-            setError('Origin and destination are required.')
+            setError(t('newFlight.originRequired'))
             return
         }
         const usernames = Object.keys(travelers)
         if (usernames.length === 0) {
-            setError('At least one traveler is required.')
+            setError(t('newFlight.travelerRequired'))
             return
         }
 
@@ -198,7 +200,7 @@ export default function NewFlight() {
             qc.invalidateQueries({ queryKey: ['flights'] })
             navigate(`/flights?id=${flightId}`)
         } catch {
-            setError('Failed to save flight.')
+            setError(t('newFlight.saveFailed'))
         } finally {
             setSubmitting(false)
         }
@@ -210,10 +212,10 @@ export default function NewFlight() {
     return (
         <form onSubmit={handleSubmit} className="max-w-5xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
             <div className="flex items-center justify-between">
-                <h1 className="font-mono uppercase tracking-board text-base">New flight</h1>
+                <h1 className="font-mono uppercase tracking-board text-base">{t('newFlight.title')}</h1>
                 <Badge variant="muted">
                     <Plane size={11} className="mr-1" />
-                    Manual entry
+                    {t('newFlight.manualEntry')}
                 </Badge>
             </div>
 
@@ -221,10 +223,10 @@ export default function NewFlight() {
             {ENABLE_EXTERNAL_APIS && (
                 <Panel className="border-ink/20">
                     <PanelBody className="!py-4">
-                        <Label>Flight number</Label>
+                        <Label>{t('newFlight.flightNumber')}</Label>
                         <div className="flex gap-2">
                             <Input
-                                placeholder="e.g. FR2460"
+                                placeholder={t('newFlight.fetchPlaceholder')}
                                 value={shared.flightNumber}
                                 maxLength={7}
                                 onChange={(e) =>
@@ -244,11 +246,11 @@ export default function NewFlight() {
                                 ) : (
                                     <Radio size={14} />
                                 )}
-                                {fetching ? 'Fetching…' : 'Fetch'}
+                                {fetching ? t('newFlight.fetching') : t('newFlight.fetch')}
                             </Button>
                         </div>
                         <p className="text-xs text-ink-muted font-mono mt-1.5">
-                            Enter a callsign and we'll pre-fill origin, destination & airline.
+                            {t('newFlight.fetchHint')}
                         </p>
                     </PanelBody>
                 </Panel>
@@ -258,13 +260,13 @@ export default function NewFlight() {
                 {/* Route */}
                 <Panel>
                     <PanelHeader>
-                        <PanelTitle>Route</PanelTitle>
+                        <PanelTitle>{t('newFlight.route')}</PanelTitle>
                     </PanelHeader>
                     <PanelBody className="space-y-3">
                         <div>
-                            <Label required>Origin</Label>
+                            <Label required>{t('newFlight.origin')}</Label>
                             <Combobox<Airport>
-                                placeholder="Search airports..."
+                                placeholder={t('newFlight.searchAirports')}
                                 displayValue={
                                     shared.origin
                                         ? `${shared.origin.iata || shared.origin.icao} · ${shared.origin.municipality}`
@@ -275,9 +277,9 @@ export default function NewFlight() {
                             />
                         </div>
                         <div>
-                            <Label required>Destination</Label>
+                            <Label required>{t('newFlight.destination')}</Label>
                             <Combobox<Airport>
-                                placeholder="Search airports..."
+                                placeholder={t('newFlight.searchAirports')}
                                 displayValue={
                                     shared.destination
                                         ? `${shared.destination.iata || shared.destination.icao} · ${shared.destination.municipality}`
@@ -288,9 +290,9 @@ export default function NewFlight() {
                             />
                         </div>
                         <div>
-                            <Label>Airline</Label>
+                            <Label>{t('newFlight.airline')}</Label>
                             <Combobox<Airline>
-                                placeholder="Search airlines..."
+                                placeholder={t('newFlight.searchAirlines')}
                                 displayValue={
                                     shared.airline
                                         ? `${shared.airline.iata || shared.airline.icao} · ${shared.airline.name}`
@@ -306,11 +308,11 @@ export default function NewFlight() {
                 {/* Schedule + aircraft */}
                 <Panel>
                     <PanelHeader>
-                        <PanelTitle>Schedule & aircraft</PanelTitle>
+                        <PanelTitle>{t('newFlight.scheduleAircraft')}</PanelTitle>
                     </PanelHeader>
                     <PanelBody className="space-y-3">
                         <div>
-                            <Label required>Date</Label>
+                            <Label required>{t('newFlight.date')}</Label>
                             <Input
                                 type="date"
                                 value={shared.date}
@@ -320,7 +322,7 @@ export default function NewFlight() {
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label>Departure</Label>
+                                <Label>{t('newFlight.departure')}</Label>
                                 <Input
                                     type="time"
                                     value={shared.departureTime}
@@ -328,7 +330,7 @@ export default function NewFlight() {
                                 />
                             </div>
                             <div>
-                                <Label>Arrival</Label>
+                                <Label>{t('newFlight.arrival')}</Label>
                                 <Input
                                     type="time"
                                     value={shared.arrivalTime}
@@ -337,7 +339,7 @@ export default function NewFlight() {
                             </div>
                         </div>
                         <div>
-                            <Label>Arrival date</Label>
+                            <Label>{t('newFlight.arrivalDate')}</Label>
                             <Input
                                 type="date"
                                 value={shared.arrivalDate}
@@ -346,7 +348,7 @@ export default function NewFlight() {
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label>Airplane</Label>
+                                <Label>{t('newFlight.airplane')}</Label>
                                 <Input
                                     placeholder="B738"
                                     maxLength={16}
@@ -355,7 +357,7 @@ export default function NewFlight() {
                                 />
                             </div>
                             <div>
-                                <Label>Tail number</Label>
+                                <Label>{t('newFlight.tailNumber')}</Label>
                                 <Input
                                     placeholder="EI-DCL"
                                     maxLength={16}
@@ -372,22 +374,22 @@ export default function NewFlight() {
             <Panel>
                 <PanelHeader>
                     <PanelTitle>
-                        {isAdmin ? 'Travelers' : 'Your details'}
+                        {isAdmin ? t('newFlight.travelers') : t('newFlight.yourDetails')}
                     </PanelTitle>
                     {isAdmin && (
                         <span className="board-label text-ink-muted">
-                            {Object.keys(travelers).length} selected
+                            {t('newFlight.selected', { count: Object.keys(travelers).length })}
                         </span>
                     )}
                 </PanelHeader>
                 <PanelBody className="space-y-4">
                     {isAdmin && otherUsers.length > 0 && (
                         <div>
-                            <Label>Log this flight for</Label>
+                            <Label>{t('newFlight.logFor')}</Label>
                             <div className="flex flex-wrap gap-2 mt-1">
                                 {me && (
                                     <Badge variant="accent">
-                                        {me.username} (you)
+                                        {me.username} {t('newFlight.you')}
                                     </Badge>
                                 )}
                                 {otherUsers.map((u) => {
@@ -415,7 +417,7 @@ export default function NewFlight() {
                         {Object.entries(travelers).map(([username, extras]) => (
                             <div key={username} className="border border-rule p-4">
                                 <div className="board-label mb-3">
-                                    Traveler: <span className="text-ink">{username}</span>
+                                    {t('newFlight.traveler')} <span className="text-ink">{username}</span>
                                 </div>
                                 <TravelerForm
                                     extras={extras}
@@ -440,10 +442,10 @@ export default function NewFlight() {
                     onClick={() => navigate(-1)}
                     disabled={submitting}
                 >
-                    Cancel
+                    {t('newFlight.cancel')}
                 </Button>
                 <Button type="submit" variant="accent" size="lg" disabled={submitting}>
-                    {submitting ? 'Saving…' : 'Save flight'}
+                    {submitting ? t('newFlight.saving') : t('newFlight.saveFlight')}
                 </Button>
             </div>
         </form>
@@ -457,68 +459,70 @@ function TravelerForm({
     extras: TravelerExtras
     onChange: (p: Partial<TravelerExtras>) => void
 }) {
+    const { t } = useTranslation()
+
     return (
         <div className="space-y-3">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div>
-                    <Label>Seat</Label>
+                    <Label>{t('newFlight.seat')}</Label>
                     <Select
                         value={extras.seat}
                         onChange={(e) => onChange({ seat: e.target.value })}
                     >
                         {SEAT_OPTIONS.map((o) => (
                             <option key={o} value={o}>
-                                {o || 'Choose'}
+                                {o || t('newFlight.choose')}
                             </option>
                         ))}
                     </Select>
                 </div>
                 <div>
-                    <Label>Side</Label>
+                    <Label>{t('newFlight.side')}</Label>
                     <Select
                         value={extras.aircraftSide}
                         onChange={(e) => onChange({ aircraftSide: e.target.value })}
                     >
                         {AIRCRAFT_SIDES.map((o) => (
                             <option key={o} value={o}>
-                                {o || 'Choose'}
+                                {o || t('newFlight.choose')}
                             </option>
                         ))}
                     </Select>
                 </div>
                 <div>
-                    <Label>Class</Label>
+                    <Label>{t('newFlight.class')}</Label>
                     <Select
                         value={extras.ticketClass}
                         onChange={(e) => onChange({ ticketClass: e.target.value })}
                     >
                         {CLASSES.map((o) => (
                             <option key={o} value={o}>
-                                {o || 'Choose'}
+                                {o || t('newFlight.choose')}
                             </option>
                         ))}
                     </Select>
                 </div>
                 <div>
-                    <Label>Purpose</Label>
+                    <Label>{t('newFlight.purpose')}</Label>
                     <Select
                         value={extras.purpose}
                         onChange={(e) => onChange({ purpose: e.target.value })}
                     >
                         {PURPOSES.map((o) => (
                             <option key={o} value={o}>
-                                {o || 'Choose'}
+                                {o || t('newFlight.choose')}
                             </option>
                         ))}
                     </Select>
                 </div>
             </div>
             <div>
-                <Label>Notes</Label>
+                <Label>{t('newFlight.notes')}</Label>
                 <textarea
                     rows={2}
                     maxLength={150}
-                    placeholder="Type here..."
+                    placeholder={t('newFlight.typeHere')}
                     value={extras.notes}
                     onChange={(e) => onChange({ notes: e.target.value })}
                     className="w-full bg-paper border border-rule px-3 py-2 font-mono text-sm focus:border-ink focus:outline-none"

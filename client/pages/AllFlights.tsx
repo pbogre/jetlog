@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import type { SortingState } from '@tanstack/react-table'
 
 import { FlightsTable } from '@/components/flights/FlightsTable'
@@ -28,6 +29,7 @@ export default function AllFlights() {
 
 function FlightsListPage() {
     const metric = ConfigStorage.getSetting('metricUnits') !== 'false'
+    const { t } = useTranslation()
     const [filters, setFilters] = useState<FlightsFilters>({})
     const [sorting, setSorting] = useState<SortingState>([{ id: 'date', desc: true }])
     const [pageSize, setPageSize] = useState(20)
@@ -70,10 +72,10 @@ function FlightsListPage() {
     return (
         <div className="max-w-7xl mx-auto p-4 md:p-6">
             <div className="flex items-center justify-between mb-4">
-                <h1 className="font-mono uppercase tracking-board text-base">All flights</h1>
+                <h1 className="font-mono uppercase tracking-board text-base">{t('allFlights.title')}</h1>
                 <Button asChild variant="accent" size="sm">
                     <Link to="/new">
-                        <Plus size={13} /> New flight
+                        <Plus size={13} /> {t('allFlights.newFlight')}
                     </Link>
                 </Button>
             </div>
@@ -93,7 +95,7 @@ function FlightsListPage() {
 
             <div className="flex items-center justify-between gap-3 mt-3 flex-wrap">
                 <div className="flex items-center gap-2">
-                    <label className="board-label text-ink-muted">Per page</label>
+                    <label className="board-label text-ink-muted">{t('allFlights.perPage')}</label>
                     <Select
                         value={pageSize}
                         onChange={(e) => setPageSize(Number(e.target.value))}
@@ -108,7 +110,9 @@ function FlightsListPage() {
                 </div>
 
                 <p className="text-xs font-mono text-ink-muted tabular-nums">
-                    {showingCount > 0 ? `Showing ${start}–${end}` : 'No results'}
+                    {showingCount > 0
+                        ? t('allFlights.showing', { start, end })
+                        : t('allFlights.noResults')}
                 </p>
 
                 <div className="flex items-center gap-2">
@@ -118,10 +122,10 @@ function FlightsListPage() {
                         onClick={() => setPage((p) => Math.max(0, p - 1))}
                         disabled={page === 0 || isFetching}
                     >
-                        <ChevronLeft size={13} /> Prev
+                        <ChevronLeft size={13} /> {t('allFlights.prev')}
                     </Button>
                     <span className="board-label text-ink-muted tabular-nums px-2">
-                        Page {page + 1}
+                        {t('allFlights.page', { page: page + 1 })}
                     </span>
                     <Button
                         variant="outline"
@@ -129,7 +133,7 @@ function FlightsListPage() {
                         onClick={() => setPage((p) => p + 1)}
                         disabled={!hasNext || isFetching}
                     >
-                        Next <ChevronRight size={13} />
+                        {t('allFlights.next')} <ChevronRight size={13} />
                     </Button>
                 </div>
             </div>
